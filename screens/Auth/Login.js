@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,25 +7,73 @@ import {
   StyleSheet,
   ActivityIndicator,
   Modal,
+  Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isErrorVisible, setIsErrorVisible] = useState(false);
+  const errorAnimation = useRef(new Animated.Value(-100)).current;
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        // This cleanup function will run when the screen is unfocused
+        setEmail('');
+        setPassword('');
+        setShowPassword(false);
+        setErrorMessage('');
+        setSuccessMessage('');
+        setIsErrorVisible(false);
+      };
+    }, [])
+  );
 
   const handleLogin = () => {
     setLoading(true);
-    setTimeout(() => {
+    setSuccessMessage('Login successfully.');
+    setTimeout(()=>{
       setLoading(false);
-      navigation.navigate('HomeTabs');
+    }, 1000);
+
+    setTimeout(()=>{
+      setIsErrorVisible(true);
+    }, 1100);
+
+    Animated.timing(errorAnimation, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+
+    setTimeout(() => {
+      Animated.timing(errorAnimation, {
+        toValue: -100,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => setIsErrorVisible(false));
+
+      setTimeout(()=>{
+        navigation.navigate('HomeTabs');
+      }, 100);
     }, 3000);
   };
 
   return (
     <View style={styles.container}>
+      {isErrorVisible && (
+        <Animated.View style={[styles.apiErrorContainer, { transform: [{ translateY: errorAnimation }], backgroundColor: successMessage ? 'green' : 'red' }]}>
+          <Text style={styles.apiErrorText}>{errorMessage || successMessage}</Text>
+        </Animated.View>
+      )}
       <View style={styles.googleLogin}>
         <Icon name="google" size={24} color="#DB4437" />
         <Text style={styles.loginText}>Login with Google</Text>
@@ -89,6 +137,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  apiErrorContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    padding: 15,
+    zIndex: 1000000,
+  },
+  apiErrorText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
   googleLogin: {
     flexDirection: 'row',
