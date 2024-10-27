@@ -1,9 +1,10 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Animated, Modal, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import DatePicker from 'react-native-ui-datepicker';
+import DateTimePicker from 'react-native-ui-datepicker';
 import { userRegistration } from '../../actions/ApiActions';
 import { useFocusEffect } from '@react-navigation/native';
+import dayjs from 'dayjs';
 
 
 export default function Register({ navigation }) {
@@ -13,7 +14,7 @@ export default function Register({ navigation }) {
     fullName: '',
     email: '',
     zipcode: '',
-    dob: '2003/12/10',
+    dob: '',
     phonenumber: '',
     gender: '',
     password: '',
@@ -28,6 +29,7 @@ export default function Register({ navigation }) {
   const [isErrorVisible, setIsErrorVisible] = useState(false);
   const errorAnimation = useRef(new Animated.Value(-100)).current;
   const [loading, setLoading] = useState(false);
+  const [date, setDate] = useState(dayjs());
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -96,9 +98,9 @@ export default function Register({ navigation }) {
           newErrors.zipcode = 'Zip code must be a 6-digit integer.';
         }
 
-        // if (!formData.dob) {
-        //   newErrors.dob = 'Date of Birth is required.';
-        // }
+        if (!formData.dob) {
+          newErrors.dob = 'Date of Birth is required.';
+        }
 
         if (!formData.phonenumber) {
           newErrors.phonenumber = 'Phone number is required.';
@@ -266,20 +268,20 @@ export default function Register({ navigation }) {
           {errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
 
           {dobPickerVisible && (
-            <DatePicker
-              mode="date"
-              visible={dobPickerVisible}
-              onConfirm={(date) => {
-                console.log('Selected Date:', date);
-                if (date instanceof Date) {
-                  setFormData({ ...formData, dob: date.toLocaleDateString() });
-                  setDobPickerVisible(false);
-                } else {
-                  console.error('Invalid date selected');
-                }
-              }}
-              onCancel={() => setDobPickerVisible(false)}
-            />
+            <DateTimePicker
+            mode="single"
+            date={date}
+            onChange={(params) => {
+              console.log('Selected Date:', params.date);
+              const selectedDate = new Date(params.date);
+              if (!isNaN(selectedDate)) {
+                handleInputChange('dob', dayjs(selectedDate).format('YYYY-MM-DD'))
+                setDobPickerVisible(false);
+              } else {
+                console.error('Invalid date selected');
+              }
+            }}
+          />
           )}
 
           <TextInput
