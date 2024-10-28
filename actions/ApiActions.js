@@ -11,3 +11,12 @@ export const userRegistration = async (data) => {
     }
 };
 
+export const userLogin = async (data) => {
+    try {
+        const response = await axios.post(ENDPOINTS.login, data);
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('Registration API error:', error?.response?.data);
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};

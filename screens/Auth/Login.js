@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Login = ({ navigation }) => {
@@ -37,8 +38,10 @@ const Login = ({ navigation }) => {
     }, [])
   );
 
-  const handleLogin = () => {
+  const handleLogin = async() => {
     setLoading(true);
+    const result = ''
+    // await AsyncStorage.setItem('key', JSON.stringify(value));
     setSuccessMessage('Login successfully.');
     setTimeout(()=>{
       setLoading(false);
