@@ -12,52 +12,52 @@ const Reels = () => {
     {
         "id": 1,
         "title": "Video Title 1",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback.mp4"
     },
     {
         "id": 2,
         "title": "Video Title 2",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback_1.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback_1.mp4"
     },
     {
         "id": 3,
         "title": "Video Title 3",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback_2.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback_2.mp4"
     },
     {
         "id": 4,
         "title": "Video Title 4",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback_3.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback_3.mp4"
     },
     {
         "id": 5,
         "title": "Video Title 5",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback_4.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback_4.mp4"
     },
     {
         "id": 6,
         "title": "Video Title 6",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback_5.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback_5.mp4"
     },
     {
         "id": 7,
         "title": "Video Title 7",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback_6.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback_6.mp4"
     },
     {
         "id": 8,
         "title": "Video Title 8",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback_7.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback_7.mp4"
     },
     {
         "id": 9,
         "title": "Video Title 9",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback_8.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback_8.mp4"
     },
     {
         "id": 10,
         "title": "Video Title 10",
-        "video_file": "http://192.168.98.200:8000/media/videos/videoplayback_9.mp4"
+        "video_file": "http://192.168.79.200:8000/media/videos/videoplayback_9.mp4"
     }
   ]);
 

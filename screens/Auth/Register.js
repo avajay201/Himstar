@@ -1,13 +1,24 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Animated, Modal, ActivityIndicator } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import DateTimePicker from 'react-native-ui-datepicker';
-import { userRegistration } from '../../actions/ApiActions';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, Image, Animated, ToastAndroid, ActivityIndicator, Modal } from 'react-native';
+import GlobalFont from 'react-native-global-font';
+import googleIcon from '../../assets/images/google-img.png';
 import { useFocusEffect } from '@react-navigation/native';
+import { userRegistration } from '../../actions/ApiActions';
 import dayjs from 'dayjs';
+import DateTimePicker from 'react-native-ui-datepicker';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
-export default function Register({ navigation }) {
+const primaryColor = '#B94EA0';
+const secondaryColor = '#FFFFFF';
+const thirdColor = '#000';
+
+const Register = ({ navigation }) => {
+
+  useEffect(() => {
+    GlobalFont.applyGlobal('DMSans_400Regular');
+  }, []);
+
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     username: '',
@@ -20,8 +31,6 @@ export default function Register({ navigation }) {
     password: '',
     confirm_password: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [dobPickerVisible, setDobPickerVisible] = useState(false);
   const [errors, setErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
@@ -29,31 +38,32 @@ export default function Register({ navigation }) {
   const [isErrorVisible, setIsErrorVisible] = useState(false);
   const errorAnimation = useRef(new Animated.Value(-100)).current;
   const [loading, setLoading] = useState(false);
-  const [date, setDate] = useState(dayjs());
+  const date = dayjs();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       return () => {
-        // This cleanup function will run when the screen is unfocused
         setFormData({
           username: '',
           fullName: '',
           email: '',
-          zipCode: '',
+          zipcode: '',
           dob: '',
           phoneNumber: '',
           gender: '',
           password: '',
           confirmPassword: '',
         });
-        setShowPassword(false);
-        setShowConfirmPassword(false);
         setStep(1);
         setErrorMessage('');
         setSuccessMessage('');
         setIsErrorVisible(false);
+        setErrors({});
+        setLoading(false);
+        setDobPickerVisible(false);
       };
     }, [])
   );
@@ -113,6 +123,7 @@ export default function Register({ navigation }) {
 
       case 3:
         if (!formData.password) newErrors.password = 'Password is required.';
+        if (formData.password.length < 6) newErrors.confirm_password = 'Password length must be greater than or equal to 6.';
         if (!formData.confirm_password) newErrors.confirm_password = 'Confirm password is required.';
         if (formData.password !== formData.confirm_password) {
           newErrors.confirm_password = 'Passwords do not match.';
@@ -123,10 +134,10 @@ export default function Register({ navigation }) {
         break;
     }
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Returns true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleNextStep = () => {
+  const handleNext = () => {
     if (validateStep()) {
       if (step < 3) {
         setStep(step + 1);
@@ -145,26 +156,30 @@ export default function Register({ navigation }) {
   const handleRegister = async () => {
     setLoading(true);
     const result = await userRegistration(formData);
-    console.log('Result:', result);
-    let errorMessage;
+    let errorMsg;
     let successMsg = false;
-    if (result[0] === 200){
+    if (!result){
+      errorMsg = 'Something went wrong.';
+      setErrorMessage(errorMsg);
+      setIsErrorVisible(true);
+    }
+    else if (result[0] === 200) {
       successMsg = true;
-      setSuccessMessage('Registration completed successfully.');
+      setSuccessMessage('An OTP has been sent to your email.');
       setIsErrorVisible(true);
     }
-    else{
-      if (typeof(result[1]) === 'object'){
+    else {
+      if (typeof (result[1]) === 'object') {
         const firstKey = Object.keys(result[1])[0];
-        errorMessage = result[1][firstKey][0];
+        errorMsg = result[1][firstKey][0];
       }
-      else{
-        errorMessage = result[1];
+      else {
+        errorMsg = result[1];
       }
-      setErrorMessage(errorMessage);
+      setErrorMessage(errorMsg);
       setIsErrorVisible(true);
     }
-    if(errorMessage || successMsg){
+    if (errorMsg || successMsg) {
       Animated.timing(errorAnimation, {
         toValue: 0,
         duration: 500,
@@ -176,29 +191,30 @@ export default function Register({ navigation }) {
           toValue: -100,
           duration: 500,
           useNativeDriver: true,
-        }).start(() => setIsErrorVisible(false));
-        if (successMsg){
-          setTimeout(()=>{
-            navigation.navigate('OTPVerify');
-          }, 100);
+        }).start(() =>{ setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('')});
+        if (successMsg) {
+          navigation.navigate('OtpVerify', {userData: formData});
         }
-      }, 3000);
+      }, 2000);
     }
-    setLoading(false);
-  };
-
-  const showDatePickerHandler = () => {
-    setShowDatePicker(true);
-  };
-
-  const handleDateChange = (event, selectedDate) => {
-    setShowDatePicker(Platform.OS === 'ios');
-    if (selectedDate) {
-      const formattedDate = selectedDate.toLocaleDateString('en-GB'); // Format as DD/MM/YYYY
-      setFormData({ ...formData, dob: formattedDate });
-      setErrors({ ...errors, dob: '' }); // Clear DOB error if any
+    if (!successMsg){
+      setLoading(false);
     }
   };
+
+  const handleGoogleSignIn = () => {
+    Alert.alert('Sign in with Google clicked!');
+  };
+
+  const renderRadioButton = (label) => (
+    <TouchableOpacity
+      style={styles.radioButton}
+      onPress={() => handleInputChange('gender', label.toLowerCase())}
+    >
+      <View style={[styles.radioCircle, formData.gender === label.toLowerCase() && styles.selectedCircle]} />
+      <Text style={styles.radioText}>{label}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -207,104 +223,105 @@ export default function Register({ navigation }) {
           <Text style={styles.apiErrorText}>{errorMessage || successMessage}</Text>
         </Animated.View>
       )}
+
       {step === 1 && (
         <>
+          <Text style={styles.title}>Username</Text>
           <TextInput
             style={styles.input}
-            placeholder="Username"
             value={formData.username}
+            placeholder="Enter your username"
             onChangeText={(text) => handleInputChange('username', text)}
+            maxLength={50}
           />
           {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
 
+          <Text style={styles.title}>Full Name</Text>
           <TextInput
             style={styles.input}
-            placeholder="Full Name"
             value={formData.fullName}
+            placeholder="Enter your full name"
             onChangeText={(text) => handleInputChange('fullName', text)}
+            maxLength={50}
           />
           {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
 
+          <Text style={styles.title}>Email</Text>
           <TextInput
             style={styles.input}
-            placeholder="Email"
             value={formData.email}
+            placeholder="Enter your email"
             onChangeText={(text) => handleInputChange('email', text)}
+            maxLength={150}
           />
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-
-          <View style={styles.separatorContainer}>
-            <View style={styles.line} />
-            <Text style={styles.orText}>OR</Text>
-            <View style={styles.line} />
-          </View>
-          <TouchableOpacity style={styles.googleButton}>
-            <Icon name="google" size={20} color="red" style={styles.googleIcon} />
-            <Text style={styles.googleButtonText}>Register with Google</Text>
-          </TouchableOpacity>
         </>
       )}
 
       {step === 2 && (
         <>
+          <Text style={styles.title}>ZIP Code</Text>
           <TextInput
             style={styles.input}
-            placeholder="Zip Code"
             value={formData.zipcode}
             onChangeText={(text) => handleInputChange('zipcode', text)}
             keyboardType="numeric"
+            placeholder="Enter ZIP Code"
             maxLength={6}
           />
           {errors.zipcode && <Text style={styles.errorText}>{errors.zipcode}</Text>}
 
+          <Text style={styles.title}>Date of Birth</Text>
           <TouchableOpacity onPress={() => setDobPickerVisible(!dobPickerVisible)}>
             <TextInput
               style={styles.input}
-              placeholder="Date of Birth (DOB)"
               value={formData.dob}
+              onChangeText={(text) => handleInputChange('dob', text)}
+              placeholder="YYYY-MM-DD"
               editable={false}
+              maxLength={10}
             />
           </TouchableOpacity>
           {errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
 
           {dobPickerVisible && (
             <DateTimePicker
-            mode="single"
-            date={date}
-            onChange={(params) => {
-              console.log('Selected Date:', params.date);
-              const selectedDate = new Date(params.date);
-              if (!isNaN(selectedDate)) {
-                handleInputChange('dob', dayjs(selectedDate).format('YYYY-MM-DD'))
-                setDobPickerVisible(false);
-              } else {
-                console.error('Invalid date selected');
-              }
-            }}
-          />
+              mode="single"
+              date={date}
+              onChange={(params) => {
+                const selectedDate = new Date(params.date);
+                const currentDate = new Date();
+                if (!isNaN(selectedDate)) {
+                  if (selectedDate > currentDate) {
+                    setErrors({ ...errors, dob: 'Date cannot be in the future.' });
+                  }
+                  else{
+                    handleInputChange('dob', dayjs(selectedDate).format('YYYY-MM-DD'))
+                    setDobPickerVisible(false);
+                  }
+                } else {
+                  ToastAndroid.show('Something went wrong.', ToastAndroid.SHORT);
+                }
+              }}
+            />
           )}
 
+          <Text style={styles.title}>Phone Number</Text>
           <TextInput
             style={styles.input}
-            placeholder="Phone Number"
             value={formData.phonenumber}
             onChangeText={(text) => handleInputChange('phonenumber', text)}
             keyboardType="phone-pad"
+            placeholder="Enter Phone Number"
             maxLength={10}
           />
           {errors.phonenumber && <Text style={styles.errorText}>{errors.phonenumber}</Text>}
 
-          <Text style={styles.label}>Gender</Text>
-          <View style={styles.genderContainer}>
-            <TouchableOpacity onPress={() => handleInputChange('gender', 'male')}>
-              <Text style={styles.genderOption}>Male</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleInputChange('gender', 'female')}>
-              <Text style={styles.genderOption}>Female</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleInputChange('gender', 'other')}>
-              <Text style={styles.genderOption}>Other</Text>
-            </TouchableOpacity>
+          <Text style={styles.title}>Gender</Text>
+          <View style={styles.radioContainer}>
+            {renderRadioButton('Male')}
+            {renderRadioButton('Female')}
+            {renderRadioButton('Other')}
           </View>
           {errors.gender && <Text style={styles.errorText}>{errors.gender}</Text>}
         </>
@@ -312,80 +329,103 @@ export default function Register({ navigation }) {
 
       {step === 3 && (
         <>
+          <Text style={styles.title}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
-              style={styles.input}
-              placeholder="Password"
-              secureTextEntry={!showPassword}
+              style={styles.passwordInput}
               value={formData.password}
+              placeholder="Password"
               onChangeText={(text) => handleInputChange('password', text)}
+              secureTextEntry={!showPassword}
+              maxLength={50}
             />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIconContainer}
-            >
-              <Icon name={showPassword ? "eye" : "eye-off"} size={20} color="#555" />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIconContainer}>
+              <Icon
+                name={showPassword ? 'visibility' : 'visibility-off'}
+                size={24}
+                color={thirdColor}
+              />
             </TouchableOpacity>
           </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-
+          <Text style={styles.title}>Confirm Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
-              style={styles.input}
-              placeholder="Confirm Password"
-              secureTextEntry={!showConfirmPassword}
+              style={styles.passwordInput}
               value={formData.confirm_password}
+              placeholder="Confirm Password"
               onChangeText={(text) => handleInputChange('confirm_password', text)}
+              secureTextEntry={!showConfirmPassword}
+              maxLength={50}
             />
-            <TouchableOpacity
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={styles.eyeIconContainer}
-            >
-              <Icon name={showConfirmPassword ? "eye" : "eye-off"} size={20} color="#555" />
+            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.eyeIconContainer}>
+              <Icon
+                name={showConfirmPassword ? 'visibility' : 'visibility-off'}
+                size={24}
+                color={thirdColor}
+              />
             </TouchableOpacity>
           </View>
           {errors.confirm_password && <Text style={styles.errorText}>{errors.confirm_password}</Text>}
         </>
       )}
 
-      <View style={styles.buttonContainer}>
-        {step > 1 && (
-          <TouchableOpacity
-            style={[styles.nextButton, styles.backButton]}
-            onPress={handleBackStep}
-          >
-            <Text style={styles.nextButtonText}>Back</Text>
+      <View style={styles.spacer} />
+      <TouchableOpacity style={styles.button} onPress={handleNext}>
+        <Text style={styles.buttonText}>Next</Text>
+      </TouchableOpacity>
+
+      {step > 1 &&
+        <>
+          <View style={styles.spacer} />
+          <TouchableOpacity style={styles.backBbutton} onPress={handleBackStep}>
+            <Text style={styles.backButton}>Back</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
-          <Text style={styles.nextButtonText}>
-            {step < 3 ? 'Next' : 'Register'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.LoginContainer}>
-        <Text>Already have an account?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.linkText}>Login here</Text>
-        </TouchableOpacity>
-      </View>
-      <Modal
-        transparent={true}
-        animationType="fade"
-        visible={loading}
-      >
-        <View style={styles.loaderOverlay}>
-          <ActivityIndicator size="large" color="#007BFF" />
-        </View>
-      </Modal>
+        </>
+      }
+
+      {step === 1 &&
+        <>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.linkContainer}>
+            <Text style={styles.linkText}>
+              <Text style={styles.linkBlackText}>Already have an Account? </Text>
+              <Text style={styles.linkPrimaryText}>Log In</Text>
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.separatorContainer}>
+            <View style={styles.separator} />
+            <Text style={styles.separatorText}>or</Text>
+            <View style={styles.separator} />
+          </View>
+
+          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
+            <View style={styles.googleButtonContent}>
+              <Image source={googleIcon} style={styles.googleIcon} />
+              <Text style={styles.googleButtonText}> Google Account</Text>
+            </View>
+          </TouchableOpacity>
+        </>}
+
+        {step === 3 && <Modal
+          transparent={true}
+          animationType="fade"
+          visible={loading}
+        >
+          <View style={styles.loaderOverlay}>
+            <ActivityIndicator size="large" color={primaryColor} />
+          </View>
+        </Modal>}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
     padding: 20,
+    backgroundColor: secondaryColor,
   },
   apiErrorContainer: {
     position: 'absolute',
@@ -400,98 +440,179 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 20,
+    marginBottom: 10,
+    color: thirdColor,
+    fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
     marginVertical: 10,
+    borderRadius: 20,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  passwordInput: {
+    borderColor: '#fff',
+    borderWidth: 1,
+    paddingLeft: 10,
+    paddingRight: 40,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    marginBottom: 15,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+    borderRadius: 20,
+  },
+  radioContainer: {
+    marginBottom: 20,
+  },
+  radioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  radioCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: thirdColor,
+    marginRight: 10,
+  },
+  selectedCircle: {
+    backgroundColor: primaryColor,
+  },
+  radioText: {
+    fontSize: 16,
+    color: thirdColor,
+    fontFamily: 'DMSans_500Medium',
+  },
+  spacer: {
+    height: 20,
   },
   separatorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
+    justifyContent: 'center',
+    marginVertical: 20,
   },
-  line: {
+  separator: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ccc',
-  },
-  orText: {
+    backgroundColor: primaryColor,
     marginHorizontal: 10,
-    color: '#555',
+  },
+  separatorText: {
+    fontSize: 16,
+    color: thirdColor,
+    fontFamily: 'DMSans_500Medium',
   },
   googleButton: {
+    width: '100%',
+    alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: primaryColor,
+    borderRadius: 10,
+    marginVertical: 15,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  googleButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f8f8f8',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 10,
   },
   googleIcon: {
+    width: 24,
+    height: 24,
     marginRight: 10,
   },
   googleButtonText: {
+    color: primaryColor,
+    fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
     fontSize: 16,
-    color: '#333',
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
+  button: {
+    width: '100%',
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    paddingVertical: 10,
+    marginTop: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    borderColor: primaryColor,
+    borderWidth: 1,
   },
-  nextButton: {
-    backgroundColor: '#007bff',
-    padding: 15,
-    borderRadius: 5,
-    flex: 1,
-    alignItems: 'center',
-    marginHorizontal: 5,
+  backBbutton: {
+    width: '100%',
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    paddingVertical: 10,
+    marginTop: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
+  buttonText: {
+    color: primaryColor,
+    textAlign: 'center',
+    fontSize: 22,
+    fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
   },
   backButton: {
-    backgroundColor: '#ccc',
-  },
-  nextButtonText: {
-    color: '#fff',
+    color: 'gray',
+    textAlign: 'center',
+    fontSize: 22,
     fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
   },
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
-  },
-  label: {
-    marginVertical: 10,
-    fontWeight: 'bold',
-  },
-  genderContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 10,
-  },
-  genderOption: {
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-  },
-  passwordContainer: {
-    width: '100%',
-    position: 'relative',
-  },
-  eyeIconContainer: {
-    position: 'absolute',
-    right: 10,
-    top: 10,
-  },
-  LoginContainer: {
+  linkContainer: {
     marginTop: 20,
     alignItems: 'center',
   },
   linkText: {
-    color: '#007bff',
+    fontSize: 16,
+    textAlign: 'center',
+    fontFamily: 'DMSans_700Bold',
+  },
+  linkBlackText: {
+    color: '#000',
+  },
+  linkPrimaryText: {
+    color: primaryColor,
     fontWeight: 'bold',
+  },
+  eyeIconContainer: {
+    position: 'absolute',
+    right: 10,
+    top: 22,
   },
   loaderOverlay: {
     flex: 1,
@@ -500,3 +621,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
 });
+
+export default Register;

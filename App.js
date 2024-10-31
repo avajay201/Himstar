@@ -4,10 +4,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Login from './screens/Auth/Login';
 import Register from './screens/Auth/Register';
-import OTPVerify from './screens/Auth/OTPVerify';
+import OtpVerify from './screens/Auth/OtpVerify';
 import Leaderboard from './screens/LeaderBoard/Leaderboard';
-import SplashScreen from './screens/Others/SplashScreen';
-import WelcomeScreen from './screens/Others/WelcomeScreen';
+import SplashScreen from './screens/OtherScreens/SplashScreen';
+import WelcomeScreen from './screens/OtherScreens/WelcomeScreen';
 import ContactUs from './screens/ContactUs/ContactUs';
 import NavBar from './screens/NavBar/NavBar';
 
@@ -45,8 +45,8 @@ function AppNavigator() {
       options={{ headerShown: false }}
     />
     <Stack.Screen 
-      name="OTPVerify" 
-      component={OTPVerify} 
+      name="OtpVerify" 
+      component={OtpVerify} 
       options={{ headerShown: false }}
     />
     <Stack.Screen 
