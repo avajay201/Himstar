@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://192.168.79.200:8000';
+export const BASE_URL = 'http://192.168.75.200:8000';
 
 export const ENDPOINTS = {
     registration: BASE_URL + '/register/',
