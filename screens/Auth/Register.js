@@ -9,12 +9,7 @@ import DateTimePicker from 'react-native-ui-datepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
-const primaryColor = '#B94EA0';
-const secondaryColor = '#FFFFFF';
-const thirdColor = '#000';
-
 const Register = ({ navigation }) => {
-
   useEffect(() => {
     GlobalFont.applyGlobal('DMSans_400Regular');
   }, []);
@@ -276,7 +271,6 @@ const Register = ({ navigation }) => {
             <TextInput
               style={styles.input}
               value={formData.dob}
-              onChangeText={(text) => handleInputChange('dob', text)}
               placeholder="YYYY-MM-DD"
               editable={false}
               maxLength={10}
@@ -343,7 +337,7 @@ const Register = ({ navigation }) => {
               <Icon
                 name={showPassword ? 'visibility' : 'visibility-off'}
                 size={24}
-                color={thirdColor}
+                color={'#000'}
               />
             </TouchableOpacity>
           </View>
@@ -362,7 +356,7 @@ const Register = ({ navigation }) => {
               <Icon
                 name={showConfirmPassword ? 'visibility' : 'visibility-off'}
                 size={24}
-                color={thirdColor}
+                color={'#000'}
               />
             </TouchableOpacity>
           </View>
@@ -413,7 +407,7 @@ const Register = ({ navigation }) => {
           visible={loading}
         >
           <View style={styles.loaderOverlay}>
-            <ActivityIndicator size="large" color={primaryColor} />
+            <ActivityIndicator size="large" color={'#B94EA0'} />
           </View>
         </Modal>}
     </View>
@@ -425,7 +419,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: secondaryColor,
+    backgroundColor: '#FFFFFF',
   },
   apiErrorContainer: {
     position: 'absolute',
@@ -447,7 +441,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     marginBottom: 10,
-    color: thirdColor,
+    color: '#000',
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
   },
@@ -493,15 +487,15 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: thirdColor,
+    borderColor: '#000',
     marginRight: 10,
   },
   selectedCircle: {
-    backgroundColor: primaryColor,
+    backgroundColor: '#B94EA0',
   },
   radioText: {
     fontSize: 16,
-    color: thirdColor,
+    color: '#000',
     fontFamily: 'DMSans_500Medium',
   },
   spacer: {
@@ -516,19 +510,19 @@ const styles = StyleSheet.create({
   separator: {
     flex: 1,
     height: 1,
-    backgroundColor: primaryColor,
+    backgroundColor: '#B94EA0',
     marginHorizontal: 10,
   },
   separatorText: {
     fontSize: 16,
-    color: thirdColor,
+    color: '#000',
     fontFamily: 'DMSans_500Medium',
   },
   googleButton: {
     width: '100%',
     alignSelf: 'center',
     borderWidth: 1,
-    borderColor: primaryColor,
+    borderColor: '#B94EA0',
     borderRadius: 10,
     marginVertical: 15,
     paddingVertical: 10,
@@ -544,7 +538,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   googleButtonText: {
-    color: primaryColor,
+    color: '#B94EA0',
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
     fontSize: 16,
@@ -561,7 +555,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
-    borderColor: primaryColor,
+    borderColor: '#B94EA0',
     borderWidth: 1,
   },
   backBbutton: {
@@ -580,7 +574,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   buttonText: {
-    color: primaryColor,
+    color: '#B94EA0',
     textAlign: 'center',
     fontSize: 22,
     fontWeight: 'bold',
@@ -606,7 +600,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   linkPrimaryText: {
-    color: primaryColor,
+    color: '#B94EA0',
     fontWeight: 'bold',
   },
   eyeIconContainer: {

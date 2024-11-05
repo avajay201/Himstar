@@ -1,16 +1,18 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, Image, Animated, Modal, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, Image, Animated, Modal, ActivityIndicator, BackHandler } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import googleIcon from '../../assets/images/google-img.png';
 import { useFocusEffect } from '@react-navigation/native';
 import { userLogin } from '../../actions/ApiActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
 const primaryColor = '#B94EA0';
 const secondaryColor = '#FFFFFF';
 const thirdColor = '#000';
 
 const Login = ({ navigation }) => {
+  const [backPressedOnce, setBackPressedOnce] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +22,29 @@ const Login = ({ navigation }) => {
   const errorAnimation = useRef(new Animated.Value(-100)).current;
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const backAction = () => {
+        if (backPressedOnce) {
+          BackHandler.exitApp();
+          return true;
+        }
+        setBackPressedOnce(true);
+        ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
+
+        setTimeout(() => setBackPressedOnce(false), 2000);
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction
+      );
+
+      return () => backHandler.remove();
+    }, [backPressedOnce])
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -54,7 +79,6 @@ const Login = ({ navigation }) => {
     }
     setLoading(true);
     const result = await userLogin({username_or_email: username, password: password});
-    console.log('result>>>>', result);
     let errorMsg;
     let successMsg = false;
     if (!result){

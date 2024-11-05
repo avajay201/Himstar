@@ -1,13 +1,12 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/Ionicons'; // Using Ionicons
 
 import Home from './../Home/Home';
 import Reels from './../Reels/Reels';
 import Profile from './../Profile/Profile';
 
 const Tab = createBottomTabNavigator();
-
 
 export default NavBar = () => {
     return (
@@ -17,17 +16,23 @@ export default NavBar = () => {
                     let iconName;
 
                     if (route.name === 'Home') {
-                        iconName = focused ? 'home-filled' : 'home';
+                        iconName = focused ? 'home' : 'home-outline';
                     } else if (route.name === 'Reels') {
-                        iconName = focused ? 'video-label' : 'video-label';
+                        iconName = focused ? 'film' : 'film-outline';
                     } else if (route.name === 'Profile') {
-                        iconName = focused ? 'person-2' : 'person-outline';
+                        iconName = focused ? 'person' : 'person-outline';
                     }
 
                     return <Icon name={iconName} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: 'black',
-                tabBarInactiveTintColor: 'gray',
+                tabBarActiveTintColor: 'white',
+                tabBarInactiveTintColor: 'black',
+                tabBarStyle: {
+                    backgroundColor: '#B94EA0',
+                    borderTopWidth: 0,
+                    elevation: 0,
+                    height: 60,
+                },
                 tabBarShowLabel: false,
             })}
         >

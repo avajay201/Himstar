@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator,
 import GlobalFont from 'react-native-global-font';
 import { contactUs } from '../../actions/ApiActions';
 import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 const primaryColor = '#B94EA0';
@@ -145,6 +146,12 @@ const Contact = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={24} color={primaryColor} />
+        </TouchableOpacity>
+      </View>
+
       {isErrorVisible && (
         <Animated.View style={[styles.apiErrorContainer, { transform: [{ translateY: errorAnimation }], backgroundColor: successMessage ? 'green' : 'red' }]}>
           <Text style={styles.apiErrorText}>{errorMessage || successMessage}</Text>
@@ -240,7 +247,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     padding: 20,
     backgroundColor: secondaryColor,
-    paddingTop: 10,
+    paddingTop: 25,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 0,
   },
   apiErrorContainer: {
     position: 'absolute',
