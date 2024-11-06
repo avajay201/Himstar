@@ -11,6 +11,8 @@ import SplashScreen from './screens/OtherScreens/SplashScreen';
 import WelcomeScreen from './screens/OtherScreens/WelcomeScreen';
 import ContactUs from './screens/ContactUs/ContactUs';
 import NavBar from './screens/NavBar/NavBar';
+import UpcomingComps from './screens/Competitions/UpcomingComps';
+import ActiveComps from './screens/Competitions/ActiveComps';
 
 
 const Stack = createNativeStackNavigator();
@@ -74,6 +76,16 @@ function AppNavigator() {
     <Stack.Screen 
       name="ContactUs" 
       component={ContactUs} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="UpcomingComps" 
+      component={UpcomingComps} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="ActiveComps" 
+      component={ActiveComps} 
       options={{ headerShown: false }}
     />
     </Stack.Navigator>

@@ -77,7 +77,8 @@ const Reels = () => {
   const [paused, setPaused] = useState(false);
   const isFocused = useIsFocused();
   const [isMuted, setIsMuted] = useState(false);
-  const [commentModalVisible, setCommentModalVisible] = useState(false);
+  const [commentsModalVisible, setCommentsModalVisible] = useState(false);
+  const [likesModalVisible, setLikesModalVisible] = useState(false);
   const [comments, setComments] = useState([
     { "id": 1, "username": "user001", "profile_pic": "", "comment": "Awesome video!" },
     { "id": 2, "username": "user002", "profile_pic": "", "comment": "This is amazing!" },
@@ -147,7 +148,11 @@ const Reels = () => {
   };
 
   const showComments = (videoId) => {
-    setCommentModalVisible(true);
+    setCommentsModalVisible(true);
+  };
+
+  const showLikes = (videoId) => {
+    setLikesModalVisible(true);
   };
 
   const renderComments = ({ item, index })=>{
@@ -159,6 +164,21 @@ const Reels = () => {
           <Text style={styles.commentText}>{item.comment}</Text>
         </View>
       </View>
+    )
+  };
+
+  const renderLikes = ({ item, index }) => {
+    return (
+      <View style={styles.likeItem}>
+      <View style={styles.userLikeDetails}>
+        <Image 
+          source={Applogo}
+          style={styles.likeProfilePic} 
+        />
+        <Text style={styles.likeUserName}>{item.username}</Text>
+      </View>
+      <Icon name="favorite" size={24} color="red" style={styles.likeIcon} />
+    </View>
     )
   };
 
@@ -204,15 +224,15 @@ const Reels = () => {
         </View>
 
         <View style={{ position: 'absolute', bottom: 85, right: 10, alignItems: 'center', zIndex: 3 }}>
-          <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onPress={() => likeReel(item.id)}>
+          <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onLongPress={showLikes} onPress={() => likeReel(item.id)}>
             <Icon name={item.is_like ? "favorite" : "favorite-border"} size={30} color={item.is_like ? "red" : "white"} />
-            <Text style={{ color: 'white', fontSize: 12 }}>1.2k</Text>
+            <Text style={{ color: 'white', fontSize: 12 }}>100</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onPress={() => showComments(item.id)}>
             <Icon name="chat-bubble-outline" size={30} color="white" />
-            <Text style={{ color: 'white', fontSize: 12 }}>300</Text>
+            <Text style={{ color: 'white', fontSize: 12 }}>{comments.length}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onPress={()=>shareReel(item)}>
+          <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onPress={() => shareReel(item)}>
             <Icon name="share" size={30} color="white" />
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleMute}>
@@ -220,9 +240,9 @@ const Reels = () => {
           </TouchableOpacity>
         </View>
 
-        <Modal visible={commentModalVisible} onRequestClose={() => setCommentModalVisible(false)}>
+        <Modal visible={commentsModalVisible} onRequestClose={() => setCommentsModalVisible(false)}>
           <View style={styles.commentModalOverlay}>
-            <TouchableOpacity onPress={() => setCommentModalVisible(false)} style={styles.commentModalCloseIcon}>
+            <TouchableOpacity onPress={() => setCommentsModalVisible(false)} style={styles.commentModalCloseIcon}>
               <Icon name="close" size={30} color="white" />
             </TouchableOpacity>
 
@@ -244,6 +264,28 @@ const Reels = () => {
                 <Icon name="send" size={30} color="#007AFF" />
               </TouchableOpacity>
             </View>
+          </View>
+        </Modal>
+
+        <Modal
+          visible={likesModalVisible}
+          onRequestClose={() => setLikesModalVisible(false)}
+        >
+          <View style={styles.likesModalOverlay}>
+            <View style={styles.likesHeaderContainer}>
+              <Text style={styles.likesTitle}>Likes</Text>
+              <TouchableOpacity onPress={() => setLikesModalVisible(false)} style={styles.likesModalCloseButton}>
+                <Icon name="close" size={30} color="white" />
+              </TouchableOpacity>
+              <Text style={styles.likesCount}>{comments.length}</Text>
+            </View>
+
+            <FlatList
+              data={comments}
+              keyExtractor={(comment) => comment.id.toString()}
+              renderItem={renderLikes}
+              contentContainerStyle={styles.flatListContent}
+            />
           </View>
         </Modal>
       </View>
@@ -330,7 +372,69 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 7,
-  }
+  },
+  likesModalOverlay: {
+    flex: 1,
+    marginTop: 250,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    padding: 20,
+  },
+  likesHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    marginTop: 30,
+    paddingLeft: 20,
+    paddingRight: 15,
+  },
+  likesTitle: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  likesModalCloseButton: {
+    position: 'absolute',
+    top: -50,
+    right: -10,
+    padding: 10,
+  },
+  likesCount: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
+  flatListContent: {
+    paddingBottom: 50,
+  },
+  likeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#333',
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 10,
+  },
+  userLikeDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  likeProfilePic: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 5,
+  },
+  likeUserName: {
+    color: 'white',
+    fontSize: 16,
+    marginLeft: 10,
+  },
+  likeIcon: {
+    marginRight: 10,
+  },
 });
 
 export default Reels;
