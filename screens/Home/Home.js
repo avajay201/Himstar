@@ -108,20 +108,21 @@ const Home = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.menuProfile}>
         <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
-          <Icon name={menuVisible ? "close" : "menu"} size={40} color="#000" />
+          <Icon name={menuVisible ? "close" : "menu"} size={40} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
           <Image source={AppLogo} style={styles.profilePicture} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView>
+      <ScrollView scrollEnabled={menuVisible ? false : true}>
         <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnimation }] }]}>
           <View style={styles.menuContainer}>
-            <Text style={styles.menuItem}>Option 1</Text>
-            <Text style={styles.menuItem}>Option 2</Text>
-            <Text style={styles.menuItem}>Option 3</Text>
-            <Text style={styles.menuItem}>Option 4</Text>
+            <Text style={styles.menuItem}>My Wallet</Text>
+            <Text style={styles.menuItem}>LeaderBoard</Text>
+            <Text style={styles.menuItem}>My Contests</Text>
+            <Text style={styles.menuItem}>My Videos</Text>
+            <Text style={styles.menuItem}>Contact Us</Text>
           </View>
         </Animated.View>
 
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   menuProfile: {
-    backgroundColor: 'white',
+    backgroundColor: '#B94EA0',
     zIndex: 1,
     width: '100%',
     height: 70,
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: '50%',
     height: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#B94EA0',
     padding: 20,
     shadowColor: '#000',
     shadowOffset: {
@@ -253,6 +254,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   menuItem: {
+    color: '#fff',
     padding: 15,
     fontSize: 18,
   },

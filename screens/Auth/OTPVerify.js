@@ -9,7 +9,7 @@ const secondaryColor = '#FFFFFF';
 const OTPVerify = ({ route, navigation }) => {
   const { userData } = route.params;
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [loading, setLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
   const [error, setError] = useState(false);
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const inputRefs = useRef([]);
@@ -58,7 +58,7 @@ const OTPVerify = ({ route, navigation }) => {
       return;
     }
 
-    setLoading(true);
+    setVerifyLoading(true);
     const result = await verifyOtp({ email: userData.email, otp: otp.join(''), user_data: userData });
     console.log('result>>>', result);
     let errorMsg;
@@ -103,7 +103,7 @@ const OTPVerify = ({ route, navigation }) => {
       }, 2000);
     }
     if (!successMsg){
-      setLoading(false);
+      setVerifyLoading(false);
     }
   };
 
@@ -148,7 +148,7 @@ const OTPVerify = ({ route, navigation }) => {
       }, 2000);
     }
     if (!successMsg){
-      setLoading(false);
+      setVerifyLoading(false);
     }
   };
 
@@ -188,7 +188,7 @@ const OTPVerify = ({ route, navigation }) => {
         </Text>
       </TouchableOpacity>
 
-      <Modal transparent={true} animationType="fade" visible={loading}>
+      <Modal transparent={true} animationType="fade" visible={verifyLoading}>
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color={primaryColor} />
           <Text style={styles.loadingText}>Verifying...</Text>

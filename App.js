@@ -19,7 +19,7 @@ const Stack = createNativeStackNavigator();
 
 function AppNavigator() {
   const [isLoading, setIsLoading] = useState(true);
-  const [initialRoute, setInitialRoute] = useState('Login');
+  const [initialRoute, setInitialRoute] = useState('WelcomeScreen');
 
   const AuthCheck = async()=>{
     const authToken = await AsyncStorage.getItem('AuthToken');

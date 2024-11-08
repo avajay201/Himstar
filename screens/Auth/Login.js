@@ -194,10 +194,6 @@ const Login = ({ navigation }) => {
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ContactUs')}>
-        <Text style={styles.buttonText}>Contact Us</Text>
-      </TouchableOpacity>
-
       <Modal transparent={true} animationType="fade" visible={loading}>
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color={primaryColor} />
