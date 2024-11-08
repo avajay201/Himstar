@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Dimensions, TouchableOpacity, Image, Modal, TextInput, StyleSheet, Share, ToastAndroid } from 'react-native';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { View, Text, FlatList, ActivityIndicator, Animated, Dimensions, TouchableOpacity, Image, Modal, TextInput, StyleSheet, Share, ToastAndroid } from 'react-native';
 import Video from 'react-native-video';
 import { useIsFocused } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -113,12 +113,6 @@ const Reels = () => {
     }
   }, [isFocused]);
 
-  const togglePause = () => setPaused(!paused);
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
   const likeReel = async (id) => {
     setVideos((prevVideos) =>
       prevVideos.map((video) =>
@@ -155,7 +149,7 @@ const Reels = () => {
     setLikesModalVisible(true);
   };
 
-  const renderComments = ({ item, index })=>{
+  const renderComments = useCallback(({ item, index }) => {
     return (
       <View style={styles.commentContainer}>
         <Image source={Applogo} style={styles.commentProfilePic} />
@@ -165,24 +159,24 @@ const Reels = () => {
         </View>
       </View>
     )
-  };
+  });
 
-  const renderLikes = ({ item, index }) => {
+  const renderLikes = useCallback(({ item, index }) => {
     return (
       <View style={styles.likeItem}>
-      <View style={styles.userLikeDetails}>
-        <Image 
-          source={Applogo}
-          style={styles.likeProfilePic} 
-        />
-        <Text style={styles.likeUserName}>{item.username}</Text>
+        <View style={styles.userLikeDetails}>
+          <Image
+            source={Applogo}
+            style={styles.likeProfilePic}
+          />
+          <Text style={styles.likeUserName}>{item.username}</Text>
+        </View>
+        <Icon name="favorite" size={24} color="red" style={styles.likeIcon} />
       </View>
-      <Icon name="favorite" size={24} color="red" style={styles.likeIcon} />
-    </View>
     )
-  };
+  });
 
-  const renderVideo = ({ item, index }) => {
+  const renderVideo = useCallback(({ item, index }) => {
     return (
       <View style={styles.videoContainer}>
         {loading && <ActivityIndicator size="large" color="white" style={{ position: 'absolute', zIndex: 1 }} />}
@@ -195,10 +189,10 @@ const Reels = () => {
           onLoad={() => setLoading(false)}
           paused={index !== currentIndex || paused}
           repeat
-          volume={isMuted ? 0 : 1}
+          muted={isMuted}
         />
 
-        {!loading && <TouchableOpacity onPress={togglePause} style={{ position: 'absolute', top: height / 2 - 20, alignSelf: 'center', zIndex: 3 }}>
+        {!loading && <TouchableOpacity onPress={() => setPaused(!paused)} style={{ position: 'absolute', top: height / 2 - 20, alignSelf: 'center', zIndex: 3 }}>
           <Icon
             name={paused ? 'play-arrow' : 'pause'}
             size={40}
@@ -235,76 +229,135 @@ const Reels = () => {
           <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onPress={() => shareReel(item)}>
             <Icon name="share" size={30} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={toggleMute}>
+          <TouchableOpacity onPress={() => setIsMuted(!isMuted)}>
             <Icon name={isMuted ? "volume-off" : "volume-up"} size={30} color="white" />
           </TouchableOpacity>
         </View>
-
-        <Modal visible={commentsModalVisible} onRequestClose={() => setCommentsModalVisible(false)}>
-          <View style={styles.commentModalOverlay}>
-            <TouchableOpacity onPress={() => setCommentsModalVisible(false)} style={styles.commentModalCloseIcon}>
-              <Icon name="close" size={30} color="white" />
-            </TouchableOpacity>
-
-            <FlatList
-              data={comments}
-              keyExtractor={(comment) => comment.id.toString()}
-              renderItem={renderComments}
-            />
-
-            <View style={styles.addCommentContainer}>
-              <TextInput
-                placeholder="Add a comment..."
-                placeholderTextColor="gray"
-                value={newComment}
-                onChangeText={setNewComment}
-                style={styles.commentInput}
-              />
-              <TouchableOpacity disabled={!newComment.trim() ? true : false} onPress={addComment} style={styles.addCommentBtn}>
-                <Icon name="send" size={30} color="#007AFF" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal
-          visible={likesModalVisible}
-          onRequestClose={() => setLikesModalVisible(false)}
-        >
-          <View style={styles.likesModalOverlay}>
-            <View style={styles.likesHeaderContainer}>
-              <Text style={styles.likesTitle}>Likes</Text>
-              <TouchableOpacity onPress={() => setLikesModalVisible(false)} style={styles.likesModalCloseButton}>
-                <Icon name="close" size={30} color="white" />
-              </TouchableOpacity>
-              <Text style={styles.likesCount}>{comments.length}</Text>
-            </View>
-
-            <FlatList
-              data={comments}
-              keyExtractor={(comment) => comment.id.toString()}
-              renderItem={renderLikes}
-              contentContainerStyle={styles.flatListContent}
-            />
-          </View>
-        </Modal>
       </View>
     )
+  });
+
+  const slideAnim = useRef(new Animated.Value(500)).current;
+  useEffect(() => {
+    if (commentsModalVisible) {
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: 500,
+        duration: 100,
+        useNativeDriver: true,
+      }).start(() => {
+        setCommentsModalVisible(false);
+      });
+    }
+  }, [commentsModalVisible]);
+
+  useEffect(() => {
+    if (likesModalVisible) {
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: 500,
+        duration: 100,
+        useNativeDriver: true,
+      }).start(() => {
+        setLikesModalVisible(false);
+      });
+    }
+  }, [likesModalVisible]);
+
+  const closeLikeModalWithSlideDown = () => {
+    Animated.timing(slideAnim, {
+      toValue: 500,
+      duration: 100,
+      useNativeDriver: true,
+    }).start(() => {
+      setLikesModalVisible(false);
+    });
+  };
+
+  const closeCommentModalWithSlideDown = () => {
+    Animated.timing(slideAnim, {
+      toValue: 500,
+      duration: 100,
+      useNativeDriver: true,
+    }).start(() => {
+      setCommentsModalVisible(false);
+    });
   };
 
   return (
-    <FlatList
-      data={videos}
-      pagingEnabled
-      snapToInterval={height}
-      snapToAlignment="start"
-      decelerationRate="fast"
-      horizontal={false}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={renderVideo}
-      onViewableItemsChanged={onViewableItemsChanged.current}
-      viewabilityConfig={viewConfigRef}
-    />
+    <>
+      <FlatList
+        data={videos}
+        pagingEnabled
+        snapToInterval={height}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        horizontal={false}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderVideo}
+        onViewableItemsChanged={onViewableItemsChanged.current}
+        viewabilityConfig={viewConfigRef}
+      />
+
+      <Modal animationType="none" visible={commentsModalVisible} onRequestClose={closeCommentModalWithSlideDown}>
+        <Animated.View style={[styles.commentModalOverlay, { transform: [{ translateY: slideAnim }] }]}>
+          <TouchableOpacity onPress={closeCommentModalWithSlideDown} style={styles.commentModalCloseIcon}>
+            <Icon name="close" size={30} color="white" />
+          </TouchableOpacity>
+
+          <FlatList
+            data={comments}
+            keyExtractor={(comment) => comment.id.toString()}
+            renderItem={renderComments}
+          />
+
+          <View style={styles.addCommentContainer}>
+            <TextInput
+              placeholder="Add a comment..."
+              placeholderTextColor="gray"
+              value={newComment}
+              onChangeText={setNewComment}
+              style={styles.commentInput}
+            />
+            <TouchableOpacity disabled={!newComment.trim() ? true : false} onPress={addComment} style={styles.addCommentBtn}>
+              <Icon name="send" size={30} color="#007AFF" />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </Modal>
+
+      <Modal
+        visible={likesModalVisible}
+        onRequestClose={closeLikeModalWithSlideDown}
+      >
+        <Animated.View style={[styles.likesModalOverlay, { transform: [{ translateY: slideAnim }] }]}>
+          <View style={styles.likesHeaderContainer}>
+            <Text style={styles.likesTitle}>Likes</Text>
+            <TouchableOpacity onPress={closeLikeModalWithSlideDown} style={styles.likesModalCloseButton}>
+              <Icon name="close" size={30} color="white" />
+            </TouchableOpacity>
+            <Text style={styles.likesCount}>{comments.length}</Text>
+          </View>
+
+          <FlatList
+            data={comments}
+            keyExtractor={(comment) => comment.id.toString()}
+            renderItem={renderLikes}
+            contentContainerStyle={styles.flatListContent}
+          />
+        </Animated.View>
+      </Modal>
+    </>
   );
 };
 
