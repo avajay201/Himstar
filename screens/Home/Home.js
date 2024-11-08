@@ -104,6 +104,11 @@ const Home = ({ navigation }) => {
     </View>
   );
 
+  const navigateMenuOption = (option)=>{
+    toggleMenu();
+    navigation.navigate(option);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.menuProfile}>
@@ -118,11 +123,21 @@ const Home = ({ navigation }) => {
       <ScrollView scrollEnabled={menuVisible ? false : true}>
         <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnimation }] }]}>
           <View style={styles.menuContainer}>
-            <Text style={styles.menuItem}>My Wallet</Text>
-            <Text style={styles.menuItem}>LeaderBoard</Text>
-            <Text style={styles.menuItem}>My Contests</Text>
-            <Text style={styles.menuItem}>My Videos</Text>
-            <Text style={styles.menuItem}>Contact Us</Text>
+            <TouchableOpacity onPress={()=>navigateMenuOption('Wallet')}>
+              <Text style={styles.menuItem}>My Wallet</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigateMenuOption('Leaderboard')}>
+              <Text style={styles.menuItem}>Leaderboard</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigateMenuOption('MyContests')}>
+              <Text style={styles.menuItem}>My Contests</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigateMenuOption('MyVideos')}>
+              <Text style={styles.menuItem}>My Videos</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigateMenuOption('ContactUs')}>
+              <Text style={styles.menuItem}>Contact Us</Text>
+            </TouchableOpacity>
           </View>
         </Animated.View>
 

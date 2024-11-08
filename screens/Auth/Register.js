@@ -3,10 +3,11 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, Image, Anim
 import GlobalFont from 'react-native-global-font';
 import googleIcon from '../../assets/images/google-img.png';
 import { useFocusEffect } from '@react-navigation/native';
-import { userRegistration } from '../../actions/ApiActions';
+import { userRegistration, userGoogleRegistration } from '../../actions/ApiActions';
 import dayjs from 'dayjs';
 import DateTimePicker from 'react-native-ui-datepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 
 const Register = ({ navigation }) => {
@@ -36,7 +37,6 @@ const Register = ({ navigation }) => {
   const date = dayjs();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
 
   useFocusEffect(
     useCallback(() => {
@@ -160,7 +160,7 @@ const Register = ({ navigation }) => {
     }
     else if (result[0] === 200) {
       successMsg = true;
-      setSuccessMessage('An OTP has been sent to your email.');
+      setSuccessMessage(result[1].message);
       setIsErrorVisible(true);
     }
     else {
@@ -197,8 +197,23 @@ const Register = ({ navigation }) => {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    Alert.alert('Sign in with Google clicked!');
+  const handleGoogleRegister = async() => {
+    try {
+      await GoogleSignin.signOut();
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const userData = {
+        data: userInfo?.data?.user,
+        token: userInfo?.data?.idToken,
+      }
+      console.log('User Data:', userData);
+      setLoading(true);
+      const result = await userGoogleRegistration({token: userInfo?.data?.idToken});
+      console.log('Result:', result);
+      setLoading(false);
+    } catch (error) {
+      console.log('Google sign in error>>>>>', error);
+    }
   };
 
   const renderRadioButton = (label) => (
@@ -393,7 +408,7 @@ const Register = ({ navigation }) => {
             <View style={styles.separator} />
           </View>
 
-          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
+          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleRegister}>
             <View style={styles.googleButtonContent}>
               <Image source={googleIcon} style={styles.googleIcon} />
               <Text style={styles.googleButtonText}> Google Account</Text>

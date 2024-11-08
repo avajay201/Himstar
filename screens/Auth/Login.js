@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, Image, Animated, Modal, ActivityIndicator, BackHandler } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import googleIcon from '../../assets/images/google-img.png';
 import { useFocusEffect } from '@react-navigation/native';
 import { userLogin } from '../../actions/ApiActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 
 const primaryColor = '#B94EA0';
@@ -128,8 +129,15 @@ const Login = ({ navigation }) => {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    Alert.alert('Sign in with Google clicked!');
+  const handleGoogleSignIn = async() => {
+    try {
+      await GoogleSignin.signOut();
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log('User Info:', userInfo);
+    } catch (error) {
+      console.log('Google sign in error>>>>>', error);
+    }
   };
 
   return (

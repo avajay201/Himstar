@@ -70,7 +70,7 @@ const OTPVerify = ({ route, navigation }) => {
     }
     else if (result[0] === 201) {
       successMsg = true;
-      setSuccessMessage('Registeration completed successfully.');
+      setSuccessMessage(result[1].message);
       setIsErrorVisible(true);
     }
     else {
