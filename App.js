@@ -17,6 +17,8 @@ import ActiveComps from './screens/Competitions/ActiveComps';
 import Wallet from './screens/Wallet/Wallet';
 import MyVideos from './screens/MyVideos/MyVideos';
 import MyContests from './screens/MyContests/MyContests';
+import VideoCreate from './screens/VideoCreate/VideoCreate';
+import VideoEdit from './screens/VideoCreate/VideoEdit';
 
 
 const Stack = createNativeStackNavigator();
@@ -111,6 +113,16 @@ function AppNavigator() {
     <Stack.Screen 
       name="Wallet" 
       component={Wallet} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="VideoCreate" 
+      component={VideoCreate} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="VideoEdit" 
+      component={VideoEdit} 
       options={{ headerShown: false }}
     />
     </Stack.Navigator>

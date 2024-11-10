@@ -138,6 +138,9 @@ const Home = ({ navigation }) => {
             <TouchableOpacity onPress={()=>navigateMenuOption('ContactUs')}>
               <Text style={styles.menuItem}>Contact Us</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigateMenuOption('VideoCreate')}>
+              <Text style={styles.menuItem}>Video Create</Text>
+            </TouchableOpacity>
           </View>
         </Animated.View>
 
