@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, FlatList, ActivityIndicator, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
-import AppLogo from './../../assets/images/logo.png';
-import { searchMusic } from '../../actions/ApiActions';
+import { mergeVideo, searchMusic } from '../../actions/ApiActions';
 import Sound from 'react-native-sound';
 
 
-const MusicModal = ({ visible, onClose }) => {
+const MusicModal = ({ visible, onClose, handleTrackSelectWithVideo }) => {
     const [currentTrack, setCurrentTrack] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -37,9 +36,7 @@ const MusicModal = ({ visible, onClose }) => {
     }, [query]);
 
     useEffect(() => {
-        console.log('currentTrack>>>', currentTrack);
         if (currentTrack) {
-            // Release the previous sound before creating a new one
             if (sound) {
                 sound.release();
             }
@@ -51,44 +48,47 @@ const MusicModal = ({ visible, onClose }) => {
                 }
                 setSound(track);
                 if (isPlaying) {
-                    track.play(); // Start playing the newly selected track immediately
+                    track.play();
                 }
             });
         }
 
         return () => {
             if (sound) {
-                sound.release(); // Cleanup the sound on unmount
+                sound.release();
             }
         };
-    }, [currentTrack, isPlaying]); // Re-run the effect when currentTrack or isPlaying changes
+    }, [currentTrack, isPlaying]);
 
     const handlePlayPause = () => {
         if (sound) {
             if (isPlaying) {
-                sound.pause(); // Pause the current track
+                sound.pause();
             } else {
-                sound.play(); // Play the current track
+                sound.play();
             }
-            setIsPlaying(!isPlaying); // Toggle the play/pause state
+            setIsPlaying(!isPlaying);
         }
     };
 
     const handleTrackSelect = (item) => {
-        // If the same track is clicked, toggle play/pause
         if (currentTrack?.id === item.id) {
-            handlePlayPause(); // Pause or play the current track
+            handlePlayPause();
         } else {
-            // If a new track is selected, pause and release the previous track
             if (sound) {
                 sound.pause();
                 sound.release();
             }
 
-            // Set the new track and start playing it
             setCurrentTrack(item);
-            setIsPlaying(true); // Start playing the new track immediately
+            setIsPlaying(true);
         }
+    };
+
+    const selectMusic = async(music)=>{
+        setMusicData([]);
+        handlePlayPause();
+        handleTrackSelectWithVideo(music);
     };
 
     return (
@@ -110,13 +110,15 @@ const MusicModal = ({ visible, onClose }) => {
                         renderItem={({ item }) => (
                             <View style={styles.musicRow}>
                                 <Image source={{ uri: item.album.cover }} style={styles.musicImage} />
-                                <View style={styles.musicInfo}>
-                                    <Text style={styles.musicName}>{item.title}</Text>
-                                    <Text style={styles.singerName}>{item.artist.name}</Text>
-                                </View>
+                                <TouchableOpacity style={styles.musicInfo} onPress={()=>selectMusic(item)}>
+                                    <View style={styles.musicInfo}>
+                                        <Text style={styles.musicName}>{item.title}</Text>
+                                        <Text style={styles.singerName}>{item.artist.name}</Text>
+                                    </View>
+                                </TouchableOpacity>
                                 <TouchableOpacity
                                     style={styles.playPauseButton}
-                                    onPress={() => handleTrackSelect(item)} // Select the track and play it
+                                    onPress={() => handleTrackSelect(item)}
                                 >
                                     <Icon
                                         name={currentTrack?.id === item.id && isPlaying ? 'pause' : 'play-arrow'}
@@ -144,12 +146,24 @@ const VideoEdit = ({ route, navigation }) => {
     const [isPlaying, setIsPlaying] = useState(true);
     const [loading, setLoading] = useState(true);
     const [videoUri, setVideoUri] = useState(uri);
+    const [soundWithVideo, setSoundWithVideo] = useState(null);
+    const [music, setMusic] = useState(null);
+    const videoRef = useRef(null);
 
     const togglePlayPause = () => {
         setIsPlaying(!isPlaying);
+        if(soundWithVideo && !isPlaying){
+            soundWithVideo.play();
+        }
+        if(soundWithVideo && isPlaying){
+            soundWithVideo.pause();
+        }
     };
 
     const openMusicModal = () => {
+        if(soundWithVideo){
+            soundWithVideo.pause();
+        };
         setIsPlaying(false);
         setIsMusicModalVisible(true);
     };
@@ -159,27 +173,59 @@ const VideoEdit = ({ route, navigation }) => {
         setLoading(true);
     };
 
-    const audioRemoveProcess = async () => {
-
+    const handleTrackSelectWithVideo = (item) => {
+        setIsMusicModalVisible(false);
+        setMusic(item);
+        const track = new Sound(item.preview, null, (error) => {
+            if (error) {
+                console.log('Failed to load the track', error);
+                return;
+            }
+            setSoundWithVideo(track);
+            track.play();
+            setIsPlaying(true);
+            if (videoRef.current) {
+                videoRef.current.seek(0);
+            }
+        });
+        if(soundWithVideo){
+            soundWithVideo.pause();
+        };
     };
 
-    const audioRemove = () => {
-        Alert.alert(
-            "Remove Audio",
-            "Are you sure you want to remove the audio from this video?",
-            [
-                {
-                    text: "Cancel",
-                    onPress: () => console.log("Audio removal canceled"),
-                    style: "cancel"
-                },
-                {
-                    text: "OK",
-                    onPress: () => audioRemoveProcess()
-                }
-            ]
-        );
+    const handleVideoEnd = () => {
+        if (soundWithVideo) {
+            soundWithVideo.setCurrentTime(0);
+            soundWithVideo.play();
+        }
+    };
 
+    const videoPreview = async()=>{
+        setIsPlaying(false);
+        if (soundWithVideo) {
+            soundWithVideo.pause();
+        }
+
+        if (soundWithVideo && music){
+            try{
+                console.log('+++++++++++++++++++++++');
+                const formData = new FormData();
+                formData.append('video', {
+                    uri: videoUri,
+                    type: 'video/mp4',
+                    name: 'video.mp4',
+                });
+                formData.append('music', music.preview);
+                console.log('-----------------------');
+                const result = await mergeVideo(formData);
+                console.log('Result::::', result);
+            }
+            catch(error){
+                console.log('ERROR:::::', error);
+            }
+        }
+
+        console.log('No Music +++++++++++++++++++');
     };
 
     return (
@@ -188,12 +234,14 @@ const VideoEdit = ({ route, navigation }) => {
 
                 {videoUri ? (
                     <Video
+                        ref={videoRef}
                         source={{ uri: videoUri }}
                         style={videoDimensions}
                         resizeMode="cover"
                         paused={!isPlaying}
-                        muted={isMuted}
-                        repeat
+                        muted={soundWithVideo ? true : isMuted}
+                        repeat={true}
+                        onEnd={()=> soundWithVideo ? handleVideoEnd() : null}
                     />
                 )
                     :
@@ -208,24 +256,21 @@ const VideoEdit = ({ route, navigation }) => {
                 <TouchableOpacity onPress={togglePlayPause}>
                     <Icon name={isPlaying ? 'pause' : 'play-arrow'} size={30} color="white" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={audioRemove}>
-                    <Icon name='volume-mute' size={30} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsMuted(!isMuted)}>
+                {!soundWithVideo && <TouchableOpacity onPress={() => setIsMuted(!isMuted)}>
                     <Icon name={isMuted ? 'volume-off' : 'volume-up'} size={30} color="white" />
-                </TouchableOpacity>
+                </TouchableOpacity>}
             </View>
 
             <View style={styles.navigationButtons}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Icon name="arrow-back" size={30} color="white" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { /* Next button function here */ }}>
+                <TouchableOpacity onPress={() => videoPreview()}>
                     <Icon name="arrow-forward" size={30} color="white" />
                 </TouchableOpacity>
             </View>
 
-            {isMusicModalVisible && <MusicModal visible={isMusicModalVisible} onClose={closeMusciModal} />}
+            {isMusicModalVisible && <MusicModal visible={isMusicModalVisible} onClose={closeMusciModal} handleTrackSelectWithVideo={handleTrackSelectWithVideo} />}
         </View>
     );
 };
@@ -247,55 +292,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 50,
     },
-    // modalContainer: {
-    //     flex: 1,
-    //     backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    //     paddingTop: 60,
-    //     paddingHorizontal: 20,
-    // },
-    // searchBar: {
-    //     height: 40,
-    //     backgroundColor: '#333',
-    //     borderRadius: 10,
-    //     paddingHorizontal: 10,
-    //     color: '#fff',
-    // },
-    // loader: {
-    //     marginTop: 20,
-    //     alignSelf: 'center',
-    // },
-    // musicRow: {
-    //     flexDirection: 'row',
-    //     alignItems: 'center',
-    //     paddingVertical: 10,
-    //     borderBottomColor: '#444',
-    //     borderBottomWidth: 1,
-    // },
-    // musicImage: {
-    //     width: 50,
-    //     height: 50,
-    //     borderRadius: 25,
-    //     marginRight: 10,
-    // },
-    // musicInfo: {
-    //     flex: 1,
-    // },
-    // musicName: {
-    //     color: '#fff',
-    //     fontSize: 16,
-    // },
-    // singerName: {
-    //     color: '#888',
-    //     fontSize: 14,
-    // },
-    // playPauseButton: {
-    //     padding: 10,
-    // },
-    // closeButton: {
-    //     position: 'absolute',
-    //     top: 20,
-    //     right: 20,
-    // },
     modalContainer: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.9)',

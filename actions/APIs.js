@@ -8,4 +8,5 @@ export const ENDPOINTS = {
     login: BASE_URL + '/login/',
     verifyOtp: BASE_URL + '/verify-otp/',
     contactUs: BASE_URL + '/contact/',
+    mergeVideo: BASE_URL + '/merge-video/',
 };

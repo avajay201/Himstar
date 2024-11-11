@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, ToastAndroid } from 'react-native';
 import Video from 'react-native-video';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -55,6 +55,11 @@ const VideoCreate = ({ navigation }) => {
         launchImageLibrary({ mediaType: 'video' }, response => {
             setVideoOptionsIsVisible(false);
             if (response.assets && response.assets.length > 0) {
+                const duration = response.assets[0].duration;
+                if (duration > 30){
+                    ToastAndroid.show('Video must be less than 30 seconds.', ToastAndroid.SHORT);
+                    return;
+                }
                 const { uri, height, width } = response.assets[0];
                 setVideoUri(uri);
                 adjustVideoDimensions(width, height);
