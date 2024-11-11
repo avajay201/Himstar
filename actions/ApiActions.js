@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ENDPOINTS } from "./APIs";
+import { ENDPOINTS, MusicAPI, MusciAPIKey } from "./APIs";
 
 export const userRegistration = async (data) => {
     try {
@@ -48,5 +48,23 @@ export const contactUs = async (data) => {
     } catch (error) {
         console.log('Registration API error:', error?.response?.data);
         return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const searchMusic = async (query = 'diljit') => {
+    const options = {
+        method: 'GET',
+        url: MusicAPI,
+        params: { q: query },
+        headers: {
+            'x-rapidapi-key': MusciAPIKey,
+            'x-rapidapi-host': 'deezerdevs-deezer.p.rapidapi.com'
+        }
+    };
+    try {
+        const response = await axios.request(options);
+        return response.data.data;
+    } catch (error) {
+        return false;
     }
 };
