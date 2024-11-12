@@ -22,18 +22,18 @@ const VideoPreview = ({ route, navigation }) => {
             });
             formData.append('music', musicUri);
             const result = await mergeVideo(formData);
-            console.log('Result::::', result);
             if (result[0] === 200){
                 const videoURL = BASE_URL + result[1].merged_video;
                 setVideoUri(videoURL);
-                // setLoading(false);
             }
             else{
                 ToastAndroid.show('Video processing failed, please try again!', ToastAndroid.SHORT);
+                navigation.goBack();
             }
         }
         catch(error){
             ToastAndroid.show('Video processing failed, please try again!', ToastAndroid.SHORT);
+            navigation.goBack();
         }
     };
 
@@ -55,7 +55,9 @@ const VideoPreview = ({ route, navigation }) => {
     };
 
     const backToVideoEdit = async()=>{
-        await removeMergedVideo({file: videoUri.split('/').pop()});
+        if (musicUri){
+            await removeMergedVideo({file: videoUri.split('/').pop()});
+        };
         navigation.goBack();
     };
 

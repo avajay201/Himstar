@@ -205,26 +205,6 @@ const VideoEdit = ({ route, navigation }) => {
         };
 
         navigation.navigate('VideoPreview', { uri: videoUri, videoDimensions: videoDimensions, musicUri: soundWithVideo && music ? music.preview : null })
-
-        // if (soundWithVideo && music){
-            // try{
-            //     const formData = new FormData();
-            //     formData.append('video', {
-            //         uri: videoUri,
-            //         type: 'video/mp4',
-            //         name: 'video.mp4',
-            //     });
-            //     formData.append('music', music.preview);
-            //     const result = await mergeVideo(formData);
-            //     console.log('Result::::', result);
-            // }
-            // catch(error){
-            //     console.log('ERROR:::::', error);
-            // }
-        //     return;
-        // };
-
-        // console.log('No Music +++++++++++++++++++');
     };
 
     return (
