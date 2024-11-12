@@ -144,7 +144,6 @@ const VideoEdit = ({ route, navigation }) => {
     const [isMusicModalVisible, setIsMusicModalVisible] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(true);
-    const [loading, setLoading] = useState(true);
     const [videoUri, setVideoUri] = useState(uri);
     const [soundWithVideo, setSoundWithVideo] = useState(null);
     const [music, setMusic] = useState(null);
@@ -170,7 +169,6 @@ const VideoEdit = ({ route, navigation }) => {
 
     const closeMusciModal = () => {
         setIsMusicModalVisible(false);
-        setLoading(true);
     };
 
     const handleTrackSelectWithVideo = (item) => {
@@ -200,32 +198,33 @@ const VideoEdit = ({ route, navigation }) => {
         }
     };
 
-    const videoPreview = async()=>{
+    const navigateVideoPreview = async()=>{
         setIsPlaying(false);
         if (soundWithVideo) {
             soundWithVideo.pause();
-        }
+        };
 
-        if (soundWithVideo && music){
-            try{
-                console.log('+++++++++++++++++++++++');
-                const formData = new FormData();
-                formData.append('video', {
-                    uri: videoUri,
-                    type: 'video/mp4',
-                    name: 'video.mp4',
-                });
-                formData.append('music', music.preview);
-                console.log('-----------------------');
-                const result = await mergeVideo(formData);
-                console.log('Result::::', result);
-            }
-            catch(error){
-                console.log('ERROR:::::', error);
-            }
-        }
+        navigation.navigate('VideoPreview', { uri: videoUri, videoDimensions: videoDimensions, musicUri: soundWithVideo && music ? music.preview : null })
 
-        console.log('No Music +++++++++++++++++++');
+        // if (soundWithVideo && music){
+            // try{
+            //     const formData = new FormData();
+            //     formData.append('video', {
+            //         uri: videoUri,
+            //         type: 'video/mp4',
+            //         name: 'video.mp4',
+            //     });
+            //     formData.append('music', music.preview);
+            //     const result = await mergeVideo(formData);
+            //     console.log('Result::::', result);
+            // }
+            // catch(error){
+            //     console.log('ERROR:::::', error);
+            // }
+        //     return;
+        // };
+
+        // console.log('No Music +++++++++++++++++++');
     };
 
     return (
@@ -265,7 +264,7 @@ const VideoEdit = ({ route, navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Icon name="arrow-back" size={30} color="white" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => videoPreview()}>
+                <TouchableOpacity onPress={() => navigateVideoPreview()}>
                     <Icon name="arrow-forward" size={30} color="white" />
                 </TouchableOpacity>
             </View>

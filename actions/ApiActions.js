@@ -71,12 +71,21 @@ export const searchMusic = async (query = 'diljit') => {
 
 export const mergeVideo = async (data) => {
     try {
-        console.log('0000000000000000')
         const response = await axios.post(ENDPOINTS.mergeVideo, data, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('Error:', error?.response?.data);
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const removeMergedVideo = async (data) => {
+    try {
+        const response = await axios.post(ENDPOINTS.removeMergedVideo, data);
         return [response.status, response.data];
     } catch (error) {
         console.log('Error:', error?.response?.data);

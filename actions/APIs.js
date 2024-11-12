@@ -9,4 +9,5 @@ export const ENDPOINTS = {
     verifyOtp: BASE_URL + '/verify-otp/',
     contactUs: BASE_URL + '/contact/',
     mergeVideo: BASE_URL + '/merge-video/',
+    removeMergedVideo: BASE_URL + '/remove-merged-video/',
 };

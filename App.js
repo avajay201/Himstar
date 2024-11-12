@@ -19,6 +19,7 @@ import MyVideos from './screens/MyVideos/MyVideos';
 import MyContests from './screens/MyContests/MyContests';
 import VideoCreate from './screens/VideoCreate/VideoCreate';
 import VideoEdit from './screens/VideoCreate/VideoEdit';
+import VideoPreview from './screens/VideoCreate/VideoPreview';
 
 
 const Stack = createNativeStackNavigator();
@@ -123,6 +124,11 @@ function AppNavigator() {
     <Stack.Screen 
       name="VideoEdit" 
       component={VideoEdit} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="VideoPreview" 
+      component={VideoPreview} 
       options={{ headerShown: false }}
     />
     </Stack.Navigator>
