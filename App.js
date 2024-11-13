@@ -13,13 +13,14 @@ import WelcomeScreen from './screens/OtherScreens/WelcomeScreen';
 import ContactUs from './screens/ContactUs/ContactUs';
 import NavBar from './screens/NavBar/NavBar';
 import UpcomingComps from './screens/Competitions/UpcomingComps';
-import ActiveComps from './screens/Competitions/ActiveComps';
+import LiveComps from './screens/Competitions/LiveComps';
 import Wallet from './screens/Wallet/Wallet';
 import MyVideos from './screens/MyVideos/MyVideos';
 import MyContests from './screens/MyContests/MyContests';
 import VideoCreate from './screens/VideoCreate/VideoCreate';
 import VideoEdit from './screens/VideoCreate/VideoEdit';
 import VideoPreview from './screens/VideoCreate/VideoPreview';
+import ViewComp from './screens/Competitions/ViewComp';
 
 
 const Stack = createNativeStackNavigator();
@@ -97,8 +98,8 @@ function AppNavigator() {
       options={{ headerShown: false }}
     />
     <Stack.Screen 
-      name="ActiveComps" 
-      component={ActiveComps} 
+      name="LiveComps" 
+      component={LiveComps} 
       options={{ headerShown: false }}
     />
     <Stack.Screen 
@@ -129,6 +130,11 @@ function AppNavigator() {
     <Stack.Screen 
       name="VideoPreview" 
       component={VideoPreview} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="ViewComp" 
+      component={ViewComp} 
       options={{ headerShown: false }}
     />
     </Stack.Navigator>

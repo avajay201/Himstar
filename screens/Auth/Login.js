@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, Image, Animated, Modal, ActivityIndicator, BackHandler } from 'react-native';
+import React, { useState, useCallback, useRef } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, Animated, Modal, ActivityIndicator, BackHandler } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import googleIcon from '../../assets/images/google-img.png';
 import { useFocusEffect } from '@react-navigation/native';

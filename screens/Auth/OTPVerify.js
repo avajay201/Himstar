@@ -3,9 +3,6 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator,
 import { verifyOtp, userRegistration } from '../../actions/ApiActions';
 
 
-const primaryColor = '#B94EA0';
-const secondaryColor = '#FFFFFF';
-
 const OTPVerify = ({ route, navigation }) => {
   const { userData } = route.params;
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -190,7 +187,7 @@ const OTPVerify = ({ route, navigation }) => {
 
       <Modal transparent={true} animationType="fade" visible={verifyLoading}>
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color={primaryColor} />
+          <ActivityIndicator size="large" color={'#B94EA0'} />
           <Text style={styles.loadingText}>Verifying...</Text>
         </View>
       </Modal>
@@ -222,7 +219,7 @@ const styles = StyleSheet.create({
   otpText: {
     fontSize: 24,
     marginBottom: 20,
-    color: primaryColor,
+    color: '#B94EA0',
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
     textAlign: 'center',
@@ -248,7 +245,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     marginLeft: 7,
-    borderColor: primaryColor,
+    borderColor: '#B94EA0',
   },
   errorBorder: {
     borderColor: 'red',
@@ -261,13 +258,13 @@ const styles = StyleSheet.create({
   verifyButton: {
     width: '80%',
     alignSelf: 'center',
-    backgroundColor: primaryColor,
+    backgroundColor: '#B94EA0',
     borderRadius: 10,
     paddingVertical: 10,
     marginTop: 15,
   },
   verifyButtonText: {
-    color: secondaryColor,
+    color: '#FFFFFF',
     textAlign: 'center',
     fontSize: 22,
     fontWeight: 'bold',
@@ -278,14 +275,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'DMSans_500Medium',
     fontSize: 15,
-    color: primaryColor,
+    color: '#B94EA0',
     fontWeight: 'bold',
   },
   linkBlackText: {
     color: '#000',
   },
   linkPrimaryText: {
-    color: primaryColor,
+    color: '#B94EA0',
   },
   loaderContainer: {
     flex: 1,
@@ -296,7 +293,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 18,
-    color: primaryColor,
+    color: '#B94EA0',
   },
 });
 

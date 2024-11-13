@@ -10,4 +10,7 @@ export const ENDPOINTS = {
     contactUs: BASE_URL + '/contact/',
     mergeVideo: BASE_URL + '/merge-video/',
     removeMergedVideo: BASE_URL + '/remove-merged-video/',
+    categories: BASE_URL + '/categories/',
+    banners: BASE_URL + '/api/banners/',
+    liveCompetitions: BASE_URL + '/api/competitions/',
 };

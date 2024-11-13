@@ -92,3 +92,30 @@ export const removeMergedVideo = async (data) => {
         return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
     }
 };
+
+export const getCategories = async () => {
+    try {
+        const response = await axios.get(ENDPOINTS.categories);
+        return [response.status, response.data];
+    } catch (error) {
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const getBanners = async (id) => {
+    try {
+        const response = await axios.get(ENDPOINTS.banners + (id ? id : ''));
+        return [response.status, response.data];
+    } catch (error) {
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const getLiveCompetitions = async (id) => {
+    try {
+        const response = await axios.get(ENDPOINTS.liveCompetitions + (id ? id : ''));
+        return [response.status, response.data];
+    } catch (error) {
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};

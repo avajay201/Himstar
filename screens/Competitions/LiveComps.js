@@ -1,7 +1,7 @@
 import React from "react";
 import { Text } from "react-native";
 
-const ActiveComps = ()=>{
+const LiveComps = ()=>{
     return(
         <>
             <Text>Active Comps</Text>
@@ -9,4 +9,4 @@ const ActiveComps = ()=>{
     );
 };
 
-export default ActiveComps;
+export default LiveComps;
