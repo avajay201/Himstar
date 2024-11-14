@@ -14,6 +14,10 @@ const ViewComp = ({ route, navigation }) => {
         }
     }, []);
 
+    const compRegister = ()=>{
+        navigation.navigate('VideoCreate', {compId: competition.id});
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.backButtonContainer}>
@@ -54,7 +58,7 @@ const ViewComp = ({ route, navigation }) => {
                     <Text style={styles.rulesText}>{competition?.rules}</Text>
                 </View>
 
-                <TouchableOpacity style={styles.registerButton}>
+                <TouchableOpacity style={styles.registerButton} onPress={compRegister}>
                     <Text style={styles.registerButtonText}>Register Now</Text>
                 </TouchableOpacity>
             </View>

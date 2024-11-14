@@ -6,7 +6,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect } from '@react-navigation/native';
 
 
-const VideoCreate = ({ navigation }) => {
+const VideoCreate = ({ route, navigation }) => {
+    const { compId } = route.params;
     const [videoUri, setVideoUri] = useState(null);
     const [videoOptionsIsVisible, setVideoOptionsIsVisible] = useState(false);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -84,7 +85,7 @@ const VideoCreate = ({ navigation }) => {
 
     const navigateToVideoEdit = () => {
         if (videoUri) {
-            navigation.navigate('VideoEdit', { uri: videoUri, videoDimensions: videoDimensions });
+            navigation.navigate('VideoEdit', { uri: videoUri, videoDimensions: videoDimensions, compId: compId });
         }
     };
 

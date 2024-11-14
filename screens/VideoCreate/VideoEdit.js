@@ -140,7 +140,7 @@ const MusicModal = ({ visible, onClose, handleTrackSelectWithVideo }) => {
 
 
 const VideoEdit = ({ route, navigation }) => {
-    const { uri, videoDimensions } = route.params;
+    const { uri, videoDimensions, compId } = route.params;
     const [isMusicModalVisible, setIsMusicModalVisible] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -204,7 +204,7 @@ const VideoEdit = ({ route, navigation }) => {
             soundWithVideo.pause();
         };
 
-        navigation.navigate('VideoPreview', { uri: videoUri, videoDimensions: videoDimensions, musicUri: soundWithVideo && music ? music.preview : null })
+        navigation.navigate('VideoPreview', { uri: videoUri, videoDimensions: videoDimensions, musicUri: soundWithVideo && music ? music.preview : null, compId: compId })
     };
 
     return (

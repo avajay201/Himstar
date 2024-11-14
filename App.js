@@ -39,7 +39,8 @@ function AppNavigator() {
     const authToken = await AsyncStorage.getItem('AuthToken');
     const username = await AsyncStorage.getItem('AuthUser');
     const email = await AsyncStorage.getItem('AuthEmail');
-    if (authToken && username && email) {
+    const userId = await AsyncStorage.getItem('AuthId');
+    if (authToken && username && email && userId) {
       setInitialRoute('HomeTabs');
     }
   };

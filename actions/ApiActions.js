@@ -119,3 +119,61 @@ export const getLiveCompetitions = async (id) => {
         return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
     }
 };
+
+export const postCreate = async (data) => {
+    try {
+        const response = await axios.post(ENDPOINTS.postCreate, data, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        return [response.status, response.data];
+    } catch (error) {
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const postedVideos = async (id) => {
+    try {
+        const response = await axios.get(ENDPOINTS.postedVideos + id);
+        return [response.status, response.data];
+    } catch (error) {
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const postLikes = async (post_id) => {
+    try {
+        const response = await axios.get(ENDPOINTS.postLikes + post_id);
+        return [response.status, response.data];
+    } catch (error) {
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const likePost = async (data) => {
+    try {
+        const response = await axios.post(ENDPOINTS.likePost, data);
+        return [response.status, response.data];
+    } catch (error) {
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const postComments = async (post_id) => {
+    try {
+        const response = await axios.get(ENDPOINTS.postComments + post_id);
+        return [response.status, response.data];
+    } catch (error) {
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const postComment = async (data) => {
+    try {
+        const response = await axios.post(ENDPOINTS.postComment, data);
+        return [response.status, response.data];
+    } catch (error) {
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};

@@ -84,9 +84,12 @@ const Login = ({ navigation }) => {
       setIsErrorVisible(true);
     }
     else if (result[0] === 200) {
+      console.log('result[1]>>>>', result[1])
       successMsg = true;
       await AsyncStorage.setItem('AuthToken', result[1].access);
       await AsyncStorage.setItem('AuthUser', result[1].username);
+      await AsyncStorage.setItem('AuthId', String(result[1].user_id));
+      await AsyncStorage.setItem('RegAuthId', String(result[1].reg_user_id));
       await AsyncStorage.setItem('AuthEmail', result[1].email);
       setSuccessMessage('Login successfully.');
       setIsErrorVisible(true);

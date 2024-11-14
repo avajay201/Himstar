@@ -1,16 +1,23 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, ToastAndroid } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
-import { mergeVideo, removeMergedVideo } from '../../actions/ApiActions';
+import { mergeVideo, removeMergedVideo, postCreate } from '../../actions/ApiActions';
 import { BASE_URL } from '../../actions/APIs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const VideoPreview = ({ route, navigation }) => {
-    const { uri, videoDimensions, musicUri } = route.params;
+    const { uri, videoDimensions, musicUri, compId } = route.params;
     const [loading, setLoading] = useState(true);
     const [videoUri, setVideoUri] = useState(uri);
     const [isPlaying, setIsPlaying] = useState(true);
+    const [userId, setUserId] = useState(null);
+
+    const fetchUser = async()=>{
+        const id = await AsyncStorage.getItem('RegAuthId');
+        setUserId(id);
+    };
 
     const mergeProcess = async()=>{
         try{
@@ -38,6 +45,7 @@ const VideoPreview = ({ route, navigation }) => {
     };
 
     useEffect(() => {
+        fetchUser();
         if (musicUri) {
             mergeProcess();
         }
@@ -51,7 +59,32 @@ const VideoPreview = ({ route, navigation }) => {
     };
 
     const uploadVideo = async () => {
-
+        setLoading(true)
+        const formData = new FormData();
+        formData.append('user', Number(userId));
+        formData.append('competition', Number(compId));
+        formData.append('video', {
+            uri: videoUri,
+            type: 'video/mp4',
+            name: 'video.mp4',
+        });
+        const result = await postCreate(formData);
+        if (result[0] === 201){
+            ToastAndroid.show('Competition registration completed successfully.', ToastAndroid.SHORT);
+            navigation.navigate('HomeTabs');
+        }
+        else{
+            let errorMsg;
+            if (typeof (result[1]) === 'object') {
+                const firstKey = Object.keys(result[1])[0];
+                errorMsg = result[1][firstKey][0];
+            }
+            else {
+                errorMsg = result[1];
+            }
+            ToastAndroid.show(errorMsg, ToastAndroid.SHORT);
+        }
+        setLoading(false);
     };
 
     const backToVideoEdit = async()=>{

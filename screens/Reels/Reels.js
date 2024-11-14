@@ -4,74 +4,15 @@ import Video from 'react-native-video';
 import { useIsFocused } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Applogo from '../../assets/images/logo.png';
+import { postedVideos, postLikes, likePost, postComments, postComment } from '../../actions/ApiActions';
+import { BASE_URL } from '../../actions/APIs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const { height } = Dimensions.get('window');
 
 const Reels = () => {
-  const [videos, setVideos] = useState([
-    {
-      "id": 1,
-      "title": "Sunset Over the Mountains",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback.mp4",
-      "is_like": false,
-    },
-    {
-      "id": 2,
-      "title": "City Lights at Night",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback_1.mp4",
-      "is_like": true,
-    },
-    {
-      "id": 3,
-      "title": "Waves Crashing on the Beach",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback_2.mp4",
-      "is_like": false,
-    },
-    {
-      "id": 4,
-      "title": "Forest Adventure Trails",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback_3.mp4",
-      "is_like": false,
-    },
-    {
-      "id": 5,
-      "title": "Exploring the Desert",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback_4.mp4",
-      "is_like": false,
-    },
-    {
-      "id": 6,
-      "title": "Snowy Mountain Peaks",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback_5.mp4",
-      "is_like": false,
-    },
-    {
-      "id": 7,
-      "title": "Busy Streets Downtown",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback_6.mp4",
-      "is_like": true,
-    },
-    {
-      "id": 8,
-      "title": "A Walk Through the Woods",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback_7.mp4",
-      "is_like": false,
-    },
-    {
-      "id": 9,
-      "title": "Golden Hour by the Lake",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback_8.mp4",
-      "is_like": false,
-    },
-    {
-      "id": 10,
-      "title": "Exploring Ancient Ruins",
-      "video_file": "http://192.168.75.200:8000/media/videos/videoplayback_9.mp4",
-      "is_like": true,
-    }
-  ]);
-
+  const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [paused, setPaused] = useState(false);
@@ -79,24 +20,91 @@ const Reels = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [commentsModalVisible, setCommentsModalVisible] = useState(false);
   const [likesModalVisible, setLikesModalVisible] = useState(false);
-  const [comments, setComments] = useState([
-    { "id": 1, "username": "user001", "profile_pic": "", "comment": "Awesome video!" },
-    { "id": 2, "username": "user002", "profile_pic": "", "comment": "This is amazing!" },
-    { "id": 3, "username": "user003", "profile_pic": "", "comment": "Love this content!" },
-    { "id": 4, "username": "user004", "profile_pic": "", "comment": "Can't wait to see more!" },
-    { "id": 5, "username": "user005", "profile_pic": "", "comment": "Great editing skills!" },
-    { "id": 6, "username": "user006", "profile_pic": "", "comment": "Super cool shots!" },
-    { "id": 7, "username": "user007", "profile_pic": "", "comment": "Incredible quality!" },
-    { "id": 8, "username": "user008", "profile_pic": "", "comment": "You nailed it!" },
-    { "id": 9, "username": "user009", "profile_pic": "", "comment": "Absolutely fantastic!" },
-    { "id": 10, "username": "user010", "profile_pic": "", "comment": "Stunning visuals!" },
-    { "id": 11, "username": "user011", "profile_pic": "", "comment": "Keep up the good work!" },
-    { "id": 12, "username": "user012", "profile_pic": "", "comment": "I enjoyed every second!" },
-    { "id": 13, "username": "user013", "profile_pic": "", "comment": "So inspiring!" },
-    { "id": 14, "username": "user014", "profile_pic": "", "comment": "This made my day!" },
-    { "id": 15, "username": "user015", "profile_pic": "", "comment": "Just wow!" },
-  ]);
+  const [comments, setComments] = useState([]);
+  const [likes, setLikes] = useState([]);
+  const [likesLoading, setLikesLoading] = useState(true);
+  const [commentsLoading, setCommentsLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
+  const [userId, setUserId] = useState(null);
+
+  const fetchUser = async()=>{
+    const id = await AsyncStorage.getItem('RegAuthId');
+    setUserId(id);
+  };
+
+  const getPostedVideos = async()=>{
+    const result = await postedVideos(userId);
+    if (result[0] === 200){
+      setVideos(result[1]);
+    }
+  };
+
+  const postToggleLike = async(postId)=>{
+    const result = await likePost({user_id: userId, post_id: postId});
+    if (result[0] === 200){
+      const updatedVideos = videos.map((video) => {
+        if (video.id === postId) {
+          return {
+            ...video,
+            is_like: !video.is_like,
+            likes: video.is_like
+              ? video.likes - 1
+              : video.likes + 1,
+          };
+        }
+        return video;
+      });
+      setVideos(updatedVideos);
+    }
+  };
+
+  useEffect(()=>{
+    getPostedVideos();
+  }, [userId]);
+
+  useEffect(()=>{
+    fetchUser();
+  }, []);
+
+  const getPostLikes = async(id)=>{
+    setLikesLoading(true);
+    const result = await postLikes(id);
+    if (result[0] === 200){
+      setLikes(result[1]);
+    }
+    else{
+      let errorMsg;
+      if (typeof (result[1]) === 'object') {
+          const firstKey = Object.keys(result[1])[0];
+          errorMsg = result[1][firstKey][0];
+      }
+      else {
+          errorMsg = result[1];
+      }
+      ToastAndroid.show(errorMsg, ToastAndroid.SHORT);
+    }
+    setLikesLoading(false);
+  };
+
+  const getPostComments = async(id)=>{
+    setCommentsLoading(true);
+    const result = await postComments(id);
+    if (result[0] === 200){
+      setComments(result[1]);
+    }
+    else{
+      let errorMsg;
+      if (typeof (result[1]) === 'object') {
+          const firstKey = Object.keys(result[1])[0];
+          errorMsg = result[1][firstKey][0];
+      }
+      else {
+          errorMsg = result[1];
+      }
+      ToastAndroid.show(errorMsg, ToastAndroid.SHORT);
+    }
+    setCommentsLoading(false);
+  };
 
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems.length > 0) {
@@ -113,20 +121,28 @@ const Reels = () => {
     }
   }, [isFocused]);
 
-  const likeReel = async (id) => {
-    setVideos((prevVideos) =>
-      prevVideos.map((video) =>
-        video.id === id ? { ...video, is_like: !video.is_like } : video
-      )
-    );
-  };
-
-  const addComment = () => {
+  const addComment = async () => {
     if (newComment.trim()) {
-      setComments((prevComments) => [
-        { id: comments.length + 1, comment: newComment, profile_pic: '', username: 'avajay201' },
-        ...prevComments,
-      ]);
+      const result = await postComment({user: userId, post: commentsModalVisible, content: newComment});
+      if (result[0] === 201){
+        setComments((prevComments) => [
+          { id: result[1].id, content: newComment, profile_pic: '', username: 'avajay201' },
+          ...prevComments,
+        ]);
+        const updatedVideos = videos.map((video) => {
+          if (video.id === commentsModalVisible) {
+            return {
+              ...video,
+              comments: video.comments + 1,
+            };
+          }
+          return video;
+        });
+        setVideos(updatedVideos);
+      }
+      else{
+        ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
+      }
       setNewComment('');
     }
   };
@@ -134,7 +150,7 @@ const Reels = () => {
   const shareReel = async (video) => {
     try {
       await Share.share({
-        message: `Check out this video: ${video.title}\n${video.video_file}`,
+        message: `Check out this video: ${BASE_URL + video.video}`,
       });
     } catch (error) {
       ToastAndroid.show('Failed to share this reel.', ToastAndroid.SHORT);
@@ -142,10 +158,12 @@ const Reels = () => {
   };
 
   const showComments = (videoId) => {
-    setCommentsModalVisible(true);
+    setCommentsModalVisible(videoId);
+    getPostComments(videoId);
   };
 
   const showLikes = (videoId) => {
+    getPostLikes(videoId);
     setLikesModalVisible(true);
   };
 
@@ -155,7 +173,7 @@ const Reels = () => {
         <Image source={Applogo} style={styles.commentProfilePic} />
         <View style={styles.commentContent}>
           <Text style={styles.commentUsername}>{item.username}</Text>
-          <Text style={styles.commentText}>{item.comment}</Text>
+          <Text style={styles.commentText}>{item.content}</Text>
         </View>
       </View>
     )
@@ -182,7 +200,7 @@ const Reels = () => {
         {loading && <ActivityIndicator size="large" color="white" style={{ position: 'absolute', zIndex: 1 }} />}
 
         <Video
-          source={{ uri: item.video_file }}
+          source={{ uri: BASE_URL + item.video }}
           style={{ height: '100%', width: '100%' }}
           resizeMode="cover"
           onLoadStart={() => setLoading(true)}
@@ -212,19 +230,18 @@ const Reels = () => {
             </View>
           </View>
           <View>
-            <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>avajay201</Text>
-            <Text style={{ color: 'white', fontSize: 14, marginTop: 4 }}>{item.title}</Text>
+            <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>{item.username}</Text>
           </View>
         </View>
 
         <View style={{ position: 'absolute', bottom: 85, right: 10, alignItems: 'center', zIndex: 3 }}>
-          <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onLongPress={showLikes} onPress={() => likeReel(item.id)}>
+          <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onLongPress={()=>showLikes(item.id)} onPress={() => postToggleLike(item.id)}>
             <Icon name={item.is_like ? "favorite" : "favorite-border"} size={30} color={item.is_like ? "red" : "white"} />
-            <Text style={{ color: 'white', fontSize: 12 }}>100</Text>
+            <Text style={{ color: 'white', fontSize: 12 }}>{item.likes}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onPress={() => showComments(item.id)}>
             <Icon name="chat-bubble-outline" size={30} color="white" />
-            <Text style={{ color: 'white', fontSize: 12 }}>{comments.length}</Text>
+            <Text style={{ color: 'white', fontSize: 12 }}>{item.comments}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onPress={() => shareReel(item)}>
             <Icon name="share" size={30} color="white" />
@@ -309,17 +326,27 @@ const Reels = () => {
         viewabilityConfig={viewConfigRef}
       />
 
-      <Modal animationType="none" visible={commentsModalVisible} onRequestClose={closeCommentModalWithSlideDown}>
+      <Modal animationType="none" visible={commentsModalVisible ? true : false} onRequestClose={closeCommentModalWithSlideDown}>
         <Animated.View style={[styles.commentModalOverlay, { transform: [{ translateY: slideAnim }] }]}>
           <TouchableOpacity onPress={closeCommentModalWithSlideDown} style={styles.commentModalCloseIcon}>
             <Icon name="close" size={30} color="white" />
           </TouchableOpacity>
-
-          <FlatList
-            data={comments}
-            keyExtractor={(comment) => comment.id.toString()}
-            renderItem={renderComments}
-          />
+          
+          {commentsLoading ? (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color="white" />
+            </View>
+          ) : comments.length === 0 ? (
+            <View style={styles.noLikesContainer}>
+              <Text style={styles.noLikesText}>No Comments!</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={comments}
+              keyExtractor={(comment) => comment.id.toString()}
+              renderItem={renderComments}
+            />
+          )}
 
           <View style={styles.addCommentContainer}>
             <TextInput
@@ -336,27 +363,34 @@ const Reels = () => {
         </Animated.View>
       </Modal>
 
-      <Modal
-        visible={likesModalVisible}
-        onRequestClose={closeLikeModalWithSlideDown}
-      >
-        <Animated.View style={[styles.likesModalOverlay, { transform: [{ translateY: slideAnim }] }]}>
-          <View style={styles.likesHeaderContainer}>
-            <Text style={styles.likesTitle}>Likes</Text>
-            <TouchableOpacity onPress={closeLikeModalWithSlideDown} style={styles.likesModalCloseButton}>
-              <Icon name="close" size={30} color="white" />
-            </TouchableOpacity>
-            <Text style={styles.likesCount}>{comments.length}</Text>
-          </View>
+      <Modal visible={likesModalVisible} onRequestClose={closeLikeModalWithSlideDown}>
+      <Animated.View style={[styles.likesModalOverlay, { transform: [{ translateY: slideAnim }] }]}>
+        <View style={styles.likesHeaderContainer}>
+          <Text style={styles.likesTitle}>Likes</Text>
+          <TouchableOpacity onPress={closeLikeModalWithSlideDown} style={styles.likesModalCloseButton}>
+            <Icon name="close" size={30} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.likesCount}>{likes.length}</Text>
+        </View>
 
+        {likesLoading ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="white" />
+          </View>
+        ) : likes.length === 0 ? (
+          <View style={styles.noLikesContainer}>
+            <Text style={styles.noLikesText}>No Likes!</Text>
+          </View>
+        ) : (
           <FlatList
-            data={comments}
-            keyExtractor={(comment) => comment.id.toString()}
+            data={likes}
+            keyExtractor={(like) => like.id.toString()}
             renderItem={renderLikes}
             contentContainerStyle={styles.flatListContent}
           />
-        </Animated.View>
-      </Modal>
+        )}
+      </Animated.View>
+    </Modal>
     </>
   );
 };
@@ -487,6 +521,21 @@ const styles = StyleSheet.create({
   },
   likeIcon: {
     marginRight: 10,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noLikesContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noLikesText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

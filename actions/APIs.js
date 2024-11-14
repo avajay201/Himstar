@@ -13,4 +13,10 @@ export const ENDPOINTS = {
     categories: BASE_URL + '/categories/',
     banners: BASE_URL + '/api/banners/',
     liveCompetitions: BASE_URL + '/api/competitions/',
+    postCreate: BASE_URL + '/posts/',
+    postedVideos: BASE_URL + '/list-posts/',
+    postLikes: BASE_URL + '/list-likes/',
+    likePost: BASE_URL + '/like-post/',
+    postComments: BASE_URL + '/list-comments/',
+    postComment: BASE_URL + '/comment-post/',
 };
