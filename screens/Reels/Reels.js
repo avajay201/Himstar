@@ -15,6 +15,7 @@ const Reels = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [reelsLoading, setReelsLoading] = useState(true);
   const [paused, setPaused] = useState(false);
   const isFocused = useIsFocused();
   const [isMuted, setIsMuted] = useState(false);
@@ -33,10 +34,12 @@ const Reels = () => {
   };
 
   const getPostedVideos = async()=>{
+    setReelsLoading(true);
     const result = await postedVideos(userId);
     if (result[0] === 200){
       setVideos(result[1]);
     }
+    setReelsLoading(false);
   };
 
   const postToggleLike = async(postId)=>{
@@ -313,7 +316,7 @@ const Reels = () => {
 
   return (
     <>
-      <FlatList
+      {!reelsLoading && videos?.length > 0 && <FlatList
         data={videos}
         pagingEnabled
         snapToInterval={height}
@@ -324,7 +327,13 @@ const Reels = () => {
         renderItem={renderVideo}
         onViewableItemsChanged={onViewableItemsChanged.current}
         viewabilityConfig={viewConfigRef}
-      />
+      />}
+
+      {!reelsLoading && videos?.length === 0 &&
+      <View style={styles.noVideos}>
+        <Text style={styles.noVideosText}>No videos!</Text>
+      </View>
+      }
 
       <Modal animationType="none" visible={commentsModalVisible ? true : false} onRequestClose={closeCommentModalWithSlideDown}>
         <Animated.View style={[styles.commentModalOverlay, { transform: [{ translateY: slideAnim }] }]}>
@@ -391,6 +400,12 @@ const Reels = () => {
         )}
       </Animated.View>
     </Modal>
+
+    <Modal transparent={true} animationType="fade" visible={reelsLoading}>
+        <View style={styles.reelsLoaderContainer}>
+          <ActivityIndicator size="large" color='#B94EA0' />
+        </View>
+    </Modal>
     </>
   );
 };
@@ -402,6 +417,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+  },
+  noVideos: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 100,
+  },
+  noVideosText: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   commentModalOverlay: {
     flex: 1,
@@ -526,6 +550,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  reelsLoaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   noLikesContainer: {
     flex: 1,

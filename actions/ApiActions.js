@@ -177,3 +177,13 @@ export const postComment = async (data) => {
         return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
     }
 };
+
+export const makePayment = async (data) => {
+    try {
+        const response = await axios.post(ENDPOINTS.makePayment, data);
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};

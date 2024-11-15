@@ -182,7 +182,7 @@ const Home = ({ navigation }) => {
           </ScrollView>
         </View>
 
-        {banners.length === 0 && liveCompetitions.length === 0 && upcomingCompetitions.length === 0 && tournaments.length === 0 && 
+        {!loading && banners.length === 0 && liveCompetitions.length === 0 && upcomingCompetitions.length === 0 && tournaments.length === 0 && 
           <View style={styles.noData}>
             <Text style={styles.noDataText}>No data!</Text>
           </View>

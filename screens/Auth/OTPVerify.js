@@ -57,7 +57,6 @@ const OTPVerify = ({ route, navigation }) => {
 
     setVerifyLoading(true);
     const result = await verifyOtp({ email: userData.email, otp: otp.join(''), user_data: userData });
-    console.log('result>>>', result);
     let errorMsg;
     let successMsg = false;
     if (!result){
@@ -95,6 +94,7 @@ const OTPVerify = ({ route, navigation }) => {
           useNativeDriver: true,
         }).start(() =>{ setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('')});
         if (successMsg) {
+          setVerifyLoading(false);
           navigation.navigate('Login');
         }
       }, 2000);

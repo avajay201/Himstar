@@ -21,6 +21,7 @@ import VideoCreate from './screens/VideoCreate/VideoCreate';
 import VideoEdit from './screens/VideoCreate/VideoEdit';
 import VideoPreview from './screens/VideoCreate/VideoPreview';
 import ViewComp from './screens/Competitions/ViewComp';
+import Payment from './screens/Payment/Payment';
 
 
 const Stack = createNativeStackNavigator();
@@ -136,6 +137,11 @@ function AppNavigator() {
     <Stack.Screen 
       name="ViewComp" 
       component={ViewComp} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="Payment" 
+      component={Payment} 
       options={{ headerShown: false }}
     />
     </Stack.Navigator>

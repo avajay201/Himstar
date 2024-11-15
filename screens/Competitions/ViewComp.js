@@ -15,7 +15,8 @@ const ViewComp = ({ route, navigation }) => {
     }, []);
 
     const compRegister = ()=>{
-        navigation.navigate('VideoCreate', {compId: competition.id});
+        // navigation.navigate('VideoCreate', {compId: competition.id});
+        navigation.navigate('Payment', {compId: competition.id});
     };
 
     return (
@@ -59,7 +60,7 @@ const ViewComp = ({ route, navigation }) => {
                 </View>
 
                 <TouchableOpacity style={styles.registerButton} onPress={compRegister}>
-                    <Text style={styles.registerButtonText}>Register Now</Text>
+                    <Text style={styles.registerButtonText}>Enroll Now</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
