@@ -16,7 +16,7 @@ const ViewComp = ({ route, navigation }) => {
 
     const compRegister = ()=>{
         // navigation.navigate('VideoCreate', {compId: competition.id});
-        navigation.navigate('Payment', {compId: competition.id});
+        navigation.navigate('Payment', {compId: competition.id, compType: 'competition'});
     };
 
     return (

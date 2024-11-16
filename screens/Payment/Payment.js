@@ -3,10 +3,13 @@ import { NativeEventEmitter, StyleSheet, Text, View, TouchableOpacity, ToastAndr
 import PayUBizSdk from 'payu-non-seam-less-react';
 import { sha512 } from 'js-sha512';
 import { makePayment } from '../../actions/ApiActions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Payment = ({ route, navigation }) => {
-    const { compId } = route.params;
+    const { compId, compType } = route.params;
+    const [userId, setUserId] = useState(null);
+
     const [key, setKey] = useState("wUKnWv");
     const [merchantSalt, setMerchantSalt] = useState("dfnpSUMPtmdP9T0UT02vyKseFpuUDxSu");
 
@@ -54,6 +57,19 @@ const Payment = ({ route, navigation }) => {
 
     const [autoSelectOtp, setAutoSelectOtp] = useState(true);
 
+    const fetchUser = async()=>{
+        const id = await AsyncStorage.getItem('RegAuthId');
+        if (!id){
+            ToastAndroid.show('Something went wrong, please try again!', ToastAndroid.SHORT);
+            navigation.goBack();
+        }
+        setUserId(id);
+    };
+
+    useEffect(() => {
+        fetchUser();
+    }, []);
+
     requestSMSPermission = async () => {
         try {
             const granted = await PermissionsAndroid.request(
@@ -79,7 +95,18 @@ const Payment = ({ route, navigation }) => {
     displayAlert = async (status, value, successResponse=null) => {
         if (status === 'Success'){
             console.log('successResponse>>>', successResponse, '++++++++++++', typeof(successResponse));
-            // successResponse['compId'] = compId;
+            if (compType === 'competition'){
+                successResponse['competition'] = compId;
+            }
+            else if (compType === 'tournament'){
+                successResponse['tournament'] = compId;
+            }
+            else {
+                ToastAndroid.show('You did a wrong payment, please contact to our supports team.', ToastAndroid.LONG);
+                navigation.goBack();
+                return;
+            }
+            successResponse['user'] = userId;
             await makePayment(successResponse);
         };
         ToastAndroid.show(value, ToastAndroid.SHORT);

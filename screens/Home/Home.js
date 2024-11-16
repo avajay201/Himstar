@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, Text, BackHandler, ToastAndroid, Animated, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, BackHandler, ToastAndroid, Animated, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator, Modal, RefreshControl  } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AppLogo from './../../assets/images/logo.png';
@@ -19,6 +19,7 @@ const Home = ({ navigation }) => {
   const [upcomingCompetitions, setUpcomingCompetitions] = useState([]);
   const [liveCompetitions, setLiveCompetitions] = useState([]);
   const [tournaments, setTournaments] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -61,6 +62,12 @@ const Home = ({ navigation }) => {
     await fetchBanners();
     await fetchLiveCompetitions();
     setLoading(false);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchAllData();
+    setRefreshing(false);
   };
 
   useEffect(()=>{
@@ -144,14 +151,16 @@ const Home = ({ navigation }) => {
       )}
       <View style={styles.menuProfile}>
         <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
-          <Icon name={menuVisible ? "close" : "menu"} size={40} color="#fff" />
+          <Icon name={"menu"} size={40} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
           <Image source={AppLogo} style={styles.profilePicture} />
         </TouchableOpacity>
       </View>
-      <ScrollView scrollEnabled={menuVisible ? false : true}>
-        <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnimation }] }]}>
+      <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnimation }] }]}>
+          <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
+            <Icon name={menuVisible ? "close" : "menu"} size={40} color="#fff" />
+          </TouchableOpacity>
           <View style={styles.menuContainer}>
             <TouchableOpacity onPress={()=>navigateMenuOption('Wallet')}>
               <Text style={styles.menuItem}>My Wallet</Text>
@@ -170,7 +179,9 @@ const Home = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </Animated.View>
-
+      <ScrollView scrollEnabled={menuVisible ? false : true} refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#B94EA0']} />
+        }>
         <View style={styles.filtersWrapper}>
           <Text style={styles.filtersHeading}>Filters</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroller}>
