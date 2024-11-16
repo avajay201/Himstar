@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { NativeEventEmitter, StyleSheet, Text, View, TouchableOpacity, ToastAndroid } from 'react-native'
+import { NativeEventEmitter, StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Modal, ActivityIndicator } from 'react-native'
 import PayUBizSdk from 'payu-non-seam-less-react';
 import { sha512 } from 'js-sha512';
 import { makePayment } from '../../actions/ApiActions';
@@ -7,18 +7,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Payment = ({ route, navigation }) => {
-    const { compId, compType } = route.params;
+    const { compId, compType, amount, productInfo, firstName, email, phone } = route.params;
     const [userId, setUserId] = useState(null);
+    const currentDate = new Date().toLocaleDateString();
+    const [loading, setLoading] = useState(false);
 
     const [key, setKey] = useState("wUKnWv");
     const [merchantSalt, setMerchantSalt] = useState("dfnpSUMPtmdP9T0UT02vyKseFpuUDxSu");
-
-    const [amount, setAmount] = useState('100');
-    const [productInfo, setProductInfo] = useState('Dance Competition');
-    const [firstName, setFirstName] = useState('Ajay');
-
-    const [email, setEmail] = useState('ajayverma6367006928@gmail.com');
-    const [phone, setPhone] = useState('6367006928');
 
     const [ios_surl, setIosSurl] = useState(
         'https://success-nine.vercel.app',
@@ -62,6 +57,7 @@ const Payment = ({ route, navigation }) => {
         if (!id){
             ToastAndroid.show('Something went wrong, please try again!', ToastAndroid.SHORT);
             navigation.goBack();
+            setLoading(false);
         }
         setUserId(id);
     };
@@ -104,10 +100,12 @@ const Payment = ({ route, navigation }) => {
             else {
                 ToastAndroid.show('You did a wrong payment, please contact to our supports team.', ToastAndroid.LONG);
                 navigation.goBack();
+                setLoading(false);
                 return;
             }
             successResponse['user'] = userId;
             await makePayment(successResponse);
+            navigation.navigate('HomeTabs');
         };
         ToastAndroid.show(value, ToastAndroid.SHORT);
     };
@@ -220,15 +218,52 @@ const Payment = ({ route, navigation }) => {
     };
 
     const launchPayment = () => {
-        console.log('Payment Params:', createPaymentParams());
+        setLoading(true);
         PayUBizSdk.openCheckoutScreen(createPaymentParams());
     };
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.button} onPress={launchPayment}>
-                <Text style={styles.buttonText}>Pay Rs. {amount}</Text>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Text style={styles.backArrow}>←</Text>
+                </TouchableOpacity>
+                <Text style={styles.headerText}>Checkout</Text>
+            </View>
+
+            <View style={styles.detailsCard}>
+                <Text style={styles.detailItem}>
+                    <Text style={styles.label}>Total Amount: </Text>₹{amount}
+                </Text>
+                <Text style={styles.detailItem}>
+                    <Text style={styles.label}>Date: </Text>{currentDate}
+                </Text>
+                <Text style={styles.detailItem}>
+                    <Text style={styles.label}>{compType === 'competition' ? 'Competition' : 'Tournament'} Name: </Text>{productInfo}
+                </Text>
+                <Text style={styles.detailItem}>
+                    <Text style={styles.label}>Name: </Text>{firstName}
+                </Text>
+                <Text style={styles.detailItem}>
+                    <Text style={styles.label}>Email: </Text>{email}
+                </Text>
+                <Text style={styles.detailItem}>
+                    <Text style={styles.label}>Phone: </Text>{phone}
+                </Text>
+            </View>
+
+            <Text style={styles.description}>
+                After payment is done, you can upload your video for this competition.
+            </Text>
+
+            <TouchableOpacity style={styles.checkoutButton} onPress={launchPayment}>
+                <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
             </TouchableOpacity>
+            <Modal transparent={true} animationType="fade" visible={loading}>
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color='#B94EA0' />
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -236,21 +271,74 @@ const Payment = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#fff",
+        backgroundColor: '#f4f4f9',
+        padding: 20,
     },
-    button: {
-        backgroundColor: "#B94EA0",
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-        borderRadius: 8,
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
     },
-    buttonText: {
-        color: "#fff",
+    backButton: {
+        marginRight: 10,
+        padding: 10,
+    },
+    backArrow: {
+        fontSize: 24,
+        color: '#6C63FF',
+    },
+    headerText: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    detailsCard: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+        marginBottom: 20,
+    },
+    detailItem: {
         fontSize: 16,
-        fontWeight: "bold",
+        color: '#555',
+        marginVertical: 8,
     },
+    label: {
+        fontWeight: '600',
+        color: '#333',
+    },
+    description: {
+        fontSize: 14,
+        color: '#6C63FF',
+        textAlign: 'center',
+        marginBottom: 30,
+    },
+    checkoutButton: {
+        backgroundColor: '#6C63FF',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginHorizontal: 20,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+    },
+    checkoutButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+      },
 });
 
 export default Payment;

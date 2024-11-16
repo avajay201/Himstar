@@ -111,9 +111,9 @@ export const getBanners = async (id) => {
     }
 };
 
-export const getLiveCompetitions = async (id) => {
+export const getLiveCompetitions = async (user_id, category_id) => {
     try {
-        const response = await axios.get(ENDPOINTS.liveCompetitions + (id ? id : ''));
+        const response = await axios.get(`${ENDPOINTS.liveCompetitions}?user_id=${user_id}&category_id=${category_id}`);
         return [response.status, response.data];
     } catch (error) {
         return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];

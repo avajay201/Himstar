@@ -5,8 +5,8 @@ import { useIsFocused } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Applogo from '../../assets/images/logo.png';
 import { postedVideos, postLikes, likePost, postComments, postComment } from '../../actions/ApiActions';
-import { BASE_URL } from '../../actions/APIs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 const { height } = Dimensions.get('window');
@@ -39,7 +39,9 @@ const Reels = () => {
     if (result[0] === 200){
       setVideos(result[1]);
     }
-    setReelsLoading(false);
+    if (userId){
+      setReelsLoading(false);
+    }
   };
 
   const postToggleLike = async(postId)=>{
@@ -61,13 +63,22 @@ const Reels = () => {
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      if (userId){
+        getPostedVideos();
+      }
+      else{
+        fetchUser();
+      }
+      return () => {
+      };
+    }, [])
+  );
+
   useEffect(()=>{
     getPostedVideos();
   }, [userId]);
-
-  useEffect(()=>{
-    fetchUser();
-  }, []);
 
   const getPostLikes = async(id)=>{
     setLikesLoading(true);
@@ -153,7 +164,7 @@ const Reels = () => {
   const shareReel = async (video) => {
     try {
       await Share.share({
-        message: `Check out this video: ${BASE_URL + video.video}`,
+        message: `Check out this video: ${video.file_uri}`,
       });
     } catch (error) {
       ToastAndroid.show('Failed to share this reel.', ToastAndroid.SHORT);
@@ -203,7 +214,7 @@ const Reels = () => {
         {loading && <ActivityIndicator size="large" color="white" style={{ position: 'absolute', zIndex: 1 }} />}
 
         <Video
-          source={{ uri: BASE_URL + item.video }}
+          source={{ uri: item.file_uri }}
           style={{ height: '100%', width: '100%' }}
           resizeMode="cover"
           onLoadStart={() => setLoading(true)}

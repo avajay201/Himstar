@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import AppLogo from './../../assets/images/logo.png';
 import Carousel from 'react-native-snap-carousel';
 import { getCategories, getBanners, getLiveCompetitions } from '../../actions/ApiActions';
-import { BASE_URL } from '../../actions/APIs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Home = ({ navigation }) => {
@@ -20,16 +20,25 @@ const Home = ({ navigation }) => {
   const [liveCompetitions, setLiveCompetitions] = useState([]);
   const [tournaments, setTournaments] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   useFocusEffect(
     useCallback(() => {
+      if (userId){
+        fetchAllData();
+      }
+      else{
+        fetchUser();
+      }
       return () => {
-        Animated.timing(slideAnimation, {
-          toValue: -300,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-        setMenuVisible(false);
+        if (slideAnimation){
+          Animated.timing(slideAnimation, {
+            toValue: -300,
+            duration: 300,
+            useNativeDriver: true,
+          }).start();
+          setMenuVisible(false);
+        }
       };
     }, [])
   );
@@ -48,8 +57,8 @@ const Home = ({ navigation }) => {
     }
   };
 
-  const fetchLiveCompetitions = async(bannerId=null)=>{
-    const result = await getLiveCompetitions(bannerId);
+  const fetchLiveCompetitions = async(bannerId='')=>{
+    const result = await getLiveCompetitions(userId, bannerId);
     if (result[0] === 200){
       setTournaments(result[1]);
       setLiveCompetitions(result[1]);
@@ -57,7 +66,12 @@ const Home = ({ navigation }) => {
     }
   };
 
+  useEffect(()=>{
+    fetchAllData();
+  }, [userId]);
+
   const fetchAllData = async()=>{
+    setLoading(true);
     await fetchCategories();
     await fetchBanners();
     await fetchLiveCompetitions();
@@ -70,15 +84,16 @@ const Home = ({ navigation }) => {
     setRefreshing(false);
   };
 
-  useEffect(()=>{
-    fetchAllData();
-  }, []);
+  const fetchUser = async()=>{
+    const id = await AsyncStorage.getItem('RegAuthId');
+    setUserId(id);
+  };
 
   const filterApply = async (id) => {
     setLoading(true);
     const selectedCategory = categories.find((category) => category.id === id);
     await fetchBanners(selectedCategory.isActive ? null : id);
-    await fetchLiveCompetitions(selectedCategory.isActive ? null : id);
+    await fetchLiveCompetitions(selectedCategory.isActive ? '' : id);
     const categoryUpdate = categories.map((category) =>
       category.id === id
         ? { ...category, isActive: !category.isActive }
@@ -121,7 +136,7 @@ const Home = ({ navigation }) => {
 
   const renderBanner = ({ item }) => (
     <View style={styles.banner}>
-      <Image source={{uri: BASE_URL + item.banner_image}} style={{ width: '100%', height: 170, borderRadius: 10 }} />
+      <Image source={{uri: item.file_uri}} style={{ width: '100%', height: 170, borderRadius: 10 }} />
     </View>
   );
 
@@ -131,7 +146,7 @@ const Home = ({ navigation }) => {
 
   const renderCompetition = (competition) => (
     <TouchableOpacity onPress={()=> viewCompetition(competition)} key={competition.id} style={styles.upcomingCompetitionItem}>
-      <Image source={{uri: BASE_URL + competition.banner_image}} style={styles.upcomingCompetitionImage} />
+      <Image source={{uri: competition.file_uri}} style={styles.upcomingCompetitionImage} />
       <View style={styles.upcomingCompetitionDetails}>
         <Text style={styles.upcomingCompetitionSlots}>10/{competition.max_participants} slots</Text>
         <Text style={styles.upcomingCompetitionDate}>{competition.is_active ? competition.registration_close_date : competition.registration_open_date}</Text>
@@ -236,7 +251,7 @@ const Home = ({ navigation }) => {
 
           {tournaments.slice(0, 10).map((comp, index) => (
             <TouchableOpacity onPress={()=> viewCompetition(comp)} key={index} style={styles.tournaments}>
-              <Image source={{uri: BASE_URL + comp.banner_image}} style={styles.activeCompetitionImage} />
+              <Image source={{uri: comp.file_uri}} style={styles.activeCompetitionImage} />
               <View style={styles.tournamentName}>
                 <Text style={styles.tournamentNameText}>{comp.name}</Text>
               </View>

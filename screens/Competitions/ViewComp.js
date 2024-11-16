@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ToastAndroid } from "react-native";
-import { BASE_URL } from "../../actions/APIs";
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ToastAndroid, useWindowDimensions } from "react-native";
 import Icon from 'react-native-vector-icons/Ionicons';
+import RenderHTML from 'react-native-render-html';
 
 
 const ViewComp = ({ route, navigation }) => {
     const { competition } = route.params;
+    const { width } = useWindowDimensions();
 
     useEffect(()=>{
         if (!competition) {
@@ -15,8 +16,11 @@ const ViewComp = ({ route, navigation }) => {
     }, []);
 
     const compRegister = ()=>{
-        // navigation.navigate('VideoCreate', {compId: competition.id});
-        navigation.navigate('Payment', {compId: competition.id, compType: 'competition'});
+        navigation.navigate('Payment', {compId: competition.id, compType: competition.competition_type, amount: String(competition.price), productInfo: competition?.name, firstName: 'Ajay Verma', email: 'ajayverma6367006928@gmail.com', phone: '6367006928'});
+    };
+
+    const videoUpload = ()=>{
+        navigation.navigate('VideoCreate', {compId: competition.id});
     };
 
     return (
@@ -27,7 +31,7 @@ const ViewComp = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
             <Image
-                source={{ uri: BASE_URL + competition?.banner_image }}
+                source={{ uri: competition?.file_uri }}
                 style={styles.bannerImage}
             />
 
@@ -56,11 +60,16 @@ const ViewComp = ({ route, navigation }) => {
 
                 <View style={styles.rulesContainer}>
                     <Text style={styles.rulesHeading}>Rules:</Text>
-                    <Text style={styles.rulesText}>{competition?.rules}</Text>
+                    <Text style={styles.rulesText}>
+                        <RenderHTML
+                        contentWidth={width}
+                        source={{ html: competition?.rules || '<p>No rules available</p>' }}
+                        />
+                    </Text>
                 </View>
 
-                <TouchableOpacity style={styles.registerButton} onPress={compRegister}>
-                    <Text style={styles.registerButtonText}>Enroll Now</Text>
+                <TouchableOpacity disabled={competition.is_done} style={[styles.registerButton, {backgroundColor: competition.is_done && '#E8B8D4'}]} onPress={()=>competition.is_done ? null : (competition.is_participated ? videoUpload() : compRegister())}>
+                    <Text style={styles.registerButtonText}>{competition.is_done ? 'Enrolled' : (competition.is_participated ? 'Upload your video' : 'Enroll Now')}</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
