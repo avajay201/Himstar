@@ -62,7 +62,8 @@ const Home = ({ navigation }) => {
     if (result[0] === 200){
       setTournaments(result[1]);
       setLiveCompetitions(result[1]);
-      setUpcomingCompetitions(result[1]);
+      const upComingComps = result[1].filter(comp => comp.is_live === false);
+      setUpcomingCompetitions(upComingComps);
     }
   };
 
