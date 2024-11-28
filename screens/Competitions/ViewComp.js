@@ -68,7 +68,7 @@ const ViewComp = ({ route, navigation }) => {
                     </Text>
                 </View>
 
-                <TouchableOpacity disabled={competition.is_done} style={[styles.registerButton, {backgroundColor: competition.is_done && '#E8B8D4'}]} onPress={()=>competition.is_done ? null : (competition.is_participated ? videoUpload() : compRegister())}>
+                <TouchableOpacity disabled={competition.is_done} style={[styles.registerButton, {backgroundColor: competition.is_done ? '#E8B8D4' : '#B94EA0'}]} onPress={()=>competition.is_done ? null : (competition.is_participated ? videoUpload() : compRegister())}>
                     <Text style={styles.registerButtonText}>{competition.is_done ? 'Enrolled' : (competition.is_participated ? 'Upload your video' : 'Enroll Now')}</Text>
                 </TouchableOpacity>
             </View>

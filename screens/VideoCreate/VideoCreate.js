@@ -1,9 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions, ToastAndroid, Text, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, ToastAndroid, Text, ScrollView, Image } from 'react-native';
 import Video from 'react-native-video';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect } from '@react-navigation/native';
+import { PermissionsAndroid, Platform } from 'react-native';
+import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 
 
 const VideoCreate = ({ route, navigation }) => {
@@ -26,6 +28,25 @@ const VideoCreate = ({ route, navigation }) => {
         'Once submitted, you cannot modify your video.',
     ];
 
+    const requestCameraPermission = async () => {
+        if (Platform.OS === 'android') {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.CAMERA,
+                {
+                    title: 'Camera Permission',
+                    message: 'This app needs access to your camera to record videos.',
+                    buttonNeutral: 'Ask Me Later',
+                    buttonNegative: 'Cancel',
+                    buttonPositive: 'OK',
+                }
+            );
+            return granted === PermissionsAndroid.RESULTS.GRANTED;
+        } else {
+            const result = await request(PERMISSIONS.IOS.CAMERA);
+            return result === RESULTS.GRANTED;
+        }
+    };
+
     useFocusEffect(
         useCallback(() => {
             return () => {
@@ -36,22 +57,28 @@ const VideoCreate = ({ route, navigation }) => {
         }, [])
     );
 
-    const recordVideo = () => {
-        launchCamera(
-            {
-                mediaType: 'video',
-                videoQuality: 'high',
-                durationLimit: 30,
-                saveToPhotos: true,
-            },
-            (response) => {
-                setVideoOptionsIsVisible(false);
-                if (response.assets && response.assets.length > 0) {
-                    setVideoUri(response.assets[0].uri);
-                    setIsPlaying(true);
+    const recordVideo = async() => {
+        const hasPermission = await requestCameraPermission();
+        if (hasPermission){
+            launchCamera(
+                {
+                    mediaType: 'video',
+                    videoQuality: 'high',
+                    durationLimit: 30,
+                    saveToPhotos: true,
+                },
+                (response) => {
+                    setVideoOptionsIsVisible(false);
+                    if (response.assets && response.assets.length > 0) {
+                        setVideoUri(response.assets[0].uri);
+                        setIsPlaying(true);
+                    }
                 }
-            }
-        );
+            );
+        }
+        else{
+            ToastAndroid.show('Camera permission denied.', ToastAndroid.SHORT);
+        }
     };
 
     const adjustVideoDimensions = (width, height) => {
@@ -69,7 +96,7 @@ const VideoCreate = ({ route, navigation }) => {
             setVideoOptionsIsVisible(false);
             if (response.assets && response.assets.length > 0) {
                 const duration = response.assets[0].duration;
-                if (duration > 30){
+                if (duration > 30) {
                     ToastAndroid.show('Video must be less than 30 seconds.', ToastAndroid.SHORT);
                     return;
                 }
@@ -102,97 +129,109 @@ const VideoCreate = ({ route, navigation }) => {
     };
 
     return (
-        rulesAccepted ? (<View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Text style={styles.backArrow}>←</Text>
-                </TouchableOpacity>
-            </View>
-            {videoUri && <VideoPlayerComponent uri={videoUri} />}
-
-            {videoUri ?
-                <View style={[styles.videoOption, { bottom: 50, gap: 50 }]}>
-                    <TouchableOpacity
-                        style={styles.videoNextStep}
-                        onPress={() => setVideoUri(null)}
-                    >
-                        <Icon name='close' size={30} color="white" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.videoNextStep}
-                        onPress={togglePlayPause}
-                    >
-                        <Icon name={isPlaying ? 'pause' : 'play-arrow'} size={30} color="white" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.videoNextStep}
-                        onPress={navigateToVideoEdit}
-                    >
-                        <Icon name='arrow-right' size={30} color="white" />
+        rulesAccepted ? (
+            <View style={styles.container}>
+                <View style={styles.backButtonContainer}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Icon name="arrow-back" size={24} color="white" />
                     </TouchableOpacity>
                 </View>
-                :
-                <TouchableOpacity
-                    style={styles.cameraButton}
-                    onPress={() => setVideoOptionsIsVisible(!videoOptionsIsVisible)}
-                >
-                    <Icon name={videoOptionsIsVisible ? 'close' : 'camera-alt'} size={30} color="white" />
-                </TouchableOpacity>
-            }
+                {videoUri && <VideoPlayerComponent uri={videoUri} />}
 
-            {videoOptionsIsVisible && (
-                <>
-                    <View style={styles.videoOption}>
-                        <TouchableOpacity onPress={recordVideo} style={styles.videoSelectOption}>
-                            <Icon name="videocam" size={40} color="white" />
+                {videoUri ?
+                    <View style={[styles.videoOption, { bottom: 50, gap: 50 }]}>
+                        <TouchableOpacity
+                            style={styles.videoNextStep}
+                            onPress={() => setVideoUri(null)}
+                        >
+                            <Icon name='close' size={30} color="white" />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={selectVideo} style={styles.videoSelectOption}>
-                            <Icon name="video-library" size={40} color="white" />
+
+                        <TouchableOpacity
+                            style={styles.videoNextStep}
+                            onPress={togglePlayPause}
+                        >
+                            <Icon name={isPlaying ? 'pause' : 'play-arrow'} size={30} color="white" />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.videoNextStep}
+                            onPress={navigateToVideoEdit}
+                        >
+                            <Icon name='arrow-right' size={30} color="white" />
                         </TouchableOpacity>
                     </View>
-                </>
-            )}
-        </View>)
-        :
-        (<View style={styles.rulesMainContainer}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Text style={styles.backArrow}>←</Text>
-                </TouchableOpacity>
-                <Text style={styles.headerText}>Upload Rules</Text>
+                    :
+                    <>
+                        <Image
+                            source={require('../../assets/images/record_video_banner.png')} // Path to your first image
+                            style={styles.fullWidthImage}
+                        />
+                        <View style={styles.cameraButton}>
+                            <TouchableOpacity
+                                style={[styles.button, styles.uploadButton]}
+                                onPress={selectVideo}
+                            >
+                                <Image
+                                    source={require('../../assets/images/video_upload_btn.png')} // Path to the image
+                                    style={styles.buttonImage}
+                                />
+                                <Text style={styles.buttonText}>Upload</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.button, styles.recordButton]}
+                                onPress={recordVideo}
+                            >
+                                <Image
+                                    source={require('../../assets/images/video_record_btn.png')} // Path to the image
+                                    style={styles.buttonImage}
+                                />
+                                <Text style={styles.buttonText}>Record</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </>
+                }
             </View>
+        )
+            :
+            (<View style={styles.rulesMainContainer}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Text style={styles.backArrow}>←</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.headerText}>Upload Rules</Text>
+                </View>
 
-            <ScrollView contentContainerStyle={styles.rulesContainer}>
-                {rules.map((rule, index) => (
-                    <View key={index} style={styles.ruleItem}>
-                        <Text style={styles.ruleNumber}>{index + 1}.</Text>
-                        <Text style={styles.ruleText}>{rule}</Text>
-                    </View>
-                ))}
-            </ScrollView>
+                <ScrollView contentContainerStyle={styles.rulesContainer}>
+                    {rules.map((rule, index) => (
+                        <View key={index} style={styles.ruleItem}>
+                            <Text style={styles.ruleNumber}>{index + 1}.</Text>
+                            <Text style={styles.ruleText}>{rule}</Text>
+                        </View>
+                    ))}
+                </ScrollView>
 
-            <TouchableOpacity
-                style={styles.proceedButton}
-                onPress={() => setRulesAccepted(true)}
-            >
-                <Text style={styles.proceedButtonText}>I Agree & Continue</Text>
-            </TouchableOpacity>
-        </View>)
+                <TouchableOpacity
+                    style={styles.proceedButton}
+                    onPress={() => setRulesAccepted(true)}
+                >
+                    <Text style={styles.proceedButtonText}>I Agree & Continue</Text>
+                </TouchableOpacity>
+            </View>)
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
+    container: { flex: 1, alignItems: 'center', backgroundColor: '#fff' },
+    fullWidthImage: {
+        width: '100%',
+        height: 500,
+        resizeMode: 'cover',
+    },
     cameraButton: {
-        position: 'absolute',
-        bottom: 30,
+        marginTop: 150,
         alignSelf: 'center',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#B94EA0',
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -202,14 +241,6 @@ const styles = StyleSheet.create({
         gap: 100,
         position: 'absolute',
         bottom: 120,
-    },
-    videoSelectOption: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#B94EA0',
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     videoNextStep: {
         alignSelf: 'center',
@@ -237,15 +268,24 @@ const styles = StyleSheet.create({
         backgroundColor: '#f4f4f9',
         padding: 20,
     },
+    backButtonContainer: {
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        zIndex: 10,
+    },
+    backButton: {
+        padding: 10,
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 20,
     },
-    backButton: {
-        marginRight: 10,
-        padding: 10,
-    },
+    // backButton: {
+    //     marginRight: 10,
+    //     padding: 10,
+    // },
     backArrow: {
         fontSize: 24,
         color: '#6C63FF',
@@ -296,6 +336,33 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10,
+        borderRadius: 20,
+        width: 120,
+        height: 120,
+        backgroundColor: '#211E74',
+        marginHorizontal: 10,
+    },
+    uploadButton: {
+        backgroundColor: '#211E74', // Blue background for Upload
+    },
+    recordButton: {
+        backgroundColor: '#211E74', // Darker blue background for Record
+    },
+    buttonText: {
+        color: '#fff',
+        marginTop: 10,
+        fontSize: 16,
+        textAlign: 'center',
+    },
+    buttonImage: {
+        width: 50,
+        height: 50,
+        marginBottom: 5,
     },
 });
 

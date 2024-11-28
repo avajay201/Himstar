@@ -137,7 +137,7 @@ const Home = ({ navigation }) => {
 
   const renderBanner = ({ item }) => (
     <View style={styles.banner}>
-      <Image source={{uri: item.file_uri}} style={{ width: '100%', height: 170, borderRadius: 10 }} />
+      <Image source={{uri: item?.file_uri}} style={{ width: '100%', height: 170, borderRadius: 10 }} />
     </View>
   );
 
@@ -147,7 +147,7 @@ const Home = ({ navigation }) => {
 
   const renderCompetition = (competition) => (
     <TouchableOpacity onPress={()=> viewCompetition(competition)} key={competition.id} style={styles.upcomingCompetitionItem}>
-      <Image source={{uri: competition.file_uri}} style={styles.upcomingCompetitionImage} />
+      <Image source={{uri: competition?.file_uri}} style={styles.upcomingCompetitionImage} />
       <View style={styles.upcomingCompetitionDetails}>
         <Text style={styles.upcomingCompetitionSlots}>10/{competition.max_participants} slots</Text>
         <Text style={styles.upcomingCompetitionDate}>{competition.is_active ? competition.registration_close_date : competition.registration_open_date}</Text>
