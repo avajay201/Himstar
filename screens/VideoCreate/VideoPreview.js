@@ -28,9 +28,10 @@ const VideoPreview = ({ route, navigation }) => {
                 name: 'video.mp4',
             });
             formData.append('music', musicUri);
-            const result = await mergeVideo(formData);
+            const result = await mergeVideo(navigation, formData);
+            console.log('Results: ', result);
             if (result[0] === 200){
-                const videoURL = BASE_URL + result[1].merged_video;
+                const videoURL = BASE_URL + '/' + result[1].merged_video;
                 setVideoUri(videoURL);
             }
             else{
@@ -61,15 +62,14 @@ const VideoPreview = ({ route, navigation }) => {
     const uploadVideo = async () => {
         setLoading(true)
         const formData = new FormData();
-        formData.append('user', Number(userId));
         formData.append('competition', Number(compId));
         formData.append('video', {
             uri: videoUri,
             type: 'video/mp4',
             name: 'video.mp4',
         });
-        const result = await postCreate(formData);
-        if (result[0] === 201){
+        const result = await postCreate(navigation, formData);
+        if (result[0] === 200){
             ToastAndroid.show('Competition registration completed successfully.', ToastAndroid.SHORT);
             navigation.navigate('HomeTabs');
         }
@@ -89,7 +89,7 @@ const VideoPreview = ({ route, navigation }) => {
 
     const backToVideoEdit = async()=>{
         if (musicUri){
-            await removeMergedVideo({file: videoUri.split('/').pop()});
+            await removeMergedVideo(navigation, {file: videoUri.split('/').pop()});
         };
         navigation.goBack();
     };
@@ -126,7 +126,7 @@ const VideoPreview = ({ route, navigation }) => {
                         <Text style={styles.backToVideoEditText}>Back</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.uploadVideo} onPress={uploadVideo}>
-                        <Text style={styles.uploadVideoText}>Upload</Text>
+                        <Text style={styles.uploadVideoText}>Done</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -166,16 +166,18 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     backToVideoEditText: {
+        fontSize: 20,
         color: 'white',
     },
     uploadVideo: {
-        backgroundColor: 'green',
+        backgroundColor: '#B94EA0',
         borderRadius: 10,
         paddingVertical: 10,
         width: 80,
-        alignItems: 'center'
+        alignItems: 'center',
     },
     uploadVideoText: {
+        fontSize: 20,
         color: 'white',
     },
     loaderContainer: {

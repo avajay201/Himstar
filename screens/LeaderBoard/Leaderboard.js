@@ -1,39 +1,84 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const Leaderboard = ({ navigation }) => {
-  const leaderboardData = [
-    { id: '1', rank: 1, name: 'John Doe', score: 1000 },
-    { id: '2', rank: 2, name: 'Jane Smith', score: 950 },
-    { id: '3', rank: 3, name: 'Jack Johnson', score: 900 },
-    { id: '4', rank: 4, name: 'Alice Brown', score: 850 },
-    { id: '5', rank: 5, name: 'Bob Davis', score: 800 },
-  ];
-
-  const renderLeaderboardItem = ({ item }) => (
-    <View style={styles.leaderboardItem}>
-      <Text style={styles.rank}>{item.rank}</Text>
-      <Text style={styles.playerName}>{item.name}</Text>
-      <Text style={styles.playerScore}>Score: {item.score}</Text>
-    </View>
-  );
-
+const LeaderBoard = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={styles.backButtonContainer}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.title}>Leaderboard</Text>
       </View>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.backgroundContainer}>
+          <Image
+            source={require('../../assets/images/Rectangle89.png')}
+            style={styles.backgroundImage}
+          />
+        </View>
 
-      <FlatList
-        data={leaderboardData}
-        renderItem={renderLeaderboardItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
-      />
+        <View style={styles.row}>
+          <Image
+            source={require('../../assets/images/Group16.png')}
+            style={styles.image}
+          />
+          <Image
+            source={require('../../assets/images/Group18.png')}
+            style={styles.image}
+          />
+        </View>
+
+        <View style={styles.row}>
+          <Image
+            source={require('../../assets/images/Group17.png')}
+            style={styles.image}
+          />
+          <Image
+            source={require('../../assets/images/Group19.png')}
+            style={styles.image}
+          />
+          <Image
+            source={require('../../assets/images/Group20.png')}
+            style={styles.image}
+          />
+        </View>
+
+        <View style={styles.profileCard}>
+          <View style={styles.cardHeading}>
+            <Text style={styles.cardHeadingText}>Winning Zone</Text>
+            <Text style={styles.cardHeadingText}>Votes</Text>
+            <Text style={styles.cardHeadingText}>Ranking</Text>
+          </View>
+
+          <View style={styles.profileContent}>
+            <Image
+              source={require('../../assets/images/Group22.png')}
+              style={styles.cardIcon}
+            />
+
+            <Image
+              source={require('../../assets/images/Ellipse6.png')}
+              style={styles.profileImage}
+            />
+            <View style={styles.profileStatsRow}>
+              <Text style={styles.profileStatValue}>10</Text>
+              <Text style={styles.profileStatValue}>100</Text>
+            </View>
+          </View>
+        </View>
+
+        <Text style={styles.profileName2}>Riya Mehan</Text>
+        <Text style={styles.profileDesignation}>Professional Dancer</Text>
+        <View style={styles.separationLine} />
+      </ScrollView>
+
+      <View style={styles.secondBackgroundContainer}>
+        <Image
+          source={require('../../assets/images/Rectangle92.png')}
+          style={styles.secondBackgroundImage}
+        />
+      </View>
     </View>
   );
 };
@@ -41,58 +86,130 @@ const Leaderboard = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
-    padding: 20,
   },
-  header: {
-    backgroundColor: '#B94EA0',
-    paddingVertical: 20,
-    borderRadius: 10,
-    marginBottom: 20,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
+  backButtonContainer: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 10,
   },
   backButton: {
+    padding: 10,
+  },
+  backgroundContainer: {
     position: 'absolute',
-    left: 10,
-    top: 20,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 300,
+    zIndex: -1,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
+  backgroundImage: {
+    width: '100%',
+    height: 300,
+    resizeMode: 'cover',
   },
-  listContainer: {
-    backgroundColor: '#fff',
-    paddingVertical: 10,
+  contentContainer: {
+    flex: 1,
+    marginTop: 0,
+    paddingBottom: 20,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  image: {
+    width: 100,
+    height: 100,
     borderRadius: 10,
+    resizeMode: 'contain',
   },
-  leaderboardItem: {
+  secondBackgroundContainer: {
+    position: 'absolute',
+    top: 300,
+    left: 0,
+    right: 0,
+    zIndex: -2,
+  },
+  secondBackgroundImage: {
+    width: '100%',
+    height: 500,
+    resizeMode: 'cover',
+  },
+  profileCard: {
+    backgroundColor: '#f5f5f5',
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  cardHeading: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  cardHeadingText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  profileContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardIcon: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  profileName: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginHorizontal: 10,
+  },
+  profileDesignation: {
+    fontSize: 14,
+    color: '#777',
+    textAlign: 'left',
+    marginTop: 5, // Reduced the gap
+    marginLeft: 50,
+  },
+  profileStatsRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
   },
-  rank: {
-    fontSize: 18,
+  profileStatValue: {
+    fontSize: 14,
     fontWeight: 'bold',
-    color: '#333',
-    width: 40,
+    marginHorizontal: 5,
+    marginLeft: '30',
   },
-  playerName: {
-    fontSize: 16,
-    color: '#555',
-    flex: 1,
-  },
-  playerScore: {
-    fontSize: 16,
-    color: '#333',
+  profileName2: {
+    marginLeft: 50,
     fontWeight: 'bold',
+    marginTop: -20, // Reduced the gap from the top
   },
+  separationLine: {
+    height: 1,
+    backgroundColor: '#ddd', // Light gray color
+    marginVertical: 15, // Space above and below the line
+  },
+
 });
 
-export default Leaderboard;
+export default LeaderBoard;

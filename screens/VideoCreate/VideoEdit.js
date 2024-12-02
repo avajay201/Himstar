@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, FlatList, ActivityIndicator, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
-import { mergeVideo, searchMusic } from '../../actions/ApiActions';
+import { searchMusic } from '../../actions/ApiActions';
 import Sound from 'react-native-sound';
 
 
@@ -209,6 +209,11 @@ const VideoEdit = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.backButtonContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Icon name="arrow-back" size={24} color={videoUri ? "white" : "black"} />
+                </TouchableOpacity>
+            </View>
             <View style={[styles.videoContainer, videoDimensions]}>
 
                 {videoUri ? (
@@ -241,11 +246,8 @@ const VideoEdit = ({ route, navigation }) => {
             </View>
 
             <View style={styles.navigationButtons}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Icon name="arrow-back" size={30} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigateVideoPreview()}>
-                    <Icon name="arrow-forward" size={30} color="white" />
+                <TouchableOpacity style={styles.nextButton} onPress={() => navigateVideoPreview()}>
+                    <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity>
             </View>
 
@@ -256,6 +258,15 @@ const VideoEdit = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' },
+    backButtonContainer: {
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        zIndex: 10,
+    },
+    backButton: {
+        padding: 10,
+    },
     videoContainer: { width: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: '#333' },
     controls: {
         flexDirection: 'row',
@@ -266,10 +277,21 @@ const styles = StyleSheet.create({
     },
     navigationButtons: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '80%',
         position: 'absolute',
-        bottom: 50,
+        bottom: 35,
+    },
+    nextButton: {
+        backgroundColor: '#B94EA0',
+        width: 100,
+        height: 40,
+        borderRadius: 10,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    nextButtonText: {
+        fontSize: 20,
+        color: 'white',
     },
     modalContainer: {
         flex: 1,

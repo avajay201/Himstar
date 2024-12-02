@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import DateTimePicker from 'react-native-ui-datepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Register = ({ navigation }) => {
@@ -153,7 +154,7 @@ const Register = ({ navigation }) => {
     const result = await userRegistration(formData);
     let errorMsg;
     let successMsg = false;
-    if (!result){
+    if (!result) {
       errorMsg = 'Something went wrong.';
       setErrorMessage(errorMsg);
       setIsErrorVisible(true);
@@ -186,31 +187,82 @@ const Register = ({ navigation }) => {
           toValue: -100,
           duration: 500,
           useNativeDriver: true,
-        }).start(() =>{ setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('')});
+        }).start(() => { setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('') });
         if (successMsg) {
-          navigation.navigate('OtpVerify', {userData: formData});
+          navigation.navigate('OtpVerify', { userData: formData });
         }
       }, 2000);
     }
-    if (!successMsg){
+    if (!successMsg) {
       setLoading(false);
     }
   };
 
-  const handleGoogleRegister = async() => {
+  const handleGoogleRegister = async () => {
     try {
       await GoogleSignin.signOut();
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
+      if (userInfo?.type === 'cancelled'){
+        return;
+      }
       const userData = {
         data: userInfo?.data?.user,
         token: userInfo?.data?.idToken,
       }
-      console.log('User Data:', userData);
+      console.log('User Data:', userInfo);
       setLoading(true);
-      const result = await userGoogleRegistration({token: userInfo?.data?.idToken});
+      const result = await userGoogleRegistration({ token: userInfo?.data?.idToken });
       console.log('Result:', result);
-      setLoading(false);
+      let errorMsg;
+      let successMsg = false;
+      if (!result) {
+        errorMsg = 'Something went wrong.';
+        setErrorMessage(errorMsg);
+        setIsErrorVisible(true);
+      }
+      else if (result[0] === 200 || result[0] === 201) {
+        successMsg = true;
+        await AsyncStorage.setItem('AuthToken', result[1].access);
+        await AsyncStorage.setItem('AuthUser', result[1].username);
+        await AsyncStorage.setItem('AuthId', String(result[1].user_id));
+        await AsyncStorage.setItem('RegAuthId', String(result[1].reg_user_id));
+        await AsyncStorage.setItem('AuthEmail', result[1].email);
+        setSuccessMessage('Login successfully.');
+        setIsErrorVisible(true);
+      }
+      else {
+        if (typeof (result[1]) === 'object') {
+          const firstKey = Object.keys(result[1])[0];
+          errorMsg = result[1][firstKey][0];
+        }
+        else {
+          errorMsg = result[1];
+        }
+        setErrorMessage(errorMsg);
+        setIsErrorVisible(true);
+      }
+      if (errorMsg || successMsg) {
+        Animated.timing(errorAnimation, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }).start();
+
+        setTimeout(() => {
+          Animated.timing(errorAnimation, {
+            toValue: -100,
+            duration: 500,
+            useNativeDriver: true,
+          }).start(() => { setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('') });
+          if (successMsg) {
+            navigation.navigate('HomeTabs');
+          }
+        }, 2000);
+      }
+      if (!successMsg) {
+        setLoading(false);
+      }
     } catch (error) {
       console.log('Google sign in error>>>>>', error);
     }
@@ -304,7 +356,7 @@ const Register = ({ navigation }) => {
                   if (selectedDate > currentDate) {
                     setErrors({ ...errors, dob: 'Date cannot be in the future.' });
                   }
-                  else{
+                  else {
                     handleInputChange('dob', dayjs(selectedDate).format('YYYY-MM-DD'))
                     setDobPickerVisible(false);
                   }
@@ -416,15 +468,15 @@ const Register = ({ navigation }) => {
           </TouchableOpacity>
         </>}
 
-        {step === 3 && <Modal
-          transparent={true}
-          animationType="fade"
-          visible={loading}
-        >
-          <View style={styles.loaderOverlay}>
-            <ActivityIndicator size="large" color={'#B94EA0'} />
-          </View>
-        </Modal>}
+      {(step === 3 || successMessage === 'Login successfully.') && <Modal
+        transparent={true}
+        animationType="fade"
+        visible={loading}
+      >
+        <View style={styles.loaderOverlay}>
+          <ActivityIndicator size="large" color={'#B94EA0'} />
+        </View>
+      </Modal>}
     </View>
   );
 };

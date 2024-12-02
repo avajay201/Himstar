@@ -6,10 +6,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
-const primaryColor = '#B94EA0';
-const secondaryColor = '#FFFFFF';
-const thirdColor = '#000';
-
 const Contact = ({ navigation }) => {
   const [formData, setFormData] = useState({
     full_name: '',
@@ -54,7 +50,7 @@ const Contact = ({ navigation }) => {
   }, []);
 
   if (!fontsLoaded) {
-    return <ActivityIndicator size="large" color={primaryColor} style={{ flex: 1, justifyContent: 'center' }} />;
+    return <ActivityIndicator size="large" color={'#B94EA0'} style={{ flex: 1, justifyContent: 'center' }} />;
   }
 
   const handleInputChange = (name, value) => {
@@ -97,7 +93,7 @@ const Contact = ({ navigation }) => {
       return;
     }
     setLoading(true);
-    const result = await contactUs(formData);
+    const result = await contactUs(navigation, formData);
     let errorMsg;
     let successMsg = false;
     if (!result){
@@ -148,7 +144,7 @@ const Contact = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.backButton}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color={primaryColor} />
+          <Icon name="arrow-back" size={24} color={'#B94EA0'} />
         </TouchableOpacity>
       </View>
 
@@ -234,7 +230,7 @@ const Contact = ({ navigation }) => {
       </View>
       <Modal transparent={true} animationType="fade" visible={loading}>
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color={primaryColor} />
+          <ActivityIndicator size="large" color={'#B94EA0'} />
         </View>
       </Modal>
     </View>
@@ -246,7 +242,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     padding: 20,
-    backgroundColor: secondaryColor,
+    backgroundColor: '#FFFFFF',
     paddingTop: 25,
   },
   backButton: {
@@ -274,21 +270,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 10,
-    color: primaryColor,
+    color: '#B94EA0',
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: thirdColor,
+    color: '#000',
     fontFamily: 'DMSans_400Regular',
     textAlign: 'center',
   },
   label: {
     fontSize: 18,
     marginBottom: 5,
-    color: thirdColor,
+    color: '#000',
     fontFamily: 'DMSans_500Medium',
   },
   input: {
@@ -318,14 +314,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   button: {
-    backgroundColor: primaryColor,
+    backgroundColor: '#B94EA0',
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
     width: '100%',
   },
   buttonText: {
-    color: secondaryColor,
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 18,
   },
@@ -335,13 +331,13 @@ const styles = StyleSheet.create({
   },
   addressTitle: {
     fontSize: 18,
-    color: primaryColor,
+    color: '#B94EA0',
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
   },
   addressDetails: {
     fontSize: 16,
-    color: thirdColor,
+    color: '#000',
     fontFamily: 'DMSans_400Regular',
     textAlign: 'center',
   },
@@ -363,13 +359,13 @@ const styles = StyleSheet.create({
   },
   managerPhones: {
     fontSize: 16,
-    color: primaryColor,
+    color: '#B94EA0',
     fontFamily: 'DMSans_500Medium',
     marginBottom: 5,
   },
   emailDetails: {
     fontSize: 16,
-    color: primaryColor,
+    color: '#B94EA0',
     fontFamily: 'DMSans_500Medium',
     marginBottom: 5,
   },

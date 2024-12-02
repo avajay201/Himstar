@@ -6,6 +6,8 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import Login from './screens/Auth/Login';
 import Register from './screens/Auth/Register';
+import ChangePassword from './screens/Auth/ChangePassword';
+import EditProfile from './screens/Auth/EditProfile';
 import OtpVerify from './screens/Auth/OtpVerify';
 import Leaderboard from './screens/LeaderBoard/Leaderboard';
 import SplashScreen from './screens/OtherScreens/SplashScreen';
@@ -16,7 +18,7 @@ import UpcomingComps from './screens/Competitions/UpcomingComps';
 import LiveComps from './screens/Competitions/LiveComps';
 import Wallet from './screens/Wallet/Wallet';
 import MyVideos from './screens/MyVideos/MyVideos';
-import MyContests from './screens/MyContests/MyContests';
+import MyCompetitions from './screens/MyCompetitions/MyCompetitions';
 import VideoCreate from './screens/VideoCreate/VideoCreate';
 import VideoEdit from './screens/VideoCreate/VideoEdit';
 import VideoPreview from './screens/VideoCreate/VideoPreview';
@@ -105,8 +107,8 @@ function AppNavigator() {
       options={{ headerShown: false }}
     />
     <Stack.Screen 
-      name="MyContests" 
-      component={MyContests} 
+      name="MyCompetitions" 
+      component={MyCompetitions} 
       options={{ headerShown: false }}
     />
     <Stack.Screen 
@@ -142,6 +144,16 @@ function AppNavigator() {
     <Stack.Screen 
       name="Payment" 
       component={Payment} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="ChangePassword" 
+      component={ChangePassword} 
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen 
+      name="EditProfile" 
+      component={EditProfile} 
       options={{ headerShown: false }}
     />
     </Stack.Navigator>

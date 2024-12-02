@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { NativeEventEmitter, StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Modal, ActivityIndicator } from 'react-native'
+import { NativeEventEmitter, StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Modal, ActivityIndicator, LogBox } from 'react-native'
 import PayUBizSdk from 'payu-non-seam-less-react';
 import { sha512 } from 'js-sha512';
 import { makePayment } from '../../actions/ApiActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 
 const Payment = ({ route, navigation }) => {
     const { compId, compType, amount, productInfo, firstName, email, phone } = route.params;
-    const [userId, setUserId] = useState(null);
+    // const [userId, setUserId] = useState(null);
     const currentDate = new Date().toLocaleDateString();
     const [loading, setLoading] = useState(false);
 
@@ -16,22 +17,22 @@ const Payment = ({ route, navigation }) => {
     const [merchantSalt, setMerchantSalt] = useState("dfnpSUMPtmdP9T0UT02vyKseFpuUDxSu");
 
     const [ios_surl, setIosSurl] = useState(
-        'https://success-nine.vercel.app',
+        'http://192.168.1.4:8000/api/success/',
     );
     const [ios_furl, setIosFurl] = useState(
-        'https://failure-kohl.vercel.app',
+        'http://192.168.1.4:8000/api/failure/',
     );
     const [environment, setEnvironment] = useState(1 + '');
     const [android_surl, setAndroidSurl] = useState(
-        'https://success-nine.vercel.app',
+        'http://192.168.1.4:8000/api/success/',
     );
     const [android_furl, setAndroidFurl] = useState(
-        'https://failure-kohl.vercel.app',
+        'http://192.168.1.4:8000/api/failure/',
     );
 
     const [showCbToolbar, setShowCbToolbar] = useState(true);
     const [userCredential, setUserCredential] = useState('');
-    const [primaryColor, setPrimaryColor] = useState('#4c31ae');
+    const [primaryColor, setPrimaryColor] = useState('#B94EA0');
 
     const [secondaryColor, setSecondaryColor] = useState('#022daf');
     const [merchantName, setMerchantName] = useState('DEMO PAY U');
@@ -52,17 +53,18 @@ const Payment = ({ route, navigation }) => {
 
     const [autoSelectOtp, setAutoSelectOtp] = useState(true);
 
-    const fetchUser = async()=>{
+    const fetchUser = async () => {
         const id = await AsyncStorage.getItem('RegAuthId');
-        if (!id){
+        if (!id) {
             ToastAndroid.show('Something went wrong, please try again!', ToastAndroid.SHORT);
-            navigation.goBack();
             setLoading(false);
+            navigation.goBack();
         }
-        setUserId(id);
+        // setUserId(id);
     };
 
     useEffect(() => {
+        LogBox.ignoreLogs(['new NativeEventEmitter']);
         fetchUser();
     }, []);
 
@@ -88,13 +90,12 @@ const Payment = ({ route, navigation }) => {
             console.warn(err);
         }
     };
-    displayAlert = async (status, value, successResponse=null) => {
-        if (status === 'Success'){
-            console.log('successResponse>>>', successResponse, '++++++++++++', typeof(successResponse));
-            if (compType === 'competition'){
+    displayAlert = async (status, value, successResponse = null) => {
+        if (status === 'Success') {
+            if (compType === 'competition') {
                 successResponse['competition'] = compId;
             }
-            else if (compType === 'tournament'){
+            else if (compType === 'tournament') {
                 successResponse['tournament'] = compId;
             }
             else {
@@ -103,10 +104,18 @@ const Payment = ({ route, navigation }) => {
                 setLoading(false);
                 return;
             }
-            successResponse['user'] = userId;
-            await makePayment(successResponse);
-            navigation.navigate('HomeTabs');
+            const result = await makePayment(navigation, successResponse);
+            if (result[0] === 201) {
+                navigation.navigate('HomeTabs');
+            }
+            else {
+                ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
+                navigation.goBack();
+            }
         };
+        if (value.includes('canceled')) {
+            setLoading(false);
+        }
         ToastAndroid.show(value, ToastAndroid.SHORT);
     };
     onPaymentSuccess = e => {
@@ -209,7 +218,7 @@ const Payment = ({ route, navigation }) => {
             autoApprove: autoApprove,
             merchantSMSPermission: merchantSMSPermission,
             showCbToolbar: showCbToolbar,
-            enforcePaymentList: [{'payment_type' :"UPI"}, {'payment_type' :"CARD"}]
+            enforcePaymentList: [{ 'payment_type': "UPI" }, { 'payment_type': "CARD" }]
         };
         return {
             payUPaymentParams: payUPaymentParams,
@@ -222,38 +231,67 @@ const Payment = ({ route, navigation }) => {
         PayUBizSdk.openCheckoutScreen(createPaymentParams());
     };
 
+    const checkoutDetails = {
+        totalAmount: "$100.00",
+        date: "December 1, 2024",
+        competitionName: "Photo Competition 2024",
+        name: "John Doe",
+        email: "john.doe@example.com",
+        phone: "+1234567890",
+      };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Text style={styles.backArrow}>←</Text>
-                </TouchableOpacity>
-                <Text style={styles.headerText}>Checkout</Text>
+                <View style={styles.backButtonContainer}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Icon name="arrow-back" size={24} color="black" />
+                    </TouchableOpacity>
+                </View>
+                <Text style={styles.headerText}>Checkout Details</Text>
             </View>
 
-            <View style={styles.detailsCard}>
-                <Text style={styles.detailItem}>
-                    <Text style={styles.label}>Total Amount: </Text>₹{amount}
-                </Text>
-                <Text style={styles.detailItem}>
-                    <Text style={styles.label}>Date: </Text>{currentDate}
-                </Text>
-                <Text style={styles.detailItem}>
-                    <Text style={styles.label}>{compType === 'competition' ? 'Competition' : 'Tournament'} Name: </Text>{productInfo}
-                </Text>
-                <Text style={styles.detailItem}>
-                    <Text style={styles.label}>Name: </Text>{firstName}
-                </Text>
-                <Text style={styles.detailItem}>
-                    <Text style={styles.label}>Email: </Text>{email}
-                </Text>
-                <Text style={styles.detailItem}>
-                    <Text style={styles.label}>Phone: </Text>{phone}
-                </Text>
+            <View style={styles.card}>
+                {/* Total Amount */}
+                <View style={styles.detailGroup}>
+                    <Text style={styles.label}>Total Amount</Text>
+                    <Text style={styles.detail}>{checkoutDetails.totalAmount}</Text>
+                </View>
+
+                {/* Date */}
+                <View style={styles.detailGroup}>
+                    <Text style={styles.label}>Date</Text>
+                    <Text style={styles.detail}>{checkoutDetails.date}</Text>
+                </View>
+
+                {/* Competition Name */}
+                <View style={styles.detailGroup}>
+                    <Text style={styles.label}>Competition Name</Text>
+                    <Text style={styles.detail}>{checkoutDetails.competitionName}</Text>
+                </View>
+
+                {/* Name */}
+                <View style={styles.detailGroup}>
+                    <Text style={styles.label}>Name</Text>
+                    <Text style={styles.detail}>{checkoutDetails.name}</Text>
+                </View>
+
+                {/* Email */}
+                <View style={styles.detailGroup}>
+                    <Text style={styles.label}>Email</Text>
+                    <Text style={styles.detail}>{checkoutDetails.email}</Text>
+                </View>
+
+                {/* Phone */}
+                <View style={styles.detailGroup}>
+                    <Text style={styles.label}>Phone</Text>
+                    <Text style={styles.detail}>{checkoutDetails.phone}</Text>
+                </View>
             </View>
 
-            <Text style={styles.description}>
-                After payment is done, you can upload your video for this competition.
+            {/* Note */}
+            <Text style={styles.note}>
+                Note: After the payment is done, you will receive a confirmation email.
             </Text>
 
             <TouchableOpacity style={styles.checkoutButton} onPress={launchPayment}>
@@ -277,20 +315,22 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: 20,
     },
-    backButton: {
-        marginRight: 10,
-        padding: 10,
+    backButtonContainer: {
+        position: 'absolute',
+        top: -5,
+        left: -5,
+        zIndex: 10,
     },
-    backArrow: {
-        fontSize: 24,
-        color: '#6C63FF',
+    backButton: {
+        padding: 10,
     },
     headerText: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: '#333',
+        color: '#B94EA0',
     },
     detailsCard: {
         backgroundColor: '#fff',
@@ -313,12 +353,42 @@ const styles = StyleSheet.create({
     },
     description: {
         fontSize: 14,
-        color: '#6C63FF',
+        color: '#B94EA0',
         textAlign: 'center',
         marginBottom: 30,
     },
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+        marginBottom: 20,
+    },
+    detailGroup: {
+        marginBottom: 15,
+    },
+    label: {
+        fontSize: 16,
+        color: '#BD4DA3',
+        marginBottom: 5,
+    },
+    detail: {
+        fontSize: 16,
+        color: '#333',
+        padding: 0,
+    },
+    note: {
+        fontSize: 14,
+        color: '#BD4DA3',
+        marginVertical: 20,
+        textAlign: 'center',
+    },
     checkoutButton: {
-        backgroundColor: '#6C63FF',
+        backgroundColor: '#B94EA0',
         padding: 15,
         borderRadius: 10,
         alignItems: 'center',
@@ -338,7 +408,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.7)',
-      },
+    },
 });
 
 export default Payment;

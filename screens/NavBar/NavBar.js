@@ -23,12 +23,12 @@ export default NavBar = () => {
                         iconName = focused ? 'person' : 'person-outline';
                     }
 
-                    return <Icon name={iconName} size={size} color={color} />;
+                    return <Icon name={iconName} size={30} color={color} />;
                 },
-                tabBarActiveTintColor: 'white',
+                tabBarActiveTintColor: '#B94EA0',
                 tabBarInactiveTintColor: 'black',
                 tabBarStyle: {
-                    backgroundColor: '#B94EA0',
+                    backgroundColor: 'white',
                     borderTopWidth: 0,
                     elevation: 0,
                     height: 60,

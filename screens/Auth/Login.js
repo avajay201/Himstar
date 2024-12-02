@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, Animated, M
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import googleIcon from '../../assets/images/google-img.png';
 import { useFocusEffect } from '@react-navigation/native';
-import { userLogin } from '../../actions/ApiActions';
+import { userLogin, userGoogleRegistration } from '../../actions/ApiActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
@@ -133,7 +133,66 @@ const Login = ({ navigation }) => {
       await GoogleSignin.signOut();
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      console.log('User Info:', userInfo);
+      if (userInfo?.type === 'cancelled'){
+        return;
+      }
+      const userData = {
+        data: userInfo?.data?.user,
+        token: userInfo?.data?.idToken,
+      }
+      console.log('User Data:', userData);
+      setLoading(true);
+      const result = await userGoogleRegistration({token: userInfo?.data?.idToken});
+      console.log('Result:', result);
+      let errorMsg;
+      let successMsg = false;
+      if (!result){
+        errorMsg = 'Something went wrong.';
+        setErrorMessage(errorMsg);
+        setIsErrorVisible(true);
+      }
+      else if (result[0] === 200 || result[0] === 201) {
+        successMsg = true;
+        await AsyncStorage.setItem('AuthToken', result[1].access);
+        await AsyncStorage.setItem('AuthUser', result[1].username);
+        await AsyncStorage.setItem('AuthId', String(result[1].user_id));
+        await AsyncStorage.setItem('RegAuthId', String(result[1].reg_user_id));
+        await AsyncStorage.setItem('AuthEmail', result[1].email);
+        setSuccessMessage('Login successfully.');
+        setIsErrorVisible(true);
+      }
+      else {
+        if (typeof (result[1]) === 'object') {
+          const firstKey = Object.keys(result[1])[0];
+          errorMsg = result[1][firstKey][0];
+        }
+        else {
+          errorMsg = result[1];
+        }
+        setErrorMessage(errorMsg);
+        setIsErrorVisible(true);
+      }
+      if (errorMsg || successMsg) {
+        Animated.timing(errorAnimation, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }).start();
+
+        setTimeout(() => {
+          Animated.timing(errorAnimation, {
+            toValue: -100,
+            duration: 500,
+            useNativeDriver: true,
+          }).start(() =>{ setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('')});
+          if (successMsg) {
+            navigation.navigate('HomeTabs');
+          }
+        }, 1000);
+      }
+      if (!successMsg){
+        setLoading(false);
+      }
     } catch (error) {
       console.log('Google sign in error>>>>>', error);
     }

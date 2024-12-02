@@ -1,17 +1,18 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Animated, Dimensions, TouchableOpacity, Image, Modal, TextInput, StyleSheet, Share, ToastAndroid } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Animated, Dimensions, TouchableOpacity, Image, Modal, TextInput, StyleSheet, Share, ToastAndroid, RefreshControl } from 'react-native';
 import Video from 'react-native-video';
 import { useIsFocused } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Applogo from '../../assets/images/logo.png';
-import { postedVideos, postLikes, likePost, postComments, postComment } from '../../actions/ApiActions';
+import { listParticipantsVideos, postLikes, likePost, postComments, postComment } from '../../actions/ApiActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { BASE_URL } from '../../actions/APIs';
 
 
 const { height } = Dimensions.get('window');
 
-const Reels = () => {
+const Reels = ({ navigation }) => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -27,6 +28,7 @@ const Reels = () => {
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
   const [userId, setUserId] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchUser = async()=>{
     const id = await AsyncStorage.getItem('RegAuthId');
@@ -35,7 +37,7 @@ const Reels = () => {
 
   const getPostedVideos = async()=>{
     setReelsLoading(true);
-    const result = await postedVideos(userId);
+    const result = await listParticipantsVideos(navigation);
     if (result[0] === 200){
       setVideos(result[1]);
     }
@@ -45,7 +47,7 @@ const Reels = () => {
   };
 
   const postToggleLike = async(postId)=>{
-    const result = await likePost({user_id: userId, post_id: postId});
+    const result = await likePost(navigation, {post_id: postId});
     if (result[0] === 200){
       const updatedVideos = videos.map((video) => {
         if (video.id === postId) {
@@ -82,7 +84,7 @@ const Reels = () => {
 
   const getPostLikes = async(id)=>{
     setLikesLoading(true);
-    const result = await postLikes(id);
+    const result = await postLikes(navigation, id);
     if (result[0] === 200){
       setLikes(result[1]);
     }
@@ -102,7 +104,7 @@ const Reels = () => {
 
   const getPostComments = async(id)=>{
     setCommentsLoading(true);
-    const result = await postComments(id);
+    const result = await postComments(navigation, id);
     if (result[0] === 200){
       setComments(result[1]);
     }
@@ -137,7 +139,7 @@ const Reels = () => {
 
   const addComment = async () => {
     if (newComment.trim()) {
-      const result = await postComment({user: userId, post: commentsModalVisible, content: newComment});
+      const result = await postComment(navigation, {post: commentsModalVisible, content: newComment});
       if (result[0] === 201){
         setComments((prevComments) => [
           { id: result[1].id, content: newComment, profile_pic: '', username: 'avajay201' },
@@ -184,7 +186,7 @@ const Reels = () => {
   const renderComments = useCallback(({ item, index }) => {
     return (
       <View style={styles.commentContainer}>
-        <Image source={Applogo} style={styles.commentProfilePic} />
+        <Image source={item.profile_image ? {uri: BASE_URL + item.profile_image} : {Applogo}} style={styles.commentProfilePic} />
         <View style={styles.commentContent}>
           <Text style={styles.commentUsername}>{item.username}</Text>
           <Text style={styles.commentText}>{item.content}</Text>
@@ -198,7 +200,7 @@ const Reels = () => {
       <View style={styles.likeItem}>
         <View style={styles.userLikeDetails}>
           <Image
-            source={Applogo}
+            source={item.profile_image ? {uri: BASE_URL + item.profile_image} : {Applogo}}
             style={styles.likeProfilePic}
           />
           <Text style={styles.likeUserName}>{item.username}</Text>
@@ -207,6 +209,12 @@ const Reels = () => {
       </View>
     )
   });
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getPostedVideos();
+    setRefreshing(false);
+  };
 
   const renderVideo = useCallback(({ item, index }) => {
     return (
@@ -327,6 +335,7 @@ const Reels = () => {
 
   return (
     <>
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#B94EA0']} />
       {!reelsLoading && videos?.length > 0 && <FlatList
         data={videos}
         pagingEnabled
@@ -377,7 +386,7 @@ const Reels = () => {
               style={styles.commentInput}
             />
             <TouchableOpacity disabled={!newComment.trim() ? true : false} onPress={addComment} style={styles.addCommentBtn}>
-              <Icon name="send" size={30} color="#007AFF" />
+              <Icon name="send" size={30} color="#B94EA0" />
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -466,7 +475,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   commentUsername: {
-    color: '#FFDD59',
+    color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
   },
