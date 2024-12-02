@@ -1,14 +1,14 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { View, Text, BackHandler, ToastAndroid, Animated, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator, Modal, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AppLogo from './../../assets/images/logo.png';
 import Carousel from 'react-native-snap-carousel';
 import { getCategories, getBanners, getCompetitions } from '../../actions/ApiActions';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MainContext } from '../../others/MyContext';
 
 
-const Home = ({ route, navigation }) => {
+const Home = ({ navigation }) => {
   const [backPressedOnce, setBackPressedOnce] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -20,12 +20,17 @@ const Home = ({ route, navigation }) => {
   const [liveCompetitions, setLiveCompetitions] = useState([]);
   const [tournaments, setTournaments] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [userId, setUserId] = useState(null);
+  const { homeReload, setHomeReload } = useContext(MainContext);
+
+  useEffect(()=>{
+    if (homeReload){
+      fetchAllData();
+      setHomeReload(false);
+    }
+  }, [homeReload]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchAllData();
-      fetchUser();
       return () => {
         if (slideAnimation) {
           Animated.timing(slideAnimation, {
@@ -71,7 +76,7 @@ const Home = ({ route, navigation }) => {
 
   useEffect(() => {
     fetchAllData();
-  }, [userId]);
+  }, []);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -85,11 +90,6 @@ const Home = ({ route, navigation }) => {
     setRefreshing(true);
     await fetchAllData();
     setRefreshing(false);
-  };
-
-  const fetchUser = async () => {
-    const id = await AsyncStorage.getItem('RegAuthId');
-    setUserId(id);
   };
 
   const filterApply = async (id) => {

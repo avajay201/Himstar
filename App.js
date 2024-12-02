@@ -7,7 +7,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import Login from './screens/Auth/Login';
 import Register from './screens/Auth/Register';
 import ChangePassword from './screens/Auth/ChangePassword';
-import EditProfile from './screens/Auth/EditProfile';
+import EditProfile from './screens/Profile/EditProfile';
 import OtpVerify from './screens/Auth/OtpVerify';
 import Leaderboard from './screens/LeaderBoard/Leaderboard';
 import SplashScreen from './screens/OtherScreens/SplashScreen';
@@ -24,6 +24,7 @@ import VideoEdit from './screens/VideoCreate/VideoEdit';
 import VideoPreview from './screens/VideoCreate/VideoPreview';
 import ViewComp from './screens/Competitions/ViewComp';
 import Payment from './screens/Payment/Payment';
+import { MainProvider } from './others/MyContext';
 
 
 const Stack = createNativeStackNavigator();
@@ -38,7 +39,7 @@ function AppNavigator() {
     });
   }, []);
 
-  const AuthCheck = async()=>{
+  const AuthCheck = async () => {
     const authToken = await AsyncStorage.getItem('AuthToken');
     const username = await AsyncStorage.getItem('AuthUser');
     const email = await AsyncStorage.getItem('AuthEmail');
@@ -61,101 +62,101 @@ function AppNavigator() {
 
   return (
     <Stack.Navigator initialRouteName={initialRoute}>
-    <Stack.Screen 
-      name="WelcomeScreen" 
-      component={WelcomeScreen} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="Login" 
-      component={Login} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="Register" 
-      component={Register} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="OtpVerify" 
-      component={OtpVerify} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="HomeTabs" 
-      component={NavBar} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="Leaderboard" 
-      component={Leaderboard} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="ContactUs" 
-      component={ContactUs} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="UpcomingComps" 
-      component={UpcomingComps} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="LiveComps" 
-      component={LiveComps} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="MyCompetitions" 
-      component={MyCompetitions} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="MyVideos" 
-      component={MyVideos} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="Wallet" 
-      component={Wallet} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="VideoCreate" 
-      component={VideoCreate} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="VideoEdit" 
-      component={VideoEdit} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="VideoPreview" 
-      component={VideoPreview} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="ViewComp" 
-      component={ViewComp} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="Payment" 
-      component={Payment} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="ChangePassword" 
-      component={ChangePassword} 
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="EditProfile" 
-      component={EditProfile} 
-      options={{ headerShown: false }}
-    />
+      <Stack.Screen
+        name="WelcomeScreen"
+        component={WelcomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Login"
+        component={Login}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Register"
+        component={Register}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="OtpVerify"
+        component={OtpVerify}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="HomeTabs"
+        component={NavBar}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Leaderboard"
+        component={Leaderboard}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ContactUs"
+        component={ContactUs}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="UpcomingComps"
+        component={UpcomingComps}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="LiveComps"
+        component={LiveComps}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MyCompetitions"
+        component={MyCompetitions}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MyVideos"
+        component={MyVideos}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Wallet"
+        component={Wallet}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="VideoCreate"
+        component={VideoCreate}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="VideoEdit"
+        component={VideoEdit}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="VideoPreview"
+        component={VideoPreview}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ViewComp"
+        component={ViewComp}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Payment"
+        component={Payment}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePassword}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
@@ -163,7 +164,9 @@ function AppNavigator() {
 export default function App() {
   return (
     <NavigationContainer>
-      <AppNavigator />
+      <MainProvider>
+        <AppNavigator />
+      </MainProvider>
     </NavigationContainer>
   );
 }

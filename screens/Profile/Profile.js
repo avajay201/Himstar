@@ -45,7 +45,12 @@ const Profile = ({ navigation }) => {
 
     const handleSettingsOption = (option) => {
         setSettingsVisible(false);
-        navigation.navigate(option);
+        if (option === 'EditProfile'){
+            navigation.navigate(option, {profileData: profileData});
+        }
+        else{
+            navigation.navigate(option);
+        }
     };
 
     useEffect(() => {
@@ -69,7 +74,7 @@ const Profile = ({ navigation }) => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={openSettings}>
-                    <Icon name="settings" size={40} color="#B94EA0" />
+                    <Icon name="settings" size={40} color="white" />
                 </TouchableOpacity>
             </View>
 
@@ -121,11 +126,11 @@ const Profile = ({ navigation }) => {
                     <Text style={styles.cardSubtitle}>Contest Entered</Text>
                 </View>
                 <View style={styles.cardColumn}>
-                    <Text style={styles.cardNumber}>5</Text>
+                    <Text style={styles.cardNumber}>0</Text>
                     <Text style={styles.cardSubtitle}>Top 50</Text>
                 </View>
                 <View style={styles.cardColumn}>
-                    <Text style={styles.cardNumber}>677</Text>
+                    <Text style={styles.cardNumber}>0</Text>
                     <Text style={styles.cardSubtitle}>Votes Cast</Text>
                 </View>
             </View>

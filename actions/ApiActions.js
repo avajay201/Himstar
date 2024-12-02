@@ -364,13 +364,16 @@ export const profile = async (navigation) => {
 export const updateProfile = async (navigation, data) => {
     try {
         const token = await getAuthToken();
+        console.log('data>>>', data);
         const response = await axios.patch(ENDPOINTS.profile, data, {
             headers: {
+             'Content-Type': 'multipart/form-data',
               Authorization: `Bearer ${token}`,
             },
         });
         return [response.status, response.data];
     } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data)
         if (error?.response?.status === 401){
             await logoutUser(navigation)
         }

@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { NativeEventEmitter, StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Modal, ActivityIndicator, LogBox } from 'react-native'
 import PayUBizSdk from 'payu-non-seam-less-react';
 import { sha512 } from 'js-sha512';
 import { makePayment } from '../../actions/ApiActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { MainContext } from '../../others/MyContext';
 
 
 const Payment = ({ route, navigation }) => {
+    const { setHomeReload } = useContext(MainContext);
     const { compId, compType, amount, productInfo, firstName, email, phone } = route.params;
     // const [userId, setUserId] = useState(null);
     const currentDate = new Date().toLocaleDateString();
@@ -106,6 +108,7 @@ const Payment = ({ route, navigation }) => {
             }
             const result = await makePayment(navigation, successResponse);
             if (result[0] === 201) {
+                setHomeReload(true);
                 navigation.navigate('HomeTabs');
             }
             else {
@@ -231,14 +234,14 @@ const Payment = ({ route, navigation }) => {
         PayUBizSdk.openCheckoutScreen(createPaymentParams());
     };
 
-    const checkoutDetails = {
-        totalAmount: "$100.00",
-        date: "December 1, 2024",
-        competitionName: "Photo Competition 2024",
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "+1234567890",
-      };
+    const getCurrentDate = () => {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+    
+        return `${day}-${month}-${year}`;
+    };
 
     return (
         <View style={styles.container}>
@@ -255,37 +258,37 @@ const Payment = ({ route, navigation }) => {
                 {/* Total Amount */}
                 <View style={styles.detailGroup}>
                     <Text style={styles.label}>Total Amount</Text>
-                    <Text style={styles.detail}>{checkoutDetails.totalAmount}</Text>
+                    <Text style={styles.detail}>Rs.{amount}</Text>
                 </View>
 
                 {/* Date */}
                 <View style={styles.detailGroup}>
                     <Text style={styles.label}>Date</Text>
-                    <Text style={styles.detail}>{checkoutDetails.date}</Text>
+                    <Text style={styles.detail}>{getCurrentDate()}</Text>
                 </View>
 
                 {/* Competition Name */}
                 <View style={styles.detailGroup}>
                     <Text style={styles.label}>Competition Name</Text>
-                    <Text style={styles.detail}>{checkoutDetails.competitionName}</Text>
+                    <Text style={styles.detail}>{productInfo}</Text>
                 </View>
 
                 {/* Name */}
                 <View style={styles.detailGroup}>
                     <Text style={styles.label}>Name</Text>
-                    <Text style={styles.detail}>{checkoutDetails.name}</Text>
+                    <Text style={styles.detail}>{firstName}</Text>
                 </View>
 
                 {/* Email */}
                 <View style={styles.detailGroup}>
                     <Text style={styles.label}>Email</Text>
-                    <Text style={styles.detail}>{checkoutDetails.email}</Text>
+                    <Text style={styles.detail}>{email}</Text>
                 </View>
 
                 {/* Phone */}
                 <View style={styles.detailGroup}>
                     <Text style={styles.label}>Phone</Text>
-                    <Text style={styles.detail}>{checkoutDetails.phone}</Text>
+                    <Text style={styles.detail}>{phone}</Text>
                 </View>
             </View>
 
