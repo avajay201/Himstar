@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, ToastAndroid, Modal, ActivityIndicator, TouchableOpacity, Animated, Easing } from 'react-native';
 import { profile } from '../../actions/ApiActions';
 import { BASE_URL } from '../../actions/APIs';
 import AppLogo from './../../assets/images/logo.png';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MainContext } from '../../others/MyContext';
 
 
 const Profile = ({ navigation }) => {
@@ -12,6 +13,7 @@ const Profile = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [settingsVisible, setSettingsVisible] = useState(false);
     const slideAnim = useRef(new Animated.Value(300)).current;
+    const { profileReload, setProfileReload } = useContext(MainContext);
 
     const openSettings = () => {
         setSettingsVisible(true);
@@ -23,6 +25,13 @@ const Profile = ({ navigation }) => {
         }).start();
     };
 
+    useEffect(()=>{
+        if (profileReload){
+            fetchprofile();
+            setProfileReload(false);
+        }
+    }, [profileReload]);
+
     const closeSettings = () => {
         Animated.timing(slideAnim, {
             toValue: 300, // Move off-screen
@@ -33,6 +42,7 @@ const Profile = ({ navigation }) => {
     };
 
     const fetchprofile = async () => {
+        setLoading(true);
         const result = await profile();
         if (result[0] === 200) {
             setProfileData(result[1]);

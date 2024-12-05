@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
     View,
     Text,
@@ -17,6 +17,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { BASE_URL } from '../../actions/APIs';
 import { updateProfile } from '../../actions/ApiActions';
 import {launchImageLibrary} from 'react-native-image-picker';
+import { MainContext } from '../../others/MyContext';
 
 
 const EditProfile = ({ navigation, route }) => {
@@ -24,6 +25,7 @@ const EditProfile = ({ navigation, route }) => {
     const [myProfile, setMyProfile] = useState(profileData);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [loading, setLoading] = useState(false);
+    const { setProfileReload } = useContext(MainContext);
     
     useEffect(()=>{
         if (!profileData){
@@ -75,12 +77,14 @@ const EditProfile = ({ navigation, route }) => {
     
         try {
             const formData = new FormData();
-    
-            if (myProfile.phonenumber) formData.append('phonenumber', myProfile.phonenumber);
-            if (myProfile.zipcode) formData.append('zipcode', myProfile.zipcode);
-            if (myProfile.gender) formData.append('gender', myProfile.gender);
-            if (myProfile.dob) formData.append('dob', myProfile.dob);
-            
+
+            formData.append('phonenumber', myProfile.phonenumber);
+            formData.append('first_name', myProfile.first_name);
+            formData.append('last_name', myProfile.last_name);
+            formData.append('zipcode', myProfile.zipcode);
+            formData.append('gender', myProfile.gender);
+            formData.append('dob', myProfile.dob);
+
             if (myProfile.profile_image && myProfile.profile_image.includes('file:///')) {
                 formData.append('profile_image', {
                     uri: myProfile.profile_image,
@@ -100,6 +104,7 @@ const EditProfile = ({ navigation, route }) => {
     
             if (result[0] === 200) {
                 ToastAndroid.show('Profile updated successfully!', ToastAndroid.SHORT);
+                setProfileReload(true);
                 navigation.navigate('Profile');
             } else {
                 console.log('Error updating profile:', result);

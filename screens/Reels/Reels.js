@@ -335,7 +335,7 @@ const Reels = ({ navigation }) => {
 
   return (
     <>
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#B94EA0']} />
+      {/* <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#B94EA0']} /> */}
       {!reelsLoading && videos?.length > 0 && <FlatList
         data={videos}
         pagingEnabled
@@ -347,6 +347,8 @@ const Reels = ({ navigation }) => {
         renderItem={renderVideo}
         onViewableItemsChanged={onViewableItemsChanged.current}
         viewabilityConfig={viewConfigRef}
+        refreshing={refreshing} // Show the refresh spinner
+        onRefresh={onRefresh} // Trigger the refresh
       />}
 
       {!reelsLoading && videos?.length === 0 &&
