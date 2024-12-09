@@ -1,5 +1,5 @@
-export const BASE_URL = 'http://192.168.75.200:8000';
-export const API_BASE_URL = 'http://192.168.75.200:8000/api';
+export const BASE_URL = 'http://192.168.30.200:8000';
+export const API_BASE_URL = 'http://192.168.30.200:8000/api';
 export const MusicAPI = 'https://deezerdevs-deezer.p.rapidapi.com/search';
 export const MusciAPIKey = '68303a6587msh680563c03abefcdp146c4fjsn5420df37bfb4';
 
@@ -14,6 +14,7 @@ export const ENDPOINTS = {
     categories: API_BASE_URL + '/categories/',
     banners: API_BASE_URL + '/banners/',
     competitions: API_BASE_URL + '/competitions/',
+    tournaments: API_BASE_URL + '/tournaments/',
     postCreate: API_BASE_URL + '/participant-update/',
     listParticipantsVideos: API_BASE_URL + '/list-posts/',
     postLikes: API_BASE_URL + '/list-likes/',
@@ -24,4 +25,5 @@ export const ENDPOINTS = {
     userVideos: API_BASE_URL + '/user-videos/',
     myCompetitions: API_BASE_URL + '/my-competitions/',
     profile: API_BASE_URL + '/profile/',
+    paymentDetails: API_BASE_URL + '/payment-details/',
 };

@@ -4,14 +4,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AppLogo from './../../assets/images/logo.png';
 import Carousel from 'react-native-snap-carousel';
-import { getCategories, getBanners, getCompetitions } from '../../actions/ApiActions';
+import { getCategories, getBanners, getCompetitions, getTournaments } from '../../actions/ApiActions';
 import { MainContext } from '../../others/MyContext';
 
 
 const Home = ({ navigation }) => {
   const [backPressedOnce, setBackPressedOnce] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const slideAnimation = useState(new Animated.Value(-300))[0];
   const [categories, setCategories] = useState([]);
   const [banners, setBanners] = useState([]);
@@ -67,10 +67,18 @@ const Home = ({ navigation }) => {
     const result = await getCompetitions(navigation, bannerId);
     console.log('Comps Data:', result);
     if (result[0] === 200) {
-      setTournaments(result[1]);
-      setLiveCompetitions(result[1]);
+      const liveComps = result[1].filter(comp => comp.is_live === true);
+      setLiveCompetitions(liveComps);
       const upComingComps = result[1].filter(comp => comp.is_live === false);
       setUpcomingCompetitions(upComingComps);
+    }
+  };
+
+  const fetchTournaments = async (bannerId = '') => {
+    setTournaments([]);
+    const result = await getTournaments(navigation, bannerId);
+    if (result[0] === 200) {
+      setTournaments(result[1]);
     }
   };
 
@@ -83,6 +91,7 @@ const Home = ({ navigation }) => {
     await fetchCategories();
     await fetchBanners();
     await fetchCompetitions();
+    await fetchTournaments();
     setLoading(false);
   };
 
@@ -97,6 +106,7 @@ const Home = ({ navigation }) => {
     const selectedCategory = categories.find((category) => category.id === id);
     await fetchBanners(selectedCategory.isActive ? null : id);
     await fetchCompetitions(selectedCategory.isActive ? '' : id);
+    await fetchTournaments(selectedCategory.isActive ? '' : id);
     const categoryUpdate = categories.map((category) =>
       category.id === id
         ? { ...category, isActive: !category.isActive }
@@ -185,6 +195,9 @@ const Home = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigateMenuOption('Leaderboard')}>
             <Text style={styles.menuItem}>Leaderboard</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigateMenuOption('PaymentDetails')}>
+            <Text style={styles.menuItem}>Payment Details</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigateMenuOption('MyCompetitions')}>
             <Text style={styles.menuItem}>My Contests</Text>

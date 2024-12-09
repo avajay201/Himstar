@@ -25,6 +25,8 @@ import VideoPreview from './screens/VideoCreate/VideoPreview';
 import ViewComp from './screens/Competitions/ViewComp';
 import Payment from './screens/Payment/Payment';
 import { MainProvider } from './others/MyContext';
+import Test from './screens/Test';
+import PaymentDetails from './screens/Payment/PaymentDetails';
 
 
 const Stack = createNativeStackNavigator();
@@ -155,6 +157,11 @@ function AppNavigator() {
       <Stack.Screen
         name="EditProfile"
         component={EditProfile}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PaymentDetails"
+        component={PaymentDetails}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
