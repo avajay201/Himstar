@@ -28,10 +28,14 @@ const Reels = ({ navigation }) => {
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
   const [userId, setUserId] = useState(null);
+  const [userPicture, setUserPicture] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [commentAdding, setCommentAdding] = useState(false);
 
   const fetchUser = async()=>{
     const id = await AsyncStorage.getItem('RegAuthId');
+    const userPic = await AsyncStorage.getItem('AuthImage');
+    setUserPicture(userPic);
     setUserId(id);
   };
 
@@ -47,8 +51,21 @@ const Reels = ({ navigation }) => {
   };
 
   const postToggleLike = async(postId)=>{
+    const updatedVideos = videos.map((video) => {
+      if (video.id === postId) {
+        return {
+          ...video,
+          is_like: !video.is_like,
+          likes: video.is_like
+            ? video.likes - 1
+            : video.likes + 1,
+        };
+      }
+      return video;
+    });
+    setVideos(updatedVideos);
     const result = await likePost(navigation, {post_id: postId});
-    if (result[0] === 200){
+    if (result[0] != 200){
       const updatedVideos = videos.map((video) => {
         if (video.id === postId) {
           return {
@@ -139,10 +156,11 @@ const Reels = ({ navigation }) => {
 
   const addComment = async () => {
     if (newComment.trim()) {
+      setCommentAdding(true);
       const result = await postComment(navigation, {post: commentsModalVisible, content: newComment});
       if (result[0] === 201){
         setComments((prevComments) => [
-          { id: result[1].id, content: newComment, profile_pic: '', username: 'avajay201' },
+          { id: result[1].id, content: newComment, profile_pic: userPicture, username: 'avajay201' },
           ...prevComments,
         ]);
         const updatedVideos = videos.map((video) => {
@@ -160,6 +178,7 @@ const Reels = ({ navigation }) => {
         ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
       }
       setNewComment('');
+      setCommentAdding(false);
     }
   };
 
@@ -186,7 +205,7 @@ const Reels = ({ navigation }) => {
   const renderComments = useCallback(({ item, index }) => {
     return (
       <View style={styles.commentContainer}>
-        <Image source={item.profile_image ? {uri: BASE_URL + item.profile_image} : {Applogo}} style={styles.commentProfilePic} />
+        <Image source={item.profile_image ? {uri: BASE_URL + item.profile_image} : Applogo} style={styles.commentProfilePic} />
         <View style={styles.commentContent}>
           <Text style={styles.commentUsername}>{item.username}</Text>
           <Text style={styles.commentText}>{item.content}</Text>
@@ -384,11 +403,17 @@ const Reels = ({ navigation }) => {
               placeholder="Add a comment..."
               placeholderTextColor="gray"
               value={newComment}
+              editable={!commentAdding && !commentsLoading}
               onChangeText={setNewComment}
               style={styles.commentInput}
             />
-            <TouchableOpacity disabled={!newComment.trim() ? true : false} onPress={addComment} style={styles.addCommentBtn}>
-              <Icon name="send" size={30} color="#B94EA0" />
+            <TouchableOpacity disabled={!newComment.trim() || commentAdding ? true : false} onPress={addComment} style={[styles.addCommentBtn, {backgroundColor:  commentAdding || !newComment.trim() ? 'gray' : 'white'}]}>
+              {
+                commentAdding ? 
+                <ActivityIndicator size="small" color='white'></ActivityIndicator>
+                :
+                <Icon name="send" size={30} color={!newComment.trim() ? 'white' : "#B94EA0"} />
+              }
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -502,7 +527,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   addCommentBtn: {
-    backgroundColor: 'white',
     borderRadius: 20,
     padding: 7,
   },

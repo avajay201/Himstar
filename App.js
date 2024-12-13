@@ -25,8 +25,7 @@ import VideoPreview from './screens/VideoCreate/VideoPreview';
 import ViewComp from './screens/Competitions/ViewComp';
 import Payment from './screens/Payment/Payment';
 import { MainProvider } from './others/MyContext';
-import Test from './screens/Test';
-import PaymentDetails from './screens/Payment/PaymentDetails';
+import PaymentHistory from './screens/Payment/PaymentHistory';
 
 
 const Stack = createNativeStackNavigator();
@@ -160,8 +159,8 @@ function AppNavigator() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="PaymentDetails"
-        component={PaymentDetails}
+        name="PaymentHistory"
+        component={PaymentHistory}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

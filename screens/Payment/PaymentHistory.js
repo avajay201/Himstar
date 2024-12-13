@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getPaymentDetails } from "../../actions/ApiActions";
+import { getPaymentHistory } from "../../actions/ApiActions";
 import { 
     ToastAndroid, 
     ActivityIndicator, 
@@ -14,12 +14,12 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 
 
-export default PaymentDetails = ({ navigation }) => {
+export default PaymentHistory = ({ navigation }) => {
     const [paymentData, setPaymentData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchPaymentData = async () => {
-        const result = await getPaymentDetails();
+        const result = await getPaymentHistory();
         if (result[0] === 200) {
             setPaymentData(result[1]);
         } else {

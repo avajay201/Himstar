@@ -10,6 +10,9 @@ const logoutUser = async(navigation)=>{
     await AsyncStorage.removeItem('AuthId');
     await AsyncStorage.removeItem('RegAuthId');
     await AsyncStorage.removeItem('AuthEmail');
+    await AsyncStorage.removeItem('AuthName');
+    await AsyncStorage.removeItem('AuthPhone');
+    await AsyncStorage.removeItem('AuthImage');
     ToastAndroid.show('Session expired, please login!', ToastAndroid.SHORT);
     navigation.navigate('Login');
 };
@@ -206,10 +209,10 @@ export const getTournaments = async (navigation, category_id) => {
     }
 };
 
-export const getPaymentDetails = async (navigation, category_id) => {
+export const getPaymentHistory = async (navigation, category_id) => {
     try {
         const token = await getAuthToken();
-        const response = await axios.get(ENDPOINTS.paymentDetails, {
+        const response = await axios.get(ENDPOINTS.PaymentHistory, {
             headers: {
               Authorization: `Bearer ${token}`,
             },

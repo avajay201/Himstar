@@ -6,6 +6,7 @@ import { makePayment } from '../../actions/ApiActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { MainContext } from '../../others/MyContext';
+import { BASE_URL } from '../../actions/APIs';
 
 
 const Payment = ({ route, navigation }) => {
@@ -19,17 +20,17 @@ const Payment = ({ route, navigation }) => {
     const [merchantSalt, setMerchantSalt] = useState("dfnpSUMPtmdP9T0UT02vyKseFpuUDxSu");
 
     const [ios_surl, setIosSurl] = useState(
-        'http://192.168.1.4:8000/api/success/',
+        `${BASE_URL}/api/success/`,
     );
     const [ios_furl, setIosFurl] = useState(
-        'http://192.168.1.4:8000/api/failure/',
+        `${BASE_URL}/api/failure/`,
     );
     const [environment, setEnvironment] = useState(1 + '');
     const [android_surl, setAndroidSurl] = useState(
-        'http://192.168.1.4:8000/api/success/',
+        `${BASE_URL}/api/success/`,
     );
     const [android_furl, setAndroidFurl] = useState(
-        'http://192.168.1.4:8000/api/failure/',
+        `${BASE_URL}/api/failure/`,
     );
 
     const [showCbToolbar, setShowCbToolbar] = useState(true);

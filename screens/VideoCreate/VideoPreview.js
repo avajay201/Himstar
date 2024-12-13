@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, ToastAndroid } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
 import { mergeVideo, removeMergedVideo, postCreate } from '../../actions/ApiActions';
 import { BASE_URL } from '../../actions/APIs';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MainContext } from '../../others/MyContext';
 
 
 const VideoPreview = ({ route, navigation }) => {
@@ -12,12 +12,7 @@ const VideoPreview = ({ route, navigation }) => {
     const [loading, setLoading] = useState(true);
     const [videoUri, setVideoUri] = useState(uri);
     const [isPlaying, setIsPlaying] = useState(true);
-    const [userId, setUserId] = useState(null);
-
-    const fetchUser = async()=>{
-        const id = await AsyncStorage.getItem('RegAuthId');
-        setUserId(id);
-    };
+    const { setHomeReload } = useContext(MainContext);
 
     const mergeProcess = async()=>{
         try{
@@ -46,7 +41,6 @@ const VideoPreview = ({ route, navigation }) => {
     };
 
     useEffect(() => {
-        fetchUser();
         if (musicUri) {
             mergeProcess();
         }
@@ -71,6 +65,7 @@ const VideoPreview = ({ route, navigation }) => {
         const result = await postCreate(navigation, formData);
         if (result[0] === 200){
             ToastAndroid.show('Competition registration completed successfully.', ToastAndroid.SHORT);
+            setHomeReload(true);
             navigation.navigate('HomeTabs');
         }
         else{

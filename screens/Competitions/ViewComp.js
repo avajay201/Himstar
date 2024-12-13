@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ToastAndroid, useWindowDimensions } from "react-native";
 import WebView from "react-native-webview";
 import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const ViewComp = ({ route, navigation }) => {
@@ -31,8 +32,15 @@ const ViewComp = ({ route, navigation }) => {
         }
     }, []);
 
-    const compRegister = () => {
-        navigation.navigate('Payment', { compId: competition.id, compType: competition.competition_type, amount: String(competition.price), productInfo: competition?.name, firstName: 'Ajay Verma', email: 'ajayverma6367006928@gmail.com', phone: '6367006928' });
+    const compRegister = async() => {
+        const email = await AsyncStorage.getItem('AuthEmail');
+        const name = await AsyncStorage.getItem('AuthName');
+        const phone = await AsyncStorage.getItem('AuthPhone');
+        if (!email || !name || !phone){
+            ToastAndroid.show('Please update your profile before competetion register.', ToastAndroid.SHORT);
+            return;
+        }
+        navigation.navigate('Payment', { compId: competition.id, compType: competition.competition_type, amount: String(competition.price), productInfo: competition?.name, firstName: name, email: email, phone: phone });
     };
 
     const videoUpload = () => {
@@ -106,12 +114,12 @@ const ViewComp = ({ route, navigation }) => {
                 </View>
 
                 <View style={styles.textContainer}>
-                    <Text style={styles.textLabel}>Total Slots:: </Text>
+                    <Text style={styles.textLabel}>Total Slots: </Text>
                     <Text style={styles.textValue}>{competition?.max_participants}</Text>
                 </View>
 
                 <View style={styles.textContainer}>
-                    <Text style={styles.textLabel}>Remaining Slots:: </Text>
+                    <Text style={styles.textLabel}>Remaining Slots: </Text>
                     <Text style={styles.textValue}>{competition?.remaining_slots}</Text>
                 </View>
 

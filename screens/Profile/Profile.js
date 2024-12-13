@@ -75,6 +75,9 @@ const Profile = ({ navigation }) => {
         await AsyncStorage.removeItem('AuthId');
         await AsyncStorage.removeItem('RegAuthId');
         await AsyncStorage.removeItem('AuthEmail');
+        await AsyncStorage.removeItem('AuthName');
+        await AsyncStorage.removeItem('AuthPhone');
+        await AsyncStorage.removeItem('AuthImage');
         ToastAndroid.show('Logout successfully.', ToastAndroid.SHORT);
         setLoading(false);
         navigation.navigate('Login');

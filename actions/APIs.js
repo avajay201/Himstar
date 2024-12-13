@@ -25,5 +25,5 @@ export const ENDPOINTS = {
     userVideos: API_BASE_URL + '/user-videos/',
     myCompetitions: API_BASE_URL + '/my-competitions/',
     profile: API_BASE_URL + '/profile/',
-    paymentDetails: API_BASE_URL + '/payment-details/',
+    PaymentHistory: API_BASE_URL + '/payment-details/',
 };

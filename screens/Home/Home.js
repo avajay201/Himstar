@@ -17,7 +17,7 @@ const Home = ({ navigation }) => {
   const [banners, setBanners] = useState([]);
   const carouselRef = useRef(null);
   const [upcomingCompetitions, setUpcomingCompetitions] = useState([]);
-  const [liveCompetitions, setLiveCompetitions] = useState([]);
+  const [activeCompetitions, setActiveCompetitions] = useState([]);
   const [tournaments, setTournaments] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const { homeReload, setHomeReload } = useContext(MainContext);
@@ -62,14 +62,14 @@ const Home = ({ navigation }) => {
   };
 
   const fetchCompetitions = async (bannerId = '') => {
-    setLiveCompetitions([]);
+    setActiveCompetitions([]);
     setTournaments([]);
     const result = await getCompetitions(navigation, bannerId);
     console.log('Comps Data:', result);
     if (result[0] === 200) {
-      const liveComps = result[1].filter(comp => comp.is_live === true);
-      setLiveCompetitions(liveComps);
-      const upComingComps = result[1].filter(comp => comp.is_live === false);
+      const activeComps = result[1]['active'];
+      setActiveCompetitions(activeComps);
+      const upComingComps = result[1]['upcoming'];
       setUpcomingCompetitions(upComingComps);
     }
   };
@@ -196,8 +196,8 @@ const Home = ({ navigation }) => {
           <TouchableOpacity onPress={() => navigateMenuOption('Leaderboard')}>
             <Text style={styles.menuItem}>Leaderboard</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigateMenuOption('PaymentDetails')}>
-            <Text style={styles.menuItem}>Payment Details</Text>
+          <TouchableOpacity onPress={() => navigateMenuOption('PaymentHistory')}>
+            <Text style={styles.menuItem}>Payment History</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigateMenuOption('MyCompetitions')}>
             <Text style={styles.menuItem}>My Contests</Text>
@@ -224,7 +224,7 @@ const Home = ({ navigation }) => {
           </ScrollView>
         </View>}
 
-        {!loading && banners.length === 0 && liveCompetitions.length === 0 && upcomingCompetitions.length === 0 && tournaments.length === 0 &&
+        {!loading && banners.length === 0 && activeCompetitions.length === 0 && upcomingCompetitions.length === 0 && tournaments.length === 0 &&
           <View style={[styles.noData, { marginTop: categories.length === 0 && 400 }]}>
             <Text style={styles.noDataText}>No data!</Text>
           </View>
@@ -242,20 +242,20 @@ const Home = ({ navigation }) => {
           />
         </View>
 
-        {liveCompetitions.length > 0 && <View style={styles.upcomingCompetitionsWrapper}>
+        {activeCompetitions.length > 0 && <View style={styles.upcomingCompetitionsWrapper}>
           <View style={styles.upcomingCompHead}>
             <Text style={styles.dataHeading}>Live Competitions</Text>
-            {liveCompetitions.length > 10 && <Text onPress={() => navigation.navigate('LiveComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
+            {activeCompetitions.length > 10 && <Text onPress={() => navigation.navigate('LiveComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.upcomingCompetitionScroller}>
-            {liveCompetitions.slice(0, 10).map(renderCompetition)}
+            {activeCompetitions.slice(0, 10).map(renderCompetition)}
           </ScrollView>
         </View>}
 
         {upcomingCompetitions.length > 0 && <View style={[styles.upcomingCompetitionsWrapper, { marginTop: 10 }]}>
           <View style={styles.upcomingCompHead}>
             <Text style={styles.dataHeading}>Upcoming Competitions</Text>
-            {liveCompetitions.length > 10 && <Text onPress={() => navigation.navigate('UpcomingComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
+            {activeCompetitions.length > 10 && <Text onPress={() => navigation.navigate('UpcomingComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.upcomingCompetitionScroller}>
             {upcomingCompetitions.slice(0, 10).map(renderCompetition)}
