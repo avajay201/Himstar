@@ -9,21 +9,38 @@ const ViewComp = ({ route, navigation }) => {
     const { competition } = route.params;
     const [dynamicHeight, setDynamicHeight] = useState(500);
     const [rules, setRules] = useState(`
-            <html>
-                <head>
-                    <style>
-                        body {
-                            font-size: 40px; /* Adjust font size here */
-                            color: #333; /* Optional: Change text color */
-                            font-family: Arial, sans-serif; /* Optional: Change font family */
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${competition?.rules || '<p>No rules available</p>'}
-                </body>
-            </html>
-    `)
+        <html>
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+              body {
+                color: #333; 
+                font-family: Arial, sans-serif; 
+                margin: 0; 
+                padding: 0; 
+              }
+              .content {
+                width: auto;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="content">
+              ${competition?.rules || '<p>No rules available</p>'}
+            </div>
+            <script>
+              (function() {
+                function sendHeight() {
+                  const height = document.documentElement.scrollHeight;
+                  window.ReactNativeWebView.postMessage(JSON.stringify({ height }));
+                }
+                window.addEventListener("load", sendHeight);
+                window.addEventListener("resize", sendHeight);
+              })();
+            </script>
+          </body>
+        </html>
+    `);
 
     useEffect(() => {
         if (!competition) {
@@ -55,7 +72,7 @@ const ViewComp = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
             <Image
-                source={{ uri: competition?.file_uri }}
+                source={{ uri: competition.competition_type === 'tournament' ? competition?.competitions?.file_uri : competition?.file_uri}}
                 style={styles.bannerImage}
             />
 
@@ -125,11 +142,20 @@ const ViewComp = ({ route, navigation }) => {
 
                 <View style={styles.rulesContainer}>
                     <Text style={styles.rulesHeading}>Rules:</Text>
-                    <WebView
-                        style={[styles.webview, { height: dynamicHeight }]}
-                        originWhitelist={['*']}
-                        source={{ html: rules }}
-                    />
+                    <View style={{ height: dynamicHeight }}>
+                        <WebView
+                            nestedScrollEnabled={true} // Enable nested scrolling
+                            onContentProcessDidTerminate={() => console.log('WebView process terminated')} // Optional for debugging
+                            style={[styles.webview, { flex: 1 }]}
+                            originWhitelist={['*']}
+                            source={{ html: rules }}
+                            onLoadEnd={() => setDynamicHeight(null)} // Dynamically adjust height
+                            onMessage={(event) => {
+                                const data = JSON.parse(event.nativeEvent.data);
+                                setDynamicHeight(data.height || 500); // Set WebView height dynamically
+                            }}
+                        />
+                    </View>
                 </View>
 
                 {competition.is_live && <TouchableOpacity disabled={competition.is_done} style={[styles.registerButton, { backgroundColor: competition.is_done ? '#E8B8D4' : '#B94EA0' }]} onPress={() => competition.is_done ? null : (competition.is_participated ? videoUpload() : compRegister())}>
