@@ -50,6 +50,7 @@ export const userGoogleRegistration = async (data) => {
 
 export const userLogin = async (data) => {
     try {
+        console.log('ENDPOINTS.login>>>', ENDPOINTS.login)
         const response = await axios.post(ENDPOINTS.login, data);
         return [response.status, response.data];
     } catch (error) {
@@ -209,10 +210,10 @@ export const getTournaments = async (navigation, category_id) => {
     }
 };
 
-export const getPaymentHistory = async (navigation, category_id) => {
+export const getPaymentHistory = async (navigation) => {
     try {
         const token = await getAuthToken();
-        const response = await axios.get(ENDPOINTS.PaymentHistory, {
+        const response = await axios.get(ENDPOINTS.paymentHistory, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -411,6 +412,24 @@ export const updateProfile = async (navigation, data) => {
         return [response.status, response.data];
     } catch (error) {
         console.log('error?.response?.data>>>', error?.response?.data)
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const getLeaderBoard = async (navigation, id) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.post(ENDPOINTS.leaderBoard, {competition_id: id}, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
         if (error?.response?.status === 401){
             await logoutUser(navigation)
         }

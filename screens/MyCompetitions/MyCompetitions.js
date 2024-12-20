@@ -27,7 +27,7 @@ const MyCompetitions = ({ navigation }) => {
 
   const renderCompetitions = ({ item: comp }) => (
     <TouchableOpacity
-      onPress={() => (comp.is_active ? viewCompetition(comp) : null)} // Disable press for inactive competitions
+      onPress={() => (!comp.is_close ? viewCompetition(comp) : null)} // Disable press for inactive competitions
       style={[styles.competitions, !comp.is_active && styles.inactiveCompetition]} // Add inactive style
       activeOpacity={comp.is_active ? 0.7 : 1} // Change opacity based on active status
     >
@@ -58,7 +58,7 @@ const MyCompetitions = ({ navigation }) => {
                 Remaining Slots: {comp.remaining_slots}
               </Text>
             </View>
-            {!comp.is_active && (
+            {comp.is_close && (
               <View style={styles.inactiveOverlay}>
                 <Text style={styles.inactiveText}>Closed</Text>
               </View>

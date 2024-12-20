@@ -49,11 +49,11 @@ const ViewComp = ({ route, navigation }) => {
         }
     }, []);
 
-    const compRegister = async() => {
+    const compRegister = async () => {
         const email = await AsyncStorage.getItem('AuthEmail');
         const name = await AsyncStorage.getItem('AuthName');
         const phone = await AsyncStorage.getItem('AuthPhone');
-        if (!email || !name || !phone){
+        if (!email || !name || !phone) {
             ToastAndroid.show('Please update your profile before competetion register.', ToastAndroid.SHORT);
             return;
         }
@@ -72,7 +72,7 @@ const ViewComp = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
             <Image
-                source={{ uri: competition.competition_type === 'tournament' ? competition?.competitions?.file_uri : competition?.file_uri}}
+                source={{ uri: competition.competition_type === 'tournament' ? competition?.competitions?.file_uri : competition?.file_uri }}
                 style={styles.bannerImage}
             />
 
@@ -158,9 +158,19 @@ const ViewComp = ({ route, navigation }) => {
                     </View>
                 </View>
 
-                {competition.is_live && <TouchableOpacity disabled={competition.is_done} style={[styles.registerButton, { backgroundColor: competition.is_done ? '#E8B8D4' : '#B94EA0' }]} onPress={() => competition.is_done ? null : (competition.is_participated ? videoUpload() : compRegister())}>
-                    <Text style={styles.registerButtonText}>{competition.is_done ? 'Enrolled' : (competition.is_participated ? 'Upload your video' : 'Enroll Now')}</Text>
-                </TouchableOpacity>}
+                {
+                    competition.reg_open &&
+                    <TouchableOpacity disabled={competition.is_done} style={[styles.registerButton, { backgroundColor: competition.is_done ? '#E8B8D4' : '#B94EA0' }]} onPress={() => competition.is_done ? null : (competition.is_participated ? videoUpload() : compRegister())}>
+                        <Text style={styles.registerButtonText}>{competition.is_done ? 'Enrolled' : (competition.is_participated ? 'Upload your video' : 'Enroll Now')}</Text>
+                    </TouchableOpacity>
+                }
+                {
+                    competition.reg_close && 
+                    <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => navigation.navigate('Leaderboard', { compId: competition.id })}>
+                        <Text style={styles.registerButtonText}>Leaderboard</Text>
+                    </TouchableOpacity>
+                }
+
             </View>
         </ScrollView>
     );

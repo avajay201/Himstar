@@ -193,9 +193,6 @@ const Home = ({ navigation }) => {
           <TouchableOpacity onPress={() => navigateMenuOption('Wallet')}>
             <Text style={styles.menuItem}>My Wallet</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigateMenuOption('Leaderboard')}>
-            <Text style={styles.menuItem}>Leaderboard</Text>
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigateMenuOption('PaymentHistory')}>
             <Text style={styles.menuItem}>Payment History</Text>
           </TouchableOpacity>
