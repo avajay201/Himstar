@@ -111,7 +111,7 @@ const Payment = ({ route, navigation }) => {
             const result = await makePayment(navigation, successResponse);
             if (result[0] === 201) {
                 setHomeReload(true);
-                navigation.navigate('ViewComp', { compId: competition.id });
+                navigation.navigate('ViewComp', { compId: competition.id, compType: comp.competition_type });
             }
             else {
                 ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);

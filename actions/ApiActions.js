@@ -438,10 +438,10 @@ export const getLeaderBoard = async (navigation, id) => {
     }
 };
 
-export const fetchSpecificCompetition = async (navigation, id) => {
+export const fetchSpecificCompetition = async (navigation, id, compType) => {
     try {
         const token = await getAuthToken();
-        const response = await axios.get(ENDPOINTS.specificCompetition + id + '/', {
+        const response = await axios.get(ENDPOINTS.specificCompetition + id + '/' + compType + '/', {
             headers: {
               Authorization: `Bearer ${token}`,
             },

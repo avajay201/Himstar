@@ -23,7 +23,7 @@ const MyCompetitions = ({ navigation }) => {
   }, []);
 
   const viewCompetition = (comp) => {
-    navigation.navigate('ViewComp', { compId: comp.id });
+    navigation.navigate('ViewComp', { compId: comp.id, compType: comp.competition_type });
   };
 
   const renderCompetitions = ({ item: comp }) => (

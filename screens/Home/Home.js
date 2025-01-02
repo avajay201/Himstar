@@ -216,12 +216,12 @@ const Home = ({ navigation }) => {
     return <BannerItem item={item} />;
   };
 
-  const viewCompetition = (comp) => {
-    navigation.navigate('ViewComp', { compId: comp.id });
+  const viewCompetition = (comp, compType) => {
+    navigation.navigate('ViewComp', { compId: comp.id, compType: compType });
   };
 
   const renderCompetition = (competition) => (
-    <TouchableOpacity onPress={() => viewCompetition(competition)} key={competition.id} style={styles.upcomingCompetitionItem}>
+    <TouchableOpacity onPress={() => viewCompetition(competition, competition.competition_type)} key={competition.id} style={styles.upcomingCompetitionItem}>
       <Image source={{ uri: competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }} style={styles.upcomingCompetitionImage} />
       <View style={styles.upcomingCompetitionDetails}>
         <Text style={styles.upcomingCompetitionSlots}>{competition.remaining_slots}/{competition.max_participants}</Text>
@@ -346,7 +346,7 @@ const Home = ({ navigation }) => {
 
           {tournaments.slice(0, 10).map((comp, index) => (
             <TouchableOpacity
-              onPress={() => viewCompetition(comp)}
+              onPress={() => viewCompetition(comp, comp.competition_type)}
               key={index}
               style={styles.tournaments}
             >

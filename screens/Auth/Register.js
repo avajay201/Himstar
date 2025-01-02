@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, ScrollView, Image, Animated, ToastAndroid, ActivityIndicator, Modal } from 'react-native';
+import { StyleSheet, View,Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, ScrollView, Image, Animated, ToastAndroid, ActivityIndicator, Modal } from 'react-native';
 import GlobalFont from 'react-native-global-font';
 import googleIcon from '../../assets/images/google-img.png';
 import { useFocusEffect } from '@react-navigation/native';
@@ -302,7 +302,6 @@ const Register = ({ navigation }) => {
           <TextInput
             style={styles.input}
             value={formData.username}
-            placeholder="Enter your username"
             onChangeText={(text) => handleInputChange('username', text)}
             maxLength={50}
           />
@@ -312,7 +311,7 @@ const Register = ({ navigation }) => {
           <TextInput
             style={styles.input}
             value={formData.fullName}
-            placeholder="Enter your full name"
+         
             onChangeText={(text) => handleInputChange('fullName', text)}
             maxLength={50}
           />
@@ -322,7 +321,7 @@ const Register = ({ navigation }) => {
           <TextInput
             style={styles.input}
             value={formData.email}
-            placeholder="Enter your email"
+           
             onChangeText={(text) => handleInputChange('email', text)}
             maxLength={150}
           />
@@ -338,7 +337,7 @@ const Register = ({ navigation }) => {
             value={formData.zipcode}
             onChangeText={(text) => handleInputChange('zipcode', text)}
             keyboardType="numeric"
-            placeholder="Enter ZIP Code"
+         
             maxLength={6}
           />
           {errors.zipcode && <Text style={styles.errorText}>{errors.zipcode}</Text>}
@@ -348,7 +347,7 @@ const Register = ({ navigation }) => {
             <TextInput
               style={styles.input}
               value={formData.dob}
-              placeholder="YYYY-MM-DD"
+        
               editable={false}
               maxLength={10}
             />
@@ -383,7 +382,7 @@ const Register = ({ navigation }) => {
             value={formData.phonenumber}
             onChangeText={(text) => handleInputChange('phonenumber', text)}
             keyboardType="phone-pad"
-            placeholder="Enter Phone Number"
+         
             maxLength={10}
           />
           {errors.phonenumber && <Text style={styles.errorText}>{errors.phonenumber}</Text>}
@@ -405,7 +404,7 @@ const Register = ({ navigation }) => {
             <TextInput
               style={styles.passwordInput}
               value={formData.password}
-              placeholder="Password"
+          
               onChangeText={(text) => handleInputChange('password', text)}
               secureTextEntry={!showPassword}
               maxLength={50}
@@ -424,7 +423,7 @@ const Register = ({ navigation }) => {
             <TextInput
               style={styles.passwordInput}
               value={formData.confirm_password}
-              placeholder="Confirm Password"
+            
               onChangeText={(text) => handleInputChange('confirm_password', text)}
               secureTextEntry={!showConfirmPassword}
               maxLength={50}
@@ -443,9 +442,11 @@ const Register = ({ navigation }) => {
 
       <View style={styles.spacer} />
       <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-
+      <View style={styles.buttonContent}>
+  <Text style={styles.buttonText}>Next</Text>
+  <Icon name="arrow-forward" size={24} color="#000" style={styles.icon} />
+</View>
+</TouchableOpacity>
       {step > 1 &&
         <>
           <View style={styles.spacer} />
@@ -466,7 +467,7 @@ const Register = ({ navigation }) => {
 
           <View style={styles.separatorContainer}>
             <View style={styles.separator} />
-            <Text style={styles.separatorText}>or</Text>
+            <Text style={styles.separatorText}>OR</Text>
             <View style={styles.separator} />
           </View>
 
@@ -497,8 +498,8 @@ const Register = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     padding: 20,
+    paddingTop: 140, // Adds space from the top
     backgroundColor: '#FFFFFF',
   },
   apiErrorContainer: {
@@ -526,12 +527,20 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_700Bold',
   },
   input: {
+    height: 45,
+    borderColor: '#fff',
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 10,
+    paddingLeft: 10,
     borderRadius: 20,
+    backgroundColor: '#fff',
+    marginBottom: 15,
+    fontFamily: 'DMSans_400Regular',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 30,
+    elevation: 4,
+    width: '100%', // Full-width input
   },
   passwordContainer: {
     flexDirection: 'row',
@@ -539,6 +548,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   passwordInput: {
+    flex: 1,
+    height: 45,
     borderColor: '#fff',
     borderWidth: 1,
     paddingLeft: 10,
@@ -546,13 +557,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#fff',
     marginBottom: 15,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 10,
-    borderRadius: 20,
+    fontFamily: 'DMSans_400Regular',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 30,
+    elevation: 4,
+    width: '100%', // Full-width input
   },
   radioContainer: {
     marginBottom: 20,
@@ -566,7 +577,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    borderWidth: 2,
+    borderWidth: 4,
     borderColor: '#000',
     marginRight: 10,
   },
@@ -590,19 +601,20 @@ const styles = StyleSheet.create({
   separator: {
     flex: 1,
     height: 1,
-    backgroundColor: '#B94EA0',
+    backgroundColor: '#000',
     marginHorizontal: 10,
   },
   separatorText: {
-    fontSize: 16,
-    color: '#000',
-    fontFamily: 'DMSans_500Medium',
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
+    color:'#000',
   },
   googleButton: {
     width: '100%',
     alignSelf: 'center',
     borderWidth: 1,
-    borderColor: '#B94EA0',
+    borderColor: '#000',
     borderRadius: 10,
     marginVertical: 15,
     paddingVertical: 10,
@@ -618,15 +630,15 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   googleButtonText: {
-    color: '#B94EA0',
+    color: '#000',
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
-    fontSize: 16,
+    fontSize: 18,
   },
   button: {
     width: '100%',
     alignSelf: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#fff',
     borderRadius: 10,
     paddingVertical: 10,
     marginTop: 15,
@@ -635,7 +647,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
-    borderColor: '#B94EA0',
+    borderColor: '#fff',
     borderWidth: 1,
   },
   backBbutton: {
@@ -659,6 +671,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
+    
   },
   backButton: {
     color: 'gray',
@@ -678,6 +691,9 @@ const styles = StyleSheet.create({
   },
   linkBlackText: {
     color: '#000',
+    fontSize  : 15,
+    fontFamily: 'DMSans_700Bold',
+    fontWeight: 'bold',
   },
   linkPrimaryText: {
     color: '#B94EA0',
@@ -686,13 +702,24 @@ const styles = StyleSheet.create({
   eyeIconContainer: {
     position: 'absolute',
     right: 10,
-    top: 22,
+    top: 12,
   },
   loaderOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+  icon: {
+    marginLeft: 10, // Space between the text and the image
+    width: 20, // Adjust the width of the image (modify as needed)
+    height: 20, // Adjust the height of the image (modify as needed)
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center', // Center the text and icon vertically
+    justifyContent: 'center', // Center everything horizontally
+    width:'100%',
   },
 });
 

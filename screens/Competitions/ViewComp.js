@@ -8,7 +8,7 @@ import { fetchSpecificCompetition } from "../../actions/ApiActions";
 import { useFocusEffect } from '@react-navigation/native';
 
 const ViewComp = ({ route, navigation }) => {
-    const { compId } = route.params;
+    const { compId, compType } = route.params;
     const [competition, setCompetition] = useState(null);
     const [loading, setLoading] = useState(true);
     const [dynamicHeight, setDynamicHeight] = useState(500);
@@ -47,7 +47,7 @@ const ViewComp = ({ route, navigation }) => {
     `);
 
     const fetchCompetition = async () => {
-        const result = await fetchSpecificCompetition(navigation, compId);
+        const result = await fetchSpecificCompetition(navigation, compId, compType);
         if (result[0] === 200) {
             setCompetition(result[1]);
         }

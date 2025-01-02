@@ -212,12 +212,11 @@ const Login = ({ navigation }) => {
           <Text style={styles.apiErrorText}>{errorMessage || successMessage}</Text>
         </Animated.View>
       )}
-      <Text style={styles.title}>Email/Username</Text>
+      <Text style={styles.title}>Email</Text>
       <TextInput
         style={styles.input}
         value={username}
         onChangeText={(text)=>{ setErrors({ ...errors, ['username']: '' }); setUsername(text)}}
-        placeholder="Enter your email/username"
         maxLength={150}
       />
       {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
@@ -227,7 +226,7 @@ const Login = ({ navigation }) => {
         <TextInput
           style={styles.passwordInput}
           value={password}
-          placeholder="Enter your password"
+          
           onChangeText={(text)=>{ setErrors({ ...errors, ['password']: '' }); setPassword(text)}}
           secureTextEntry={!showPassword}
           maxLength={50}
@@ -256,7 +255,7 @@ const Login = ({ navigation }) => {
 
       <View style={styles.separatorContainer}>
         <View style={styles.separator} />
-        <Text style={styles.separatorText}>or</Text>
+        <Text style={styles.separatorText}>OR</Text>
         <View style={styles.separator} />
       </View>
 
@@ -279,10 +278,11 @@ const Login = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     padding: 20,
+    paddingTop: 140, // Adds space from the top
     backgroundColor: '#FFFFFF',
   },
+  
   loginText: {
     color: 'black',
     fontSize: 30,
@@ -312,14 +312,23 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
+
   },
   input: {
+    height: 45,
+    borderColor: '#fff',
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 10,
+    paddingLeft: 10,
     borderRadius: 20,
+    backgroundColor: '#fff',
+    marginBottom: 15,
+    fontFamily: 'DMSans_400Regular',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 30,
+    elevation: 4,
+    width: '100%', // Full-width input
   },
   errorText: {
     color: 'red',
@@ -331,6 +340,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   passwordInput: {
+    flex: 1,
+    height: 45,
     borderColor: '#fff',
     borderWidth: 1,
     paddingLeft: 10,
@@ -338,18 +349,18 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#fff',
     marginBottom: 15,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 10,
-    borderRadius: 20,
+    fontFamily: 'DMSans_400Regular',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 30,
+    elevation: 4,
+    width: '100%', // Full-width input
   },
   eyeIconContainer: {
     position: 'absolute',
     right: 10,
-    top: 22,
+    top: 12,
   },
   spacer: {
     height: 20,
@@ -363,19 +374,20 @@ const styles = StyleSheet.create({
   separator: {
     flex: 1,
     height: 1,
-    backgroundColor: '#B94EA0',
+    backgroundColor: '#000',
     marginHorizontal: 10,
   },
   separatorText: {
-    fontSize: 16,
-    color: '#000',
-    fontFamily: 'DMSans_500Medium',
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'DMSans_700Bold',
+    color:'#000',
   },
   googleButton: {
     width: '100%',
     alignSelf: 'center',
     borderWidth: 1,
-    borderColor: '#B94EA0',
+    borderColor: '#000',
     borderRadius: 10,
     marginVertical: 15,
     paddingVertical: 10,
@@ -391,10 +403,10 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   googleButtonText: {
-    color: '#B94EA0',
+    color: '#000',
     fontWeight: 'bold',
     fontFamily: 'DMSans_700Bold',
-    fontSize: 16,
+    fontSize: 18,
   },
   button: {
     width: '100%',
@@ -421,9 +433,15 @@ const styles = StyleSheet.create({
   },
   linkBlackText: {
     color: '#000',
-  },
+    fontSize  : 15,
+    fontFamily: 'DMSans_700Bold',
+    fontWeight: 'bold',
+  },  
   linkPrimaryText: {
     color: '#B94EA0',
+    fontSize  : 15,
+    fontFamily: 'DMSans_700Bold',
+    fontWeight: 'bold',
   },
   loaderContainer: {
     flex: 1,
