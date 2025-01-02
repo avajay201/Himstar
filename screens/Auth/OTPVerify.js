@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Modal, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator, Modal, Animated, ToastAndroid } from 'react-native';
 import { verifyOtp, userRegistration } from '../../actions/ApiActions';
 
 
@@ -11,10 +11,6 @@ const OTPVerify = ({ route, navigation }) => {
   const [error, setError] = useState(false);
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const inputRefs = useRef([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [isErrorVisible, setIsErrorVisible] = useState(false);
-  const errorAnimation = useRef(new Animated.Value(-100)).current;
 
   const handleOtpChange = (value, index) => {
     if (/^\d*$/.test(value)) {
@@ -27,7 +23,6 @@ const OTPVerify = ({ route, navigation }) => {
       } else if (!value && index > 0) {
         inputRefs.current[index - 1].focus();
       }
-
       if (error) setError(false);
     }
   };
@@ -59,16 +54,10 @@ const OTPVerify = ({ route, navigation }) => {
     setVerifyLoading(true);
     const result = await verifyOtp({ email: userData.email, otp: otp.join(''), user_data: userData });
     let errorMsg;
-    let successMsg = false;
-    if (!result){
-      errorMsg = 'Something went wrong.';
-      setErrorMessage(errorMsg);
-      setIsErrorVisible(true);
-    }
-    else if (result[0] === 201) {
-      successMsg = true;
-      setSuccessMessage(result[1].message);
-      setIsErrorVisible(true);
+    if (result[0] === 201) {
+      ToastAndroid.show(result[1].message, ToastAndroid.SHORT);
+      setVerifyLoading(false);
+      navigation.navigate('Login');
     }
     else {
       if (typeof (result[1]) === 'object') {
@@ -78,47 +67,18 @@ const OTPVerify = ({ route, navigation }) => {
       else {
         errorMsg = result[1];
       }
-      setErrorMessage(errorMsg);
-      setIsErrorVisible(true);
+      ToastAndroid.show(typeof(errorMsg) == 'object' ? errorMsg[0] : errorMsg, ToastAndroid.SHORT);
     }
-    if (errorMsg || successMsg) {
-      Animated.timing(errorAnimation, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-
-      setTimeout(() => {
-        Animated.timing(errorAnimation, {
-          toValue: -100,
-          duration: 500,
-          useNativeDriver: true,
-        }).start(() =>{ setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('')});
-        if (successMsg) {
-          setVerifyLoading(false);
-          navigation.navigate('Login');
-        }
-      }, 2000);
-    }
-    if (!successMsg){
-      setVerifyLoading(false);
-    }
+    setVerifyLoading(false);
   };
 
   const handleResendOtp = async() => {
     setLoading(true);
     const result = await userRegistration(userData);
     let errorMsg;
-    let successMsg = false;
-    if (!result){
-      errorMsg = 'Something went wrong.';
-      setErrorMessage(errorMsg);
-      setIsErrorVisible(true);
-    }
-    else if (result[0] === 200) {
-      successMsg = true;
-      setSuccessMessage('An OTP has been sent to your email.');
-      setIsErrorVisible(true);
+    if (result[0] === 200) {
+      ToastAndroid.show('An OTP has been sent to your email.', ToastAndroid.SHORT);
+      setLoading(false);
     }
     else {
       if (typeof (result[1]) === 'object') {
@@ -128,37 +88,13 @@ const OTPVerify = ({ route, navigation }) => {
       else {
         errorMsg = result[1];
       }
-      setErrorMessage(errorMsg);
-      setIsErrorVisible(true);
-    }
-    if (errorMsg || successMsg) {
-      Animated.timing(errorAnimation, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-
-      setTimeout(() => {
-        Animated.timing(errorAnimation, {
-          toValue: -100,
-          duration: 500,
-          useNativeDriver: true,
-        }).start(() =>{ setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('')});
-      }, 2000);
-    }
-    if (!successMsg){
-      setVerifyLoading(false);
+      ToastAndroid.show(typeof(errorMsg) == 'object' ? errorMsg[0] : errorMsg, ToastAndroid.SHORT);
     }
     setLoading(false);
   };
 
   return (
     <View style={styles.container}>
-      {isErrorVisible && (
-        <Animated.View style={[styles.apiErrorContainer, { transform: [{ translateY: errorAnimation }], backgroundColor: successMessage ? 'green' : 'red' }]}>
-          <Text style={styles.apiErrorText}>{errorMessage || successMessage}</Text>
-        </Animated.View>
-      )}
       <Text style={styles.otpText}>OTP</Text>
       <Text style={styles.description}>A 6 digit code has been sent to your email</Text>
       
@@ -205,19 +141,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     backgroundColor: '#f8f9fa',
-  },
-  apiErrorContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    padding: 15,
-    zIndex: 1000000,
-  },
-  apiErrorText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
   },
   otpText: {
     fontSize: 24,

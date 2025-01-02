@@ -17,16 +17,6 @@ const VideoPreview = ({ route, navigation }) => {
     const { setHomeReload } = useContext(MainContext);
     const screenWidth = Dimensions.get('window').width;
 
-    // const adjustVideoDimensions = (width, height) => {
-    //     const screenFinalWidth = height > width ? 300 : screenWidth;
-    //     const aspectRatio = width / height;
-
-    //     setTempVideoDimensions({
-    //         width: screenFinalWidth,
-    //         height: screenFinalWidth / aspectRatio
-    //     });
-    // };
-
     const adjustVideoDimensions = (data) => {
         const { width, height } = data.naturalSize;
         const screenFinalWidth = height > width ? 300 : screenWidth;

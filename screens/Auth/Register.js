@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, View,Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, ScrollView, Image, Animated, ToastAndroid, ActivityIndicator, Modal } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View,Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, ScrollView, Image, ToastAndroid, ActivityIndicator, Modal } from 'react-native';
 import GlobalFont from 'react-native-global-font';
 import googleIcon from '../../assets/images/google-img.png';
 import { useFocusEffect } from '@react-navigation/native';
@@ -30,10 +30,6 @@ const Register = ({ navigation }) => {
   });
   const [dobPickerVisible, setDobPickerVisible] = useState(false);
   const [errors, setErrors] = useState({});
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [isErrorVisible, setIsErrorVisible] = useState(false);
-  const errorAnimation = useRef(new Animated.Value(-100)).current;
   const [loading, setLoading] = useState(false);
   const date = dayjs();
   const [showPassword, setShowPassword] = useState(false);
@@ -54,9 +50,6 @@ const Register = ({ navigation }) => {
           confirmPassword: '',
         });
         setStep(1);
-        setErrorMessage('');
-        setSuccessMessage('');
-        setIsErrorVisible(false);
         setErrors({});
         setLoading(false);
         setDobPickerVisible(false);
@@ -152,18 +145,11 @@ const Register = ({ navigation }) => {
   const handleRegister = async () => {
     setLoading(true);
     const result = await userRegistration(formData);
-    console.log('Result:', result);
     let errorMsg;
-    let successMsg = false;
-    if (!result) {
-      errorMsg = 'Something went wrong.';
-      setErrorMessage(errorMsg);
-      setIsErrorVisible(true);
-    }
-    else if (result[0] === 200) {
-      successMsg = true;
-      setSuccessMessage(result[1].message);
-      setIsErrorVisible(true);
+    if (result[0] === 200) {
+      ToastAndroid.show(result[1].message, ToastAndroid.SHORT);
+      navigation.navigate('OtpVerify', { userData: formData });
+      setLoading(false);
     }
     else {
       if (typeof (result[1]) === 'object') {
@@ -173,30 +159,9 @@ const Register = ({ navigation }) => {
       else {
         errorMsg = result[1];
       }
-      setErrorMessage(errorMsg);
-      setIsErrorVisible(true);
+      ToastAndroid.show(typeof(errorMsg) == 'object' ? errorMsg[0] : errorMsg, ToastAndroid.SHORT);
     }
-    if (errorMsg || successMsg) {
-      Animated.timing(errorAnimation, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-
-      setTimeout(() => {
-        Animated.timing(errorAnimation, {
-          toValue: -100,
-          duration: 500,
-          useNativeDriver: true,
-        }).start(() => { setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('') });
-        if (successMsg) {
-          navigation.navigate('OtpVerify', { userData: formData });
-        }
-      }, 2000);
-    }
-    if (!successMsg) {
-      setLoading(false);
-    }
+    setLoading(false);
   };
 
   const handleGoogleRegister = async () => {
@@ -207,22 +172,11 @@ const Register = ({ navigation }) => {
       if (userInfo?.type === 'cancelled'){
         return;
       }
-      const userData = {
-        data: userInfo?.data?.user,
-        token: userInfo?.data?.idToken,
-      }
-      console.log('User Data:', userInfo);
       setLoading(true);
       const result = await userGoogleRegistration({ token: userInfo?.data?.idToken });
-      console.log('Result:', result);
       let errorMsg;
       let successMsg = false;
-      if (!result) {
-        errorMsg = 'Something went wrong.';
-        setErrorMessage(errorMsg);
-        setIsErrorVisible(true);
-      }
-      else if (result[0] === 200 || result[0] === 201) {
+      if (result[0] === 200 || result[0] === 201) {
         successMsg = true;
         await AsyncStorage.setItem('AuthToken', result[1]?.access ?? '');
         await AsyncStorage.setItem('AuthUser', result[1]?.username ?? '');
@@ -232,8 +186,8 @@ const Register = ({ navigation }) => {
         await AsyncStorage.setItem('AuthName', result[1]?.name ?? '');
         await AsyncStorage.setItem('AuthPhone', result[1]?.phone ?? '');
         await AsyncStorage.setItem('AuthImage', result[1]?.profile_image ?? '');
-        setSuccessMessage('Login successfully.');
-        setIsErrorVisible(true);
+        ToastAndroid.show('Login successfully.', ToastAndroid.SHORT);
+        setLoading(false);
       }
       else {
         if (typeof (result[1]) === 'object') {
@@ -243,32 +197,14 @@ const Register = ({ navigation }) => {
         else {
           errorMsg = result[1];
         }
-        setErrorMessage(errorMsg);
-        setIsErrorVisible(true);
-      }
-      if (errorMsg || successMsg) {
-        Animated.timing(errorAnimation, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }).start();
-
-        setTimeout(() => {
-          Animated.timing(errorAnimation, {
-            toValue: -100,
-            duration: 500,
-            useNativeDriver: true,
-          }).start(() => { setIsErrorVisible(false); setErrorMessage(''); setSuccessMessage('') });
-          if (successMsg) {
-            navigation.navigate('HomeTabs');
-          }
-        }, 2000);
-      }
-      if (!successMsg) {
-        setLoading(false);
+        ToastAndroid.show(typeof(errorMsg) == 'object' ? errorMsg[0] : errorMsg, ToastAndroid.SHORT);
       }
     } catch (error) {
       console.log('Google sign in error>>>>>', error);
+      ToastAndroid.show('Something went wrong.', ToastAndroid.SHORT);
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -290,11 +226,6 @@ const Register = ({ navigation }) => {
   <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.container}>
-      {isErrorVisible && (
-        <Animated.View style={[styles.apiErrorContainer, { transform: [{ translateY: errorAnimation }], backgroundColor: successMessage ? 'green' : 'red' }]}>
-          <Text style={styles.apiErrorText}>{errorMessage || successMessage}</Text>
-        </Animated.View>
-      )}
 
       {step === 1 && (
         <>
@@ -442,11 +373,11 @@ const Register = ({ navigation }) => {
 
       <View style={styles.spacer} />
       <TouchableOpacity style={styles.button} onPress={handleNext}>
-      <View style={styles.buttonContent}>
-  <Text style={styles.buttonText}>Next</Text>
-  <Icon name="arrow-forward" size={24} color="#000" style={styles.icon} />
-</View>
-</TouchableOpacity>
+        <View style={styles.buttonContent}>
+          <Text style={styles.buttonText}>Next</Text>
+          <Icon name="arrow-forward" size={24} color="#000" style={styles.icon} />
+        </View>
+      </TouchableOpacity>
       {step > 1 &&
         <>
           <View style={styles.spacer} />
@@ -479,7 +410,7 @@ const Register = ({ navigation }) => {
           </TouchableOpacity>
         </>}
 
-      {(step === 3 || successMessage === 'Login successfully.') && <Modal
+      {step === 3 && <Modal
         transparent={true}
         animationType="fade"
         visible={loading}
@@ -499,25 +430,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    paddingTop: 140, // Adds space from the top
+    paddingTop: 140,
     backgroundColor: '#FFFFFF',
-  },
-  apiErrorContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    padding: 15,
-    zIndex: 1000000,
-  },
-  apiErrorText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
   },
   title: {
     fontSize: 20,
@@ -540,7 +454,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 30,
     elevation: 4,
-    width: '100%', // Full-width input
+    width: '100%',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
   passwordContainer: {
     flexDirection: 'row',
