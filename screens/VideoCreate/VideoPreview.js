@@ -18,6 +18,7 @@ const VideoPreview = ({ route, navigation }) => {
     const screenWidth = Dimensions.get('window').width;
 
     const adjustVideoDimensions = (data) => {
+        console.log('+++++++++++++++');
         const { width, height } = data.naturalSize;
         const screenFinalWidth = height > width ? 300 : screenWidth;
         const aspectRatio = width / height;
@@ -57,14 +58,15 @@ const VideoPreview = ({ route, navigation }) => {
     };
 
     useEffect(() => {
+        console.log('VideoPrev Screen', videoUri);
         if (competition?.temp_video){
-            // adjustVideoDimensions(competition.temp_video.width, competition.temp_video.height);
             return;
         }
         if (musicUri) {
             mergeProcess();
         }
         else {
+            console.log('******************')
             setLoading(false);
         }
     }, []);

@@ -188,6 +188,7 @@ const Register = ({ navigation }) => {
         await AsyncStorage.setItem('AuthImage', result[1]?.profile_image ?? '');
         ToastAndroid.show('Login successfully.', ToastAndroid.SHORT);
         setLoading(false);
+        navigation.navigate('HomeTabs');
       }
       else {
         if (typeof (result[1]) === 'object') {

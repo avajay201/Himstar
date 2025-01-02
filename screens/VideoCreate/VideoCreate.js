@@ -64,7 +64,7 @@ const VideoCreate = ({ route, navigation }) => {
                 {
                     mediaType: 'video',
                     videoQuality: 'high',
-                    durationLimit: 30,
+                    durationLimit: 60,
                     saveToPhotos: true,
                 },
                 (response) => {
@@ -96,8 +96,8 @@ const VideoCreate = ({ route, navigation }) => {
             setVideoOptionsIsVisible(false);
             if (response.assets && response.assets.length > 0) {
                 const duration = response.assets[0].duration;
-                if (duration > 30) {
-                    ToastAndroid.show('Video must be less than 30 seconds.', ToastAndroid.SHORT);
+                if (duration > 60) {
+                    ToastAndroid.show('Video must be less than 60 seconds.', ToastAndroid.SHORT);
                     return;
                 }
                 const { uri, height, width } = response.assets[0];
