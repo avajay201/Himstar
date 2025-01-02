@@ -72,7 +72,7 @@ const VideoPreview = ({ route, navigation }) => {
             let errorMsg;
             if (typeof (result[1]) === 'object') {
                 const firstKey = Object.keys(result[1])[0];
-                errorMsg = result[1][firstKey][0];
+                errorMsg = result[1][firstKey];
             }
             else {
                 errorMsg = result[1];

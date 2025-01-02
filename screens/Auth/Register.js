@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, Image, Animated, ToastAndroid, ActivityIndicator, Modal } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, ScrollView, Image, Animated, ToastAndroid, ActivityIndicator, Modal } from 'react-native';
 import GlobalFont from 'react-native-global-font';
 import googleIcon from '../../assets/images/google-img.png';
 import { useFocusEffect } from '@react-navigation/native';
@@ -152,6 +152,7 @@ const Register = ({ navigation }) => {
   const handleRegister = async () => {
     setLoading(true);
     const result = await userRegistration(formData);
+    console.log('Result:', result);
     let errorMsg;
     let successMsg = false;
     if (!result) {
@@ -167,7 +168,7 @@ const Register = ({ navigation }) => {
     else {
       if (typeof (result[1]) === 'object') {
         const firstKey = Object.keys(result[1])[0];
-        errorMsg = result[1][firstKey][0];
+        errorMsg = result[1][firstKey];
       }
       else {
         errorMsg = result[1];
@@ -223,21 +224,21 @@ const Register = ({ navigation }) => {
       }
       else if (result[0] === 200 || result[0] === 201) {
         successMsg = true;
-        await AsyncStorage.setItem('AuthToken', result[1].access);
-        await AsyncStorage.setItem('AuthUser', result[1].username);
-        await AsyncStorage.setItem('AuthId', String(result[1].user_id));
-        await AsyncStorage.setItem('RegAuthId', String(result[1].reg_user_id));
-        await AsyncStorage.setItem('AuthEmail', result[1].email);
-        await AsyncStorage.setItem('AuthName', result[1].name);
-        await AsyncStorage.setItem('AuthPhone', result[1].phone);
-        await AsyncStorage.setItem('AuthImage', result[1].profile_image);
+        await AsyncStorage.setItem('AuthToken', result[1]?.access ?? '');
+        await AsyncStorage.setItem('AuthUser', result[1]?.username ?? '');
+        await AsyncStorage.setItem('AuthId', String(result[1]?.user_id ?? ''));
+        await AsyncStorage.setItem('RegAuthId', String(result[1]?.reg_user_id ?? ''));
+        await AsyncStorage.setItem('AuthEmail', result[1]?.email ?? '');
+        await AsyncStorage.setItem('AuthName', result[1]?.name ?? '');
+        await AsyncStorage.setItem('AuthPhone', result[1]?.phone ?? '');
+        await AsyncStorage.setItem('AuthImage', result[1]?.profile_image ?? '');
         setSuccessMessage('Login successfully.');
         setIsErrorVisible(true);
       }
       else {
         if (typeof (result[1]) === 'object') {
           const firstKey = Object.keys(result[1])[0];
-          errorMsg = result[1][firstKey][0];
+          errorMsg = result[1][firstKey];
         }
         else {
           errorMsg = result[1];
@@ -282,7 +283,13 @@ const Register = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+  behavior="padding"
+  style={{ flex: 1 }}
+>
+  <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <View style={styles.container}>
       {isErrorVisible && (
         <Animated.View style={[styles.apiErrorContainer, { transform: [{ translateY: errorAnimation }], backgroundColor: successMessage ? 'green' : 'red' }]}>
           <Text style={styles.apiErrorText}>{errorMessage || successMessage}</Text>
@@ -480,7 +487,10 @@ const Register = ({ navigation }) => {
           <ActivityIndicator size="large" color={'#B94EA0'} />
         </View>
       </Modal>}
-    </View>
+      </View>
+    </ScrollView>
+  </TouchableWithoutFeedback>
+</KeyboardAvoidingView>
   );
 };
 

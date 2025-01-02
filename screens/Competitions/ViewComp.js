@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ToastAndro
 import WebView from "react-native-webview";
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BASE_URL } from "../../actions/APIs";
 
 
 const ViewComp = ({ route, navigation }) => {
@@ -53,11 +54,13 @@ const ViewComp = ({ route, navigation }) => {
         const email = await AsyncStorage.getItem('AuthEmail');
         const name = await AsyncStorage.getItem('AuthName');
         const phone = await AsyncStorage.getItem('AuthPhone');
-        if (!email || !name || !phone) {
+        const reg_id = await AsyncStorage.getItem('RegAuthId');
+        console.log(email, name, phone, reg_id);
+        if (!email || !name || !phone || !reg_id) {
             ToastAndroid.show('Please update your profile before competetion register.', ToastAndroid.SHORT);
             return;
         }
-        navigation.navigate('Payment', { compId: competition.id, compType: competition.competition_type, amount: String(competition.price), productInfo: competition?.name, firstName: name, email: email, phone: phone });
+        navigation.navigate('Payment', { compId: competition.id, compType: competition.competition_type, amount: String(competition.price), productInfo: competition?.name, firstName: name, email: email, phone: phone, reg_id: String(reg_id) });
     };
 
     const videoUpload = () => {
@@ -72,7 +75,7 @@ const ViewComp = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
             <Image
-                source={{ uri: competition.competition_type === 'tournament' ? competition?.competitions?.file_uri : competition?.file_uri }}
+                source={{ uri: competition.competition_type === 'tournament' ? competition?.competitions?.banner_image && competition?.competitions?.banner_image?.includes('media') ? BASE_URL + competition?.competitions?.banner_image : competition?.competitions?.file_uri : competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }}
                 style={styles.bannerImage}
             />
 
@@ -160,16 +163,16 @@ const ViewComp = ({ route, navigation }) => {
 
                 {
                     competition.reg_open &&
-                    <TouchableOpacity disabled={competition.is_done} style={[styles.registerButton, { backgroundColor: competition.is_done ? '#E8B8D4' : '#B94EA0' }]} onPress={() => competition.is_done ? null : (competition.is_participated ? videoUpload() : compRegister())}>
-                        <Text style={styles.registerButtonText}>{competition.is_done ? 'Enrolled' : (competition.is_participated ? 'Upload your video' : 'Enroll Now')}</Text>
+                    <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => competition.is_done ? navigation.navigate('Leaderboard', { compId: competition.id }) : (competition.is_participated ? videoUpload() : compRegister())}>
+                        <Text style={styles.registerButtonText}>{competition.is_done ? 'Leaderboard' : (competition.is_participated ? 'Upload your video' : 'Enroll Now')}</Text>
                     </TouchableOpacity>
                 }
-                {
+                {/* {
                     competition.reg_close && 
                     <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => navigation.navigate('Leaderboard', { compId: competition.id })}>
                         <Text style={styles.registerButtonText}>Leaderboard</Text>
                     </TouchableOpacity>
-                }
+                } */}
 
             </View>
         </ScrollView>

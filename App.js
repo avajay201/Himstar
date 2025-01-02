@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { LogBox } from 'react-native';
 
 import Login from './screens/Auth/Login';
 import Register from './screens/Auth/Register';
@@ -35,8 +36,9 @@ function AppNavigator() {
   const [initialRoute, setInitialRoute] = useState('WelcomeScreen');
 
   useEffect(() => {
+    LogBox.ignoreAllLogs(true);
     GoogleSignin.configure({
-      webClientId: '74136365421-al19jp7vrln6gqhuugt2m5ffkmi8qjjf.apps.googleusercontent.com',
+      webClientId: '528751908224-u4d7cuelmvmfsbv6qtsvlhki5ijccqgd.apps.googleusercontent.com',
     });
   }, []);
 
@@ -59,7 +61,7 @@ function AppNavigator() {
 
   if (isLoading) {
     return <SplashScreen />;
-  }
+  };
 
   return (
     <Stack.Navigator initialRouteName={initialRoute}>

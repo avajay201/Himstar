@@ -114,6 +114,7 @@ const EditProfile = ({ navigation, route }) => {
             console.log('Error in saveProfile:', error);
             ToastAndroid.show('An error occurred. Please try again.', ToastAndroid.SHORT);
         } finally {
+            console.log('Loading stopped');
             setLoading(false);
         }
     };

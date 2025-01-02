@@ -11,7 +11,7 @@ import { BASE_URL } from '../../actions/APIs';
 
 const Payment = ({ route, navigation }) => {
     const { setHomeReload } = useContext(MainContext);
-    const { compId, compType, amount, productInfo, firstName, email, phone } = route.params;
+    const { compId, compType, amount, productInfo, firstName, email, phone, reg_id } = route.params;
     // const [userId, setUserId] = useState(null);
     const currentDate = new Date().toLocaleDateString();
     const [loading, setLoading] = useState(false);
@@ -107,6 +107,7 @@ const Payment = ({ route, navigation }) => {
                 setLoading(false);
                 return;
             }
+            successResponse['user'] = reg_id;
             const result = await makePayment(navigation, successResponse);
             if (result[0] === 201) {
                 setHomeReload(true);

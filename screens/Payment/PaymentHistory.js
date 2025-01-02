@@ -12,6 +12,7 @@ import {
     TouchableOpacity 
 } from "react-native";
 import Icon from 'react-native-vector-icons/Ionicons';
+import { BASE_URL } from "../../actions/APIs";
 
 
 export default PaymentHistory = ({ navigation }) => {
@@ -35,7 +36,7 @@ export default PaymentHistory = ({ navigation }) => {
     const renderPaymentItem = ({ item }) => (
         <View style={styles.card}>
             <ImageBackground 
-                source={{ uri: item?.banner }} 
+                source={{ uri: !item?.banner.includes('media') ? item.banner : BASE_URL + item.banner }} 
                 style={styles.cardHeader}
                 imageStyle={styles.cardHeaderImage}
             >

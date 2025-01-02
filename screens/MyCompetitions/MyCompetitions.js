@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, ActivityIndicator, Image } from "react-native";
 import { myCompetitions } from "../../actions/ApiActions";
 import Icon from 'react-native-vector-icons/Ionicons';
+import { BASE_URL } from "../../actions/APIs";
 
 
 const MyCompetitions = ({ navigation }) => {
@@ -31,10 +32,10 @@ const MyCompetitions = ({ navigation }) => {
       style={[styles.competitions, !comp.is_active && styles.inactiveCompetition]} // Add inactive style
       activeOpacity={comp.is_active ? 0.7 : 1} // Change opacity based on active status
     >
-      {comp.file_uri && (
+      {/* {comp.file_uri && ( */}
         <View>
           <Image
-            source={{ uri: comp.file_uri }}
+            source={{ uri: comp?.banner_image && comp?.banner_image?.includes('media') ? BASE_URL + comp?.banner_image : comp?.file_uri }}
             style={[
               styles.competitionImage,
               !comp.is_active && styles.inactiveCompetitionImage, // Dimmed image for inactive
@@ -65,7 +66,7 @@ const MyCompetitions = ({ navigation }) => {
             )}
           </View>
         </View>
-      )}
+      {/* )} */}
     </TouchableOpacity>
   );
 

@@ -6,6 +6,7 @@ import AppLogo from './../../assets/images/logo.png';
 import Carousel from 'react-native-snap-carousel';
 import { getCategories, getBanners, getCompetitions, getTournaments } from '../../actions/ApiActions';
 import { MainContext } from '../../others/MyContext';
+import { BASE_URL } from '../../actions/APIs';
 
 
 const Home = ({ navigation }) => {
@@ -149,7 +150,7 @@ const Home = ({ navigation }) => {
 
   const renderBanner = ({ item }) => (
     <View style={styles.banner}>
-      {item?.file_uri && <Image source={{ uri: item?.file_uri }} style={{ width: '100%', height: 170, borderRadius: 10 }} />}
+      <Image source={{ uri: item?.banner_image && item?.banner_image?.includes('media') ? BASE_URL + item?.banner_image : item?.file_uri }} style={{ width: '100%', height: 170, borderRadius: 10 }} />
     </View>
   );
 
@@ -159,7 +160,7 @@ const Home = ({ navigation }) => {
 
   const renderCompetition = (competition) => (
     <TouchableOpacity onPress={() => viewCompetition(competition)} key={competition.id} style={styles.upcomingCompetitionItem}>
-      {competition?.file_uri && <Image source={{ uri: competition?.file_uri }} style={styles.upcomingCompetitionImage} />}
+      <Image source={{ uri: competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }} style={styles.upcomingCompetitionImage} />
       <View style={styles.upcomingCompetitionDetails}>
         <Text style={styles.upcomingCompetitionSlots}>{competition.remaining_slots}/{competition.max_participants} slots</Text>
         <Text style={styles.upcomingCompetitionDate}>{competition.is_active ? competition.registration_close_date : competition.registration_open_date}</Text>
@@ -268,9 +269,9 @@ const Home = ({ navigation }) => {
               key={index}
               style={styles.tournaments}
             >
-              {comp.file_uri && (
+              {/* {comp.file_uri && ( */}
                 <View>
-                  <Image source={{ uri: comp.file_uri }} style={styles.tournamentImage} />
+                  <Image source={{ uri: comp?.banner_image && comp?.banner_image?.includes('media') ? BASE_URL + comp?.banner_image : comp?.file_uri }} style={styles.tournamentImage} />
                   <View style={styles.overlayDetails}>
                     <Text style={styles.tournamentNameText}>{comp.name}</Text>
                     <View style={styles.detailRow}>
@@ -291,7 +292,7 @@ const Home = ({ navigation }) => {
                     </View>
                   </View>
                 </View>
-              )}
+              {/* )} */}
             </TouchableOpacity>
           ))}
 

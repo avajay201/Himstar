@@ -108,7 +108,7 @@ const MyVideo = ({ navigation }) => {
       let errorMsg;
       if (typeof (result[1]) === 'object') {
           const firstKey = Object.keys(result[1])[0];
-          errorMsg = result[1][firstKey][0];
+          errorMsg = result[1][firstKey];
       }
       else {
           errorMsg = result[1];
@@ -128,7 +128,7 @@ const MyVideo = ({ navigation }) => {
       let errorMsg;
       if (typeof (result[1]) === 'object') {
           const firstKey = Object.keys(result[1])[0];
-          errorMsg = result[1][firstKey][0];
+          errorMsg = result[1][firstKey];
       }
       else {
           errorMsg = result[1];
@@ -235,7 +235,7 @@ const MyVideo = ({ navigation }) => {
         {loading && <ActivityIndicator size="large" color="white" style={{ position: 'absolute', zIndex: 1 }} />}
 
         <Video
-          source={{ uri: item.file_uri }}
+          source={{ uri: item?.video && item?.video?.includes('media') ? BASE_URL + item?.video : item?.file_uri }}
           style={{ height: '100%', width: '100%' }}
           resizeMode="cover"
           onLoadStart={() => setLoading(true)}

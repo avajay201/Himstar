@@ -50,6 +50,7 @@ const Profile = ({ navigation }) => {
         else {
             ToastAndroid.show(result[1], ToastAndroid.SHORT);
         }
+        console.log('Loading stopped');
         setLoading(false);
     };
 

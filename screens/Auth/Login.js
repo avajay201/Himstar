@@ -84,22 +84,23 @@ const Login = ({ navigation }) => {
       setIsErrorVisible(true);
     }
     else if (result[0] === 200) {
+      console.log('Result:', result[1]);
       successMsg = true;
-      await AsyncStorage.setItem('AuthToken', result[1].access);
-      await AsyncStorage.setItem('AuthUser', result[1].username);
-      await AsyncStorage.setItem('AuthId', String(result[1].user_id));
-      await AsyncStorage.setItem('RegAuthId', String(result[1].reg_user_id));
-      await AsyncStorage.setItem('AuthEmail', result[1].email);
-      await AsyncStorage.setItem('AuthName', result[1].name);
-      await AsyncStorage.setItem('AuthPhone', result[1].phone);
-      await AsyncStorage.setItem('AuthImage', result[1].profile_image);
+      await AsyncStorage.setItem('AuthToken', result[1]?.access ?? '');
+      await AsyncStorage.setItem('AuthUser', result[1]?.username ?? '');
+      await AsyncStorage.setItem('AuthId', String(result[1]?.user_id ?? ''));
+      await AsyncStorage.setItem('RegAuthId', String(result[1]?.reg_user_id ?? ''));
+      await AsyncStorage.setItem('AuthEmail', result[1]?.email ?? '');
+      await AsyncStorage.setItem('AuthName', result[1]?.name ?? '');
+      await AsyncStorage.setItem('AuthPhone', result[1]?.phone ?? '');
+      await AsyncStorage.setItem('AuthImage', result[1]?.profile_image ?? '');
       setSuccessMessage('Login successfully.');
       setIsErrorVisible(true);
     }
     else {
       if (typeof (result[1]) === 'object') {
         const firstKey = Object.keys(result[1])[0];
-        errorMsg = result[1][firstKey][0];
+        errorMsg = result[1][firstKey];
       }
       else {
         errorMsg = result[1];
@@ -155,21 +156,22 @@ const Login = ({ navigation }) => {
       }
       else if (result[0] === 200 || result[0] === 201) {
         successMsg = true;
-        await AsyncStorage.setItem('AuthToken', result[1].access);
-        await AsyncStorage.setItem('AuthUser', result[1].username);
-        await AsyncStorage.setItem('AuthId', String(result[1].user_id));
-        await AsyncStorage.setItem('RegAuthId', String(result[1].reg_user_id));
-        await AsyncStorage.setItem('AuthEmail', result[1].email);
-        await AsyncStorage.setItem('AuthName', result[1].name);
-        await AsyncStorage.setItem('AuthPhone', result[1].phone);
-        await AsyncStorage.setItem('AuthImage', result[1].profile_image);
+        console.log('Result:', result[1]);
+        await AsyncStorage.setItem('AuthToken', result[1]?.access ?? '');
+        await AsyncStorage.setItem('AuthUser', result[1]?.username ?? '');
+        await AsyncStorage.setItem('AuthId', String(result[1]?.user_id ?? ''));
+        await AsyncStorage.setItem('RegAuthId', String(result[1]?.reg_user_id ?? ''));
+        await AsyncStorage.setItem('AuthEmail', result[1]?.email ?? '');
+        await AsyncStorage.setItem('AuthName', result[1]?.name ?? '');
+        await AsyncStorage.setItem('AuthPhone', result[1]?.phone ?? '');
+        await AsyncStorage.setItem('AuthImage', result[1]?.profile_image ?? '');
         setSuccessMessage('Login successfully.');
         setIsErrorVisible(true);
       }
       else {
         if (typeof (result[1]) === 'object') {
           const firstKey = Object.keys(result[1])[0];
-          errorMsg = result[1][firstKey][0];
+          errorMsg = result[1][firstKey];
         }
         else {
           errorMsg = result[1];
@@ -280,6 +282,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     backgroundColor: '#FFFFFF',
+  },
+  loginText: {
+    color: 'black',
+    fontSize: 30,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
   },
   apiErrorContainer: {
     position: 'absolute',

@@ -33,7 +33,7 @@ export const userRegistration = async (data) => {
         const response = await axios.post(ENDPOINTS.registration, data);
         return [response.status, response.data];
     } catch (error) {
-        console.log('Registration API error:', error?.response?.data);
+        console.log('Registration API error:', error?.response);
         return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
     }
 };
@@ -392,6 +392,7 @@ export const profile = async (navigation) => {
         });
         return [response.status, response.data];
     } catch (error) {
+        console.log(error?.response, '|||', error?.response?.status);
         if (error?.response?.status === 401){
             await logoutUser(navigation)
         }

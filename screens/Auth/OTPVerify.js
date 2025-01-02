@@ -7,6 +7,7 @@ const OTPVerify = ({ route, navigation }) => {
   const { userData } = route.params;
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [verifyLoading, setVerifyLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const inputRefs = useRef([]);
@@ -72,7 +73,7 @@ const OTPVerify = ({ route, navigation }) => {
     else {
       if (typeof (result[1]) === 'object') {
         const firstKey = Object.keys(result[1])[0];
-        errorMsg = result[1][firstKey][0];
+        errorMsg = result[1][firstKey];
       }
       else {
         errorMsg = result[1];
@@ -105,6 +106,7 @@ const OTPVerify = ({ route, navigation }) => {
   };
 
   const handleResendOtp = async() => {
+    setLoading(true);
     const result = await userRegistration(userData);
     let errorMsg;
     let successMsg = false;
@@ -121,7 +123,7 @@ const OTPVerify = ({ route, navigation }) => {
     else {
       if (typeof (result[1]) === 'object') {
         const firstKey = Object.keys(result[1])[0];
-        errorMsg = result[1][firstKey][0];
+        errorMsg = result[1][firstKey];
       }
       else {
         errorMsg = result[1];
@@ -147,6 +149,7 @@ const OTPVerify = ({ route, navigation }) => {
     if (!successMsg){
       setVerifyLoading(false);
     }
+    setLoading(false);
   };
 
   return (
@@ -185,10 +188,10 @@ const OTPVerify = ({ route, navigation }) => {
         </Text>
       </TouchableOpacity>
 
-      <Modal transparent={true} animationType="fade" visible={verifyLoading}>
+      <Modal transparent={true} animationType="fade" visible={verifyLoading || loading}>
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color={'#B94EA0'} />
-          <Text style={styles.loadingText}>Verifying...</Text>
+          {!loading && <Text style={styles.loadingText}>Verifying...</Text>}
         </View>
       </Modal>
     </View>
