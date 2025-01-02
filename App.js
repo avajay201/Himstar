@@ -56,7 +56,7 @@ function AppNavigator() {
     AuthCheck();
     setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 2900);
   }, []);
 
   if (isLoading) {
