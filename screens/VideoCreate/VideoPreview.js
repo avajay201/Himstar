@@ -1,21 +1,46 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, ToastAndroid } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, ToastAndroid, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
-import { mergeVideo, removeMergedVideo, postCreate } from '../../actions/ApiActions';
+import { mergeVideo, removeTempVideo, postCreate, saveTempParticipant } from '../../actions/ApiActions';
 import { BASE_URL } from '../../actions/APIs';
 import { MainContext } from '../../others/MyContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const VideoPreview = ({ route, navigation }) => {
-    const { uri, videoDimensions, musicUri, compId } = route.params;
+    const { uri, videoDimensions, musicUri, competition } = route.params;
+    const [tempVideoDimensions, setTempVideoDimensions] = useState({ width: '100%', height: 300 });
     const [loading, setLoading] = useState(true);
     const [videoUri, setVideoUri] = useState(uri);
     const [isPlaying, setIsPlaying] = useState(true);
     const { setHomeReload } = useContext(MainContext);
+    const screenWidth = Dimensions.get('window').width;
+
+    // const adjustVideoDimensions = (width, height) => {
+    //     const screenFinalWidth = height > width ? 300 : screenWidth;
+    //     const aspectRatio = width / height;
+
+    //     setTempVideoDimensions({
+    //         width: screenFinalWidth,
+    //         height: screenFinalWidth / aspectRatio
+    //     });
+    // };
+
+    const adjustVideoDimensions = (data) => {
+        const { width, height } = data.naturalSize;
+        const screenFinalWidth = height > width ? 300 : screenWidth;
+        const aspectRatio = width / height;
+        setTempVideoDimensions({
+            width: screenFinalWidth,
+            height: screenFinalWidth / aspectRatio
+        });
+        setLoading(false);
+    };
 
     const mergeProcess = async()=>{
         try{
+            console.log('**********Merging Video**********', videoUri, '|||', musicUri, '|||', competition.id);
             const formData = new FormData();
             formData.append('video', {
                 uri: videoUri,
@@ -23,6 +48,7 @@ const VideoPreview = ({ route, navigation }) => {
                 name: 'video.mp4',
             });
             formData.append('music', musicUri);
+            formData.append('competition_id', competition.id);
             const result = await mergeVideo(navigation, formData);
             console.log('Results: ', result);
             if (result[0] === 200){
@@ -41,6 +67,10 @@ const VideoPreview = ({ route, navigation }) => {
     };
 
     useEffect(() => {
+        if (competition?.temp_video){
+            // adjustVideoDimensions(competition.temp_video.width, competition.temp_video.height);
+            return;
+        }
         if (musicUri) {
             mergeProcess();
         }
@@ -53,7 +83,56 @@ const VideoPreview = ({ route, navigation }) => {
         setIsPlaying(!isPlaying);
     };
 
+    const compRegister = async () => {
+        const email = await AsyncStorage.getItem('AuthEmail');
+        const name = await AsyncStorage.getItem('AuthName');
+        const phone = await AsyncStorage.getItem('AuthPhone');
+        const reg_id = await AsyncStorage.getItem('RegAuthId');
+        console.log(email, name, phone, reg_id);
+        try{
+            if (!email || !name || !phone || !reg_id) {
+                ToastAndroid.show('Please update your profile before competetion register.', ToastAndroid.SHORT);
+                navigation.navigate('Profile');
+                return;
+            };
+            navigation.navigate('Payment', { competition: competition, amount: String(competition.price), firstName: name, email: email, phone: phone, reg_id: String(reg_id) });
+        }
+        catch(err){
+            console.log('Error: ', err);
+            ToastAndroid.show('Something went wrong, please try again.', ToastAndroid.SHORT);
+        }
+    };
+
     const uploadVideo = async () => {
+        setIsPlaying(false);
+
+        if (!musicUri){
+            setLoading(true);
+            const formData = new FormData();
+            formData.append('video', {
+                uri: videoUri,
+                type: 'video/mp4',
+                name: 'video.mp4',
+            });
+            formData.append('competition', competition.id);
+            const result = await saveTempParticipant(navigation, formData);
+            console.log('Results: ', result);
+            if (result[0] === 200){
+                await compRegister();
+            }
+            else{
+                ToastAndroid.show('Something went wrong!, please try again!', ToastAndroid.SHORT);
+                navigation.goBack();
+            }
+            setLoading(false);
+            return;
+        };
+
+        if (!competition.is_done){
+            await compRegister();
+            return;
+        };
+
         setLoading(true)
         const formData = new FormData();
         formData.append('competition', Number(compId));
@@ -83,10 +162,21 @@ const VideoPreview = ({ route, navigation }) => {
     };
 
     const backToVideoEdit = async()=>{
-        if (musicUri){
-            await removeMergedVideo(navigation, {file: videoUri.split('/').pop()});
+        setIsPlaying(false);
+        if (competition?.temp_video){
+            setLoading(true);
+            const result = await removeTempVideo(navigation, {competition_id: competition.id});
+            if (result[0] === 200){
+                navigation.navigate('ViewComp', {compId: competition.id});
+            }
+            else{
+                ToastAndroid.show('Something went wrong!, please try again!', ToastAndroid.SHORT);
+            };
+            setLoading(false);
+        }
+        else{
+            navigation.goBack();
         };
-        navigation.goBack();
     };
 
     return (
@@ -97,12 +187,20 @@ const VideoPreview = ({ route, navigation }) => {
                     {videoUri ? (
                         <Video
                             source={{ uri: videoUri }}
-                            style={videoDimensions}
+                            style={videoDimensions ? videoDimensions : tempVideoDimensions}
                             resizeMode="cover"
                             paused={!isPlaying}
                             muted={loading ? true : false}
                             repeat={true}
-                            onLoad={()=> videoUri.includes(BASE_URL) ? setLoading(false) : null}
+                            onLoad={(data) => {
+                                if (!competition?.temp_video) {
+                                    if (videoUri.includes(BASE_URL)) {
+                                        setLoading(false);
+                                    }
+                                } else {
+                                    adjustVideoDimensions(data);
+                                }
+                            }}
                         />
                     )
                         :
@@ -117,8 +215,8 @@ const VideoPreview = ({ route, navigation }) => {
                 </View>}
 
                 <View style={styles.navigationButtons}>
-                    <TouchableOpacity style={styles.backToVideoEdit} onPress={backToVideoEdit}>
-                        <Text style={styles.backToVideoEditText}>Back</Text>
+                    <TouchableOpacity style={[styles.backToVideoEdit, {width: !competition?.temp_video ? 80 : 150}]} onPress={backToVideoEdit}>
+                        <Text style={styles.backToVideoEditText}>{!competition?.temp_video ? 'Back' : 'Change Video'}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.uploadVideo} onPress={uploadVideo}>
                         <Text style={styles.uploadVideoText}>Done</Text>
@@ -157,7 +255,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'gray',
         borderRadius: 10,
         paddingVertical: 10,
-        width: 80,
+        // width: 80,
         alignItems: 'center'
     },
     backToVideoEditText: {

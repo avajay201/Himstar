@@ -11,7 +11,7 @@ import { BASE_URL } from '../../actions/APIs';
 
 const Payment = ({ route, navigation }) => {
     const { setHomeReload } = useContext(MainContext);
-    const { compId, compType, amount, productInfo, firstName, email, phone, reg_id } = route.params;
+    const { competition, amount, firstName, email, phone, reg_id } = route.params;
     // const [userId, setUserId] = useState(null);
     const currentDate = new Date().toLocaleDateString();
     const [loading, setLoading] = useState(false);
@@ -95,11 +95,11 @@ const Payment = ({ route, navigation }) => {
     };
     displayAlert = async (status, value, successResponse = null) => {
         if (status === 'Success') {
-            if (compType === 'competition') {
-                successResponse['competition'] = compId;
+            if (competition.competition_type === 'competition') {
+                successResponse['competition'] = competition.id;
             }
-            else if (compType === 'tournament') {
-                successResponse['tournament'] = compId;
+            else if (competition.competition_type === 'tournament') {
+                successResponse['tournament'] = competition.id;
             }
             else {
                 ToastAndroid.show('You did a wrong payment, please contact to our supports team.', ToastAndroid.LONG);
@@ -111,7 +111,7 @@ const Payment = ({ route, navigation }) => {
             const result = await makePayment(navigation, successResponse);
             if (result[0] === 201) {
                 setHomeReload(true);
-                navigation.navigate('HomeTabs');
+                navigation.navigate('ViewComp', { compId: competition.id });
             }
             else {
                 ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
@@ -198,7 +198,7 @@ const Payment = ({ route, navigation }) => {
             key: key,
             transactionId: txnid,
             amount: amount,
-            productInfo: productInfo,
+            productInfo: competition.name,
             firstName: firstName,
             email: email,
             phone: phone,
@@ -241,7 +241,7 @@ const Payment = ({ route, navigation }) => {
         const day = String(today.getDate()).padStart(2, '0');
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const year = today.getFullYear();
-    
+
         return `${day}-${month}-${year}`;
     };
 
@@ -272,7 +272,7 @@ const Payment = ({ route, navigation }) => {
                 {/* Competition Name */}
                 <View style={styles.detailGroup}>
                     <Text style={styles.label}>Competition Name</Text>
-                    <Text style={styles.detail}>{productInfo}</Text>
+                    <Text style={styles.detail}>{competition.name}</Text>
                 </View>
 
                 {/* Name */}

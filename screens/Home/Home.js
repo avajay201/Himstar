@@ -7,6 +7,7 @@ import Carousel from 'react-native-snap-carousel';
 import { getCategories, getBanners, getCompetitions, getTournaments } from '../../actions/ApiActions';
 import { MainContext } from '../../others/MyContext';
 import { BASE_URL } from '../../actions/APIs';
+import Video from 'react-native-video';
 
 
 const Home = ({ navigation }) => {
@@ -22,6 +23,7 @@ const Home = ({ navigation }) => {
   const [tournaments, setTournaments] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const { homeReload, setHomeReload } = useContext(MainContext);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(()=>{
     if (homeReload){
@@ -55,7 +57,7 @@ const Home = ({ navigation }) => {
 
   const fetchBanners = async (bannerId = null) => {
     setBanners([]);
-    const result = await getBanners(navigation, bannerId);
+    const result = await getBanners(navigation);
     console.log('Banners Data:', result);
     if (result[0] === 200) {
       setBanners(result[1].banners);
@@ -105,7 +107,6 @@ const Home = ({ navigation }) => {
   const filterApply = async (id) => {
     setLoading(true);
     const selectedCategory = categories.find((category) => category.id === id);
-    await fetchBanners(selectedCategory.isActive ? null : id);
     await fetchCompetitions(selectedCategory.isActive ? '' : id);
     await fetchTournaments(selectedCategory.isActive ? '' : id);
     const categoryUpdate = categories.map((category) =>
@@ -148,22 +149,83 @@ const Home = ({ navigation }) => {
     }).start();
   };
 
-  const renderBanner = ({ item }) => (
-    <View style={styles.banner}>
-      <Image source={{ uri: item?.banner_image && item?.banner_image?.includes('media') ? BASE_URL + item?.banner_image : item?.file_uri }} style={{ width: '100%', height: 170, borderRadius: 10 }} />
-    </View>
-  );
+  // const renderBanner = ({ item }) => (
+  //   <View style={styles.banner}>
+  //     <Image source={{ uri: item?.banner_image && item?.banner_image?.includes('media') ? BASE_URL + item?.banner_image : item?.file_uri }} style={{ width: '100%', height: 170, borderRadius: 10 }} />
+  //   </View>
+  // );
+  const BannerItem = ({ item, play }) => {
+    const [isMuted, setIsMuted] = useState(true); // State to handle mute/unmute for videos
+
+    return (
+      <View style={styles.banner}>
+        {item?.media_type === 'banner' ? (
+          // Render the image for banner media type
+          <Image
+            source={{
+              uri: item?.banner_image && item?.banner_image.includes('media')
+                ? BASE_URL + item?.banner_image
+                : item?.file_uri,
+            }}
+            style={{ width: '100%', height: 170, borderRadius: 10 }}
+          />
+        ) : (
+          // Render the video for video media type
+          <View style={{ position: 'relative', width: '100%', height: 170, borderRadius: 10 }}>
+            <Video
+              source={{
+                uri: item?.video_file && item?.video_file.includes('media')
+                  ? BASE_URL + item?.video_file
+                  : item?.file_uri,
+              }}
+              style={{ width: '100%', height: '100%', borderRadius: 10 }}
+              resizeMode="cover"
+              muted={isMuted}
+              repeat
+              paused={!play} // Play or pause the video based on the `play` prop
+            />
+            {/* Unmute button */}
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                bottom: 10,
+                right: 10,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                padding: 8,
+                borderRadius: 20,
+              }}
+              onPress={() => setIsMuted(!isMuted)}
+            >
+              {/* <Text style={{ color: 'white', fontSize: 12 }}>
+                {isMuted ? 'Unmute' : 'Mute'}
+              </Text> */}
+              <Icon
+                name={isMuted ? 'volume-mute' : 'volume-high'} // Icons for mute and unmute
+                size={20}
+                color="white"
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
+  };
+  
+
+  const renderBanner = ({ item }) => {
+    return <BannerItem item={item} />;
+  };
 
   const viewCompetition = (comp) => {
-    navigation.navigate('ViewComp', { competition: comp });
+    navigation.navigate('ViewComp', { compId: comp.id });
   };
 
   const renderCompetition = (competition) => (
     <TouchableOpacity onPress={() => viewCompetition(competition)} key={competition.id} style={styles.upcomingCompetitionItem}>
       <Image source={{ uri: competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }} style={styles.upcomingCompetitionImage} />
       <View style={styles.upcomingCompetitionDetails}>
-        <Text style={styles.upcomingCompetitionSlots}>{competition.remaining_slots}/{competition.max_participants} slots</Text>
-        <Text style={styles.upcomingCompetitionDate}>{competition.is_active ? competition.registration_close_date : competition.registration_open_date}</Text>
+        <Text style={styles.upcomingCompetitionSlots}>{competition.remaining_slots}/{competition.max_participants}</Text>
+        <Text style={styles.upcomingCompetitionDate}>{competition.registration_open_date}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -229,7 +291,7 @@ const Home = ({ navigation }) => {
         }
 
         <View style={styles.crouselWrapper}>
-          <Carousel
+          {/* <Carousel
             layout={"default"}
             ref={carouselRef}
             data={banners}
@@ -237,12 +299,31 @@ const Home = ({ navigation }) => {
             sliderWidth={400}
             itemWidth={350}
             layoutCardOffset={18}
+          /> */}
+          <Carousel
+            // layout="default"
+            // ref={carouselRef}
+            // data={banners}
+            // renderItem={renderBanner}
+            // sliderWidth={400}
+            // itemWidth={350}
+            // layoutCardOffset={18}
+            layout="default"
+            ref={carouselRef}
+            data={banners}
+            renderItem={({ item, index }) => (
+              <BannerItem item={item} play={index === activeSlide} />
+            )}
+            sliderWidth={400}
+            itemWidth={350}
+            layoutCardOffset={18}
+            onSnapToItem={(index) => setActiveSlide(index)}
           />
         </View>
 
         {activeCompetitions.length > 0 && <View style={styles.upcomingCompetitionsWrapper}>
           <View style={styles.upcomingCompHead}>
-            <Text style={styles.dataHeading}>Live Competitions</Text>
+            <Text style={styles.dataHeading}>Ongoing Competitions</Text>
             {activeCompetitions.length > 10 && <Text onPress={() => navigation.navigate('LiveComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.upcomingCompetitionScroller}>
@@ -261,7 +342,7 @@ const Home = ({ navigation }) => {
         </View>}
 
         {tournaments.length > 0 && <View style={styles.tournamentsWrapper}>
-          <Text style={styles.dataHeading}>Tournaments</Text>
+          <Text style={styles.dataHeading}>Mega Contests</Text>
 
           {tournaments.slice(0, 10).map((comp, index) => (
             <TouchableOpacity
@@ -533,6 +614,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+  banner: {
+    marginHorizontal: 10,
+    marginBottom: 20,
+    borderRadius: 10,
+    overflow: 'hidden', // Ensure video and images fit within rounded borders
+  },
+  carouselWrapper: {
+    alignItems: 'center',
+    marginTop: 20,
   },
 });
 

@@ -124,10 +124,10 @@ export const mergeVideo = async (navigation, data) => {
     }
 };
 
-export const removeMergedVideo = async (navigation, data) => {
+export const removeTempVideo = async (navigation, data) => {
     try {
         const token = await getAuthToken();
-        const response = await axios.post(ENDPOINTS.removeMergedVideo, data, {
+        const response = await axios.post(ENDPOINTS.removeTempVideo, data, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -159,10 +159,10 @@ export const getCategories = async (navigation) => {
     }
 };
 
-export const getBanners = async (navigation, id) => {
+export const getBanners = async (navigation) => {
     try {
         const token = await getAuthToken();
-        const response = await axios.get(ENDPOINTS.banners + (id ? id : ''), {
+        const response = await axios.get(ENDPOINTS.banners, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -426,6 +426,43 @@ export const getLeaderBoard = async (navigation, id) => {
         const response = await axios.post(ENDPOINTS.leaderBoard, {competition_id: id}, {
             headers: {
               Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const fetchSpecificCompetition = async (navigation, id) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.get(ENDPOINTS.specificCompetition + id + '/', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const saveTempParticipant = async (navigation, data) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.post(ENDPOINTS.saveTempParticipant, data, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data',
             },
         });
         return [response.status, response.data];

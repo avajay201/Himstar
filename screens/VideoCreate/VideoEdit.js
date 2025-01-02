@@ -140,7 +140,7 @@ const MusicModal = ({ visible, onClose, handleTrackSelectWithVideo }) => {
 
 
 const VideoEdit = ({ route, navigation }) => {
-    const { uri, videoDimensions, compId } = route.params;
+    const { uri, videoDimensions, competition } = route.params;
     const [isMusicModalVisible, setIsMusicModalVisible] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -148,6 +148,10 @@ const VideoEdit = ({ route, navigation }) => {
     const [soundWithVideo, setSoundWithVideo] = useState(null);
     const [music, setMusic] = useState(null);
     const videoRef = useRef(null);
+
+    useEffect(() => {
+        console.log('VideoEdit Screen', videoUri);
+    }, []);
 
     const togglePlayPause = () => {
         setIsPlaying(!isPlaying);
@@ -204,7 +208,7 @@ const VideoEdit = ({ route, navigation }) => {
             soundWithVideo.pause();
         };
 
-        navigation.navigate('VideoPreview', { uri: videoUri, videoDimensions: videoDimensions, musicUri: soundWithVideo && music ? music.preview : null, compId: compId })
+        navigation.navigate('VideoPreview', { uri: videoUri, videoDimensions: videoDimensions, musicUri: soundWithVideo && music ? music.preview : null, competition: competition });
     };
 
     return (

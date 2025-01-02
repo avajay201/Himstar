@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ToastAndroid, useWindowDimensions } from "react-native";
+import React, { useCallback, useState } from "react";
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ToastAndroid, ActivityIndicator, Modal } from "react-native";
 import WebView from "react-native-webview";
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BASE_URL } from "../../actions/APIs";
-
+import { fetchSpecificCompetition } from "../../actions/ApiActions";
+import { useFocusEffect } from '@react-navigation/native';
 
 const ViewComp = ({ route, navigation }) => {
-    const { competition } = route.params;
+    const { compId } = route.params;
+    const [competition, setCompetition] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [dynamicHeight, setDynamicHeight] = useState(500);
     const [rules, setRules] = useState(`
         <html>
@@ -43,12 +46,39 @@ const ViewComp = ({ route, navigation }) => {
         </html>
     `);
 
-    useEffect(() => {
-        if (!competition) {
-            ToastAndroid.show('Unable to view this competition, please try after some time.', ToastAndroid.SHORT);
-            navigation.goBack();
+    const fetchCompetition = async () => {
+        const result = await fetchSpecificCompetition(navigation, compId);
+        if (result[0] === 200) {
+            setCompetition(result[1]);
         }
-    }, []);
+        else {
+            ToastAndroid.show('Something went wrong!', ToastAndroid.SHORT);
+            navigation.goBack();
+        };
+        setLoading(false);
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!compId) {
+                ToastAndroid.show('Unable to view this competition, please try after some time.', ToastAndroid.SHORT);
+                navigation.goBack();
+            }
+            else{
+                fetchCompetition();
+            }
+            return ()=>{};
+        }, [])
+    );
+
+    // useEffect(() => {
+    //     if (!compId) {
+    //         ToastAndroid.show('Unable to view this competition, please try after some time.', ToastAndroid.SHORT);
+    //         navigation.goBack();
+    //         return;
+    //     }
+    //     fetchCompetition();
+    // }, []);
 
     const compRegister = async () => {
         const email = await AsyncStorage.getItem('AuthEmail');
@@ -60,11 +90,15 @@ const ViewComp = ({ route, navigation }) => {
             ToastAndroid.show('Please update your profile before competetion register.', ToastAndroid.SHORT);
             return;
         }
-        navigation.navigate('Payment', { compId: competition.id, compType: competition.competition_type, amount: String(competition.price), productInfo: competition?.name, firstName: name, email: email, phone: phone, reg_id: String(reg_id) });
+        navigation.navigate('Payment', { compId: competition?.id, compType: competition?.competition_type, amount: String(competition?.price), productInfo: competition?.name, firstName: name, email: email, phone: phone, reg_id: String(reg_id) });
     };
 
     const videoUpload = () => {
-        navigation.navigate('VideoCreate', { compId: competition.id });
+        navigation.navigate('VideoCreate', { competition: competition });
+    };
+
+    const navigateVideoPreview = async()=>{
+        navigation.navigate('VideoPreview', { uri: BASE_URL + competition?.temp_video, videoDimensions: null, musicUri: null, competition: competition });
     };
 
     return (
@@ -75,7 +109,7 @@ const ViewComp = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
             <Image
-                source={{ uri: competition.competition_type === 'tournament' ? competition?.competitions?.banner_image && competition?.competitions?.banner_image?.includes('media') ? BASE_URL + competition?.competitions?.banner_image : competition?.competitions?.file_uri : competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }}
+                source={{ uri: competition?.competition_type === 'tournament' ? competition?.competitions?.banner_image && competition?.competitions?.banner_image?.includes('media') ? BASE_URL + competition?.competitions?.banner_image : competition?.competitions?.file_uri : competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }}
                 style={styles.bannerImage}
             />
 
@@ -143,7 +177,7 @@ const ViewComp = ({ route, navigation }) => {
                     <Text style={styles.textValue}>{competition?.remaining_slots}</Text>
                 </View>
 
-                <View style={styles.rulesContainer}>
+                {/* <View style={styles.rulesContainer}>
                     <Text style={styles.rulesHeading}>Rules:</Text>
                     <View style={{ height: dynamicHeight }}>
                         <WebView
@@ -159,22 +193,27 @@ const ViewComp = ({ route, navigation }) => {
                             }}
                         />
                     </View>
-                </View>
+                </View> */}
 
                 {
-                    competition.reg_open &&
-                    <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => competition.is_done ? navigation.navigate('Leaderboard', { compId: competition.id }) : (competition.is_participated ? videoUpload() : compRegister())}>
-                        <Text style={styles.registerButtonText}>{competition.is_done ? 'Leaderboard' : (competition.is_participated ? 'Upload your video' : 'Enroll Now')}</Text>
+                    competition?.reg_open &&
+                    <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => competition?.is_done ? navigation.navigate('Leaderboard', { compId: competition?.id }) : (competition?.is_participated ? navigateVideoPreview() : videoUpload())}>
+                        <Text style={styles.registerButtonText}>{competition?.is_done ? 'Leaderboard' : (competition?.is_participated ? 'Complete' : 'Enroll Now')}</Text>
                     </TouchableOpacity>
                 }
                 {/* {
-                    competition.reg_close && 
-                    <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => navigation.navigate('Leaderboard', { compId: competition.id })}>
+                    competition?.reg_close && 
+                    <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => navigation.navigate('Leaderboard', { compId: competition?.id })}>
                         <Text style={styles.registerButtonText}>Leaderboard</Text>
                     </TouchableOpacity>
                 } */}
 
             </View>
+            <Modal transparent={true} animationType="fade" visible={loading}>
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color='#B94EA0' />
+                </View>
+            </Modal>
         </ScrollView>
     );
 };
@@ -275,6 +314,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#fff",
         fontWeight: "bold",
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
     },
 });
 

@@ -9,7 +9,7 @@ import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 
 
 const VideoCreate = ({ route, navigation }) => {
-    const { compId } = route.params;
+    const { competition } = route.params;
     const [videoUri, setVideoUri] = useState(null);
     const [videoOptionsIsVisible, setVideoOptionsIsVisible] = useState(false);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -124,7 +124,7 @@ const VideoCreate = ({ route, navigation }) => {
 
     const navigateToVideoEdit = () => {
         if (videoUri) {
-            navigation.navigate('VideoEdit', { uri: videoUri, videoDimensions: videoDimensions, compId: compId });
+            navigation.navigate('VideoEdit', { uri: videoUri, videoDimensions: videoDimensions, competition: competition });
         }
     };
 
