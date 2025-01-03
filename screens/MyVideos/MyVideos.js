@@ -3,7 +3,6 @@ import { View, Text, FlatList, ActivityIndicator, Animated, Dimensions, Touchabl
 import Video from 'react-native-video';
 import { useIsFocused } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Applogo from '../../assets/images/logo.png';
 import { userVideos, postLikes, likePost, postComments, postComment } from '../../actions/ApiActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -205,7 +204,7 @@ const MyVideo = ({ navigation }) => {
   const renderComments = useCallback(({ item, index }) => {
     return (
       <View style={styles.commentContainer}>
-        <Image source={item.profile_image ? {uri: BASE_URL + item.profile_image} : Applogo} style={styles.commentProfilePic} />
+        <Image source={item.profile_image ? {uri: BASE_URL + item.profile_image} : require('./../../assets/images/dummy-profile.png')} style={styles.commentProfilePic} />
         <View style={styles.commentContent}>
           <Text style={styles.commentUsername}>{item.username}</Text>
           <Text style={styles.commentText}>{item.content}</Text>
@@ -219,7 +218,7 @@ const MyVideo = ({ navigation }) => {
       <View style={styles.likeItem}>
         <View style={styles.userLikeDetails}>
           <Image
-            source={item.profile_image ? {uri: BASE_URL + item.profile_image} : {Applogo}}
+            source={item.profile_image ? {uri: BASE_URL + item.profile_image} : require('./../../assets/images/dummy-profile.png')}
             style={styles.likeProfilePic}
           />
           <Text style={styles.likeUserName}>{item.username}</Text>
@@ -259,7 +258,7 @@ const MyVideo = ({ navigation }) => {
           <View style={{ marginRight: 8 }}>
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'gray' }}>
               <Image
-                source={Applogo}
+                source={require('./../../assets/images/dummy-profile.png')}
                 style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'gray' }}
               />
             </View>

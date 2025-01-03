@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useContext } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, ToastAndroid, Modal, ActivityIndicator, TouchableOpacity, Animated, Easing } from 'react-native';
 import { profile } from '../../actions/ApiActions';
 import { BASE_URL } from '../../actions/APIs';
-import AppLogo from './../../assets/images/logo.png';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MainContext } from '../../others/MyContext';
@@ -93,12 +92,12 @@ const Profile = ({ navigation }) => {
             </View>
 
             <Image
-                source={profileData.cover_image ? {uri: BASE_URL + profileData.cover_image} : AppLogo}
+                source={profileData.cover_image ? {uri: BASE_URL + profileData.cover_image} : require('./../../assets/images/logo-with-bg.png')}
                 style={styles.bannerImage}
             />
 
             <Image
-                source={profileData.profile_image ? {uri: BASE_URL + profileData.profile_image} : AppLogo}
+                source={profileData.profile_image ? {uri: BASE_URL + profileData.profile_image} : require('./../../assets/images/dummy-profile.png')}
                 style={styles.profileImage}
             />
 
@@ -154,7 +153,7 @@ const Profile = ({ navigation }) => {
                 {profileData.eligible_awards && profileData.eligible_awards.map((award, index)=>(
                     <Image
                         key={index}
-                        source={award.image ? {uri: BASE_URL + award.image} : AppLogo}
+                        source={{uri: BASE_URL + award.image}}
                         style={styles.image}
                     />
                 ))}

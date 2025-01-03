@@ -12,12 +12,12 @@ import {
     Modal,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import AppLogo from './../../assets/images/logo.png';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BASE_URL } from '../../actions/APIs';
 import { updateProfile } from '../../actions/ApiActions';
 import {launchImageLibrary} from 'react-native-image-picker';
 import { MainContext } from '../../others/MyContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const EditProfile = ({ navigation, route }) => {
@@ -99,10 +99,11 @@ const EditProfile = ({ navigation, route }) => {
                     type: 'image/jpeg',
                 });
             }
-    
+
             const result = await updateProfile(navigation, formData);
     
             if (result[0] === 200) {
+                await AsyncStorage.setItem('AuthPhone', result[1].phonenumber);
                 ToastAndroid.show('Profile updated successfully!', ToastAndroid.SHORT);
                 setProfileReload(true);
                 navigation.navigate('Profile');
@@ -145,7 +146,7 @@ const EditProfile = ({ navigation, route }) => {
                             ? myProfile.cover_image.includes('file:///') 
                                 ? { uri: myProfile.cover_image } 
                                 : { uri: BASE_URL + myProfile.cover_image }
-                            : AppLogo
+                            : require('./../../assets/images/dummy-profile.png')
                     }
                     style={styles.coverImage}
                 />
@@ -164,7 +165,7 @@ const EditProfile = ({ navigation, route }) => {
                             ? myProfile.profile_image.includes('file:///') 
                                 ? { uri: myProfile.profile_image } 
                                 : { uri: BASE_URL + myProfile.profile_image }
-                            : AppLogo
+                            : require('./../../assets/images/dummy-profile.png')
                     }
                     style={styles.profileImage}
                 />

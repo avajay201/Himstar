@@ -1,14 +1,19 @@
 import React, { useState, useRef, useEffect, useCallback, useContext } from 'react';
-import { View, Text, BackHandler, ToastAndroid, Animated, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator, Modal, RefreshControl } from 'react-native';
+import { View, Text, BackHandler, ToastAndroid, Dimensions, Animated, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator, Modal, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import AppLogo from './../../assets/images/logo.png';
 import Carousel from 'react-native-snap-carousel';
 import { getCategories, getBanners, getCompetitions, getTournaments } from '../../actions/ApiActions';
 import { MainContext } from '../../others/MyContext';
 import { BASE_URL } from '../../actions/APIs';
 import Video from 'react-native-video';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
+const { width } = Dimensions.get('window'); // Get screen width
+const padding = 10;
+const sliderWidth = width - padding * 2; // Adjusting for padding
+const itemWidth = sliderWidth - padding;
 
 const Home = ({ navigation }) => {
   const [backPressedOnce, setBackPressedOnce] = useState(false);
@@ -24,6 +29,15 @@ const Home = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const { homeReload, setHomeReload } = useContext(MainContext);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [profileImage, setProfileImage] = useState(null);
+
+  const fetchProfileImage = async()=>{
+    const image = await AsyncStorage.getItem('AuthImage');
+    console.log('Profile Image:', image); 
+    if (image){
+      setProfileImage(image);
+    }
+  };
 
   useEffect(()=>{
     if (homeReload){
@@ -34,6 +48,7 @@ const Home = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
+      fetchProfileImage();
       return () => {
         if (slideAnimation) {
           Animated.timing(slideAnimation, {
@@ -210,11 +225,6 @@ const Home = ({ navigation }) => {
       </View>
     );
   };
-  
-
-  const renderBanner = ({ item }) => {
-    return <BannerItem item={item} />;
-  };
 
   const viewCompetition = (comp, compType) => {
     navigation.navigate('ViewComp', { compId: comp.id, compType: compType });
@@ -245,7 +255,7 @@ const Home = ({ navigation }) => {
           <Icon name={"menu"} size={40} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
-          <Image source={AppLogo} style={styles.profilePicture} />
+          <Image source={profileImage ? {uri: BASE_URL + profileImage} : require('./../../assets/images/dummy-profile.png')} style={styles.profilePicture} />
         </TouchableOpacity>
       </View>
       <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnimation }] }]}>
@@ -291,31 +301,15 @@ const Home = ({ navigation }) => {
         }
 
         <View style={styles.crouselWrapper}>
-          {/* <Carousel
-            layout={"default"}
-            ref={carouselRef}
-            data={banners}
-            renderItem={renderBanner}
-            sliderWidth={400}
-            itemWidth={350}
-            layoutCardOffset={18}
-          /> */}
           <Carousel
-            // layout="default"
-            // ref={carouselRef}
-            // data={banners}
-            // renderItem={renderBanner}
-            // sliderWidth={400}
-            // itemWidth={350}
-            // layoutCardOffset={18}
             layout="default"
             ref={carouselRef}
             data={banners}
             renderItem={({ item, index }) => (
               <BannerItem item={item} play={index === activeSlide} />
             )}
-            sliderWidth={400}
-            itemWidth={350}
+            sliderWidth={sliderWidth}
+            itemWidth={itemWidth}
             layoutCardOffset={18}
             onSnapToItem={(index) => setActiveSlide(index)}
           />
