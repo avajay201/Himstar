@@ -1,21 +1,45 @@
-import React, { useState, useRef, useEffect, useCallback, useContext } from 'react';
-import { View, Text, BackHandler, ToastAndroid, Dimensions, Animated, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator, Modal, RefreshControl } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useContext,
+} from 'react';
+import {
+  View,
+  Text,
+  BackHandler,
+  ToastAndroid,
+  Dimensions,
+  Animated,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+  Modal,
+  RefreshControl,
+} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Carousel from 'react-native-snap-carousel';
-import { getCategories, getBanners, getCompetitions, getTournaments } from '../../actions/ApiActions';
-import { MainContext } from '../../others/MyContext';
-import { BASE_URL } from '../../actions/APIs';
+import {
+  getCategories,
+  getBanners,
+  getCompetitions,
+  getTournaments,
+} from '../../actions/ApiActions';
+import {MainContext} from '../../others/MyContext';
+import {BASE_URL} from '../../actions/APIs';
 import Video from 'react-native-video';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-const { width } = Dimensions.get('window'); // Get screen width
+const {width} = Dimensions.get('window'); // Get screen width
 const padding = 10;
 const sliderWidth = width - padding * 2; // Adjusting for padding
 const itemWidth = sliderWidth - padding;
 
-const Home = ({ navigation }) => {
+const Home = ({navigation}) => {
   const [backPressedOnce, setBackPressedOnce] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,20 +51,20 @@ const Home = ({ navigation }) => {
   const [activeCompetitions, setActiveCompetitions] = useState([]);
   const [tournaments, setTournaments] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const { homeReload, setHomeReload } = useContext(MainContext);
+  const {homeReload, setHomeReload} = useContext(MainContext);
   const [activeSlide, setActiveSlide] = useState(0);
   const [profileImage, setProfileImage] = useState(null);
 
-  const fetchProfileImage = async()=>{
+  const fetchProfileImage = async () => {
     const image = await AsyncStorage.getItem('AuthImage');
-    console.log('Profile Image:', image); 
-    if (image){
+    console.log('Profile Image:', image);
+    if (image) {
       setProfileImage(image);
     }
   };
 
-  useEffect(()=>{
-    if (homeReload){
+  useEffect(() => {
+    if (homeReload) {
       fetchAllData();
       setHomeReload(false);
     }
@@ -59,7 +83,7 @@ const Home = ({ navigation }) => {
           setMenuVisible(false);
         }
       };
-    }, [])
+    }, []),
   );
 
   const fetchCategories = async () => {
@@ -119,15 +143,15 @@ const Home = ({ navigation }) => {
     setRefreshing(false);
   };
 
-  const filterApply = async (id) => {
+  const filterApply = async id => {
     setLoading(true);
-    const selectedCategory = categories.find((category) => category.id === id);
+    const selectedCategory = categories.find(category => category.id === id);
     await fetchCompetitions(selectedCategory.isActive ? '' : id);
     await fetchTournaments(selectedCategory.isActive ? '' : id);
-    const categoryUpdate = categories.map((category) =>
+    const categoryUpdate = categories.map(category =>
       category.id === id
-        ? { ...category, isActive: !category.isActive }
-        : { ...category, isActive: false }
+        ? {...category, isActive: !category.isActive}
+        : {...category, isActive: false},
     );
     setCategories(categoryUpdate);
     setLoading(false);
@@ -148,11 +172,11 @@ const Home = ({ navigation }) => {
 
       const backHandler = BackHandler.addEventListener(
         'hardwareBackPress',
-        backAction
+        backAction,
       );
 
       return () => backHandler.remove();
-    }, [backPressedOnce])
+    }, [backPressedOnce]),
   );
 
   const toggleMenu = () => {
@@ -169,8 +193,9 @@ const Home = ({ navigation }) => {
   //     <Image source={{ uri: item?.banner_image && item?.banner_image?.includes('media') ? BASE_URL + item?.banner_image : item?.file_uri }} style={{ width: '100%', height: 170, borderRadius: 10 }} />
   //   </View>
   // );
-  const BannerItem = ({ item, play }) => {
-    const [isMuted, setIsMuted] = useState(true); // State to handle mute/unmute for videos
+  const BannerItem = ({item, play}) => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
 
     return (
       <View style={styles.banner}>
@@ -178,28 +203,53 @@ const Home = ({ navigation }) => {
           // Render the image for banner media type
           <Image
             source={{
-              uri: item?.banner_image && item?.banner_image.includes('media')
-                ? BASE_URL + item?.banner_image
-                : item?.file_uri,
+              uri:
+                item?.banner_image && item?.banner_image.includes('media')
+                  ? BASE_URL + item?.banner_image
+                  : item?.file_uri,
             }}
-            style={{ width: '100%', height: 170, borderRadius: 10 }}
+            style={{width: '100%', height: 170, borderRadius: 10}}
           />
         ) : (
           // Render the video for video media type
-          <View style={{ position: 'relative', width: '100%', height: 170, borderRadius: 10 }}>
+          <View
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: 170,
+              borderRadius: 10,
+            }}>
             <Video
               source={{
-                uri: item?.video_file && item?.video_file.includes('media')
-                  ? BASE_URL + item?.video_file
-                  : item?.file_uri,
+                uri:
+                  item?.video_file && item?.video_file.includes('media')
+                    ? BASE_URL + item?.video_file
+                    : item?.file_uri,
               }}
-              style={{ width: '100%', height: '100%', borderRadius: 10 }}
+              style={{width: '100%', height: '100%', borderRadius: 10}}
               resizeMode="cover"
               muted={isMuted}
               repeat
-              paused={!play} // Play or pause the video based on the `play` prop
+              paused={!isPlaying} // Control playback based on isPlaying state
             />
             {/* Unmute button */}
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                bottom: 10,
+                right: 50,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                padding: 8,
+                borderRadius: 20,
+              }}
+              onPress={() => setIsMuted(!isMuted)}>
+              <Icon
+                name={isMuted ? 'volume-mute' : 'volume-high'}
+                size={20}
+                color="white"
+              />
+            </TouchableOpacity>
+            {/* Play/Pause button */}
             <TouchableOpacity
               style={{
                 position: 'absolute',
@@ -209,13 +259,9 @@ const Home = ({ navigation }) => {
                 padding: 8,
                 borderRadius: 20,
               }}
-              onPress={() => setIsMuted(!isMuted)}
-            >
-              {/* <Text style={{ color: 'white', fontSize: 12 }}>
-                {isMuted ? 'Unmute' : 'Mute'}
-              </Text> */}
+              onPress={() => setIsPlaying(!isPlaying)}>
               <Icon
-                name={isMuted ? 'volume-mute' : 'volume-high'} // Icons for mute and unmute
+                name={isPlaying ? 'pause' : 'play'} // Toggle play/pause icon
                 size={20}
                 color="white"
               />
@@ -227,49 +273,75 @@ const Home = ({ navigation }) => {
   };
 
   const viewCompetition = (comp, compType) => {
-    navigation.navigate('ViewComp', { compId: comp.id, compType: compType });
+    navigation.navigate('ViewComp', {compId: comp.id, compType: compType});
   };
 
-  const renderCompetition = (competition) => (
-    <TouchableOpacity onPress={() => viewCompetition(competition, competition.competition_type)} key={competition.id} style={styles.upcomingCompetitionItem}>
-      <Image source={{ uri: competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }} style={styles.upcomingCompetitionImage} />
+  const renderCompetition = competition => (
+    <TouchableOpacity
+      onPress={() => viewCompetition(competition, competition.competition_type)}
+      key={competition.id}
+      style={styles.upcomingCompetitionItem}>
+      <Image
+        source={{
+          uri:
+            competition?.banner_image &&
+            competition?.banner_image?.includes('media')
+              ? BASE_URL + competition?.banner_image
+              : competition?.file_uri,
+        }}
+        style={styles.upcomingCompetitionImage}
+      />
       <View style={styles.upcomingCompetitionDetails}>
-        <Text style={styles.upcomingCompetitionSlots}>{competition.remaining_slots}/{competition.max_participants}</Text>
-        <Text style={styles.upcomingCompetitionDate}>{competition.registration_open_date}</Text>
+        <Text style={styles.upcomingCompetitionSlots}>
+          {competition.remaining_slots}/{competition.max_participants}
+        </Text>
+        <Text style={styles.upcomingCompetitionDate}>
+          {competition.registration_open_date}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 
-  const navigateMenuOption = (option) => {
+  const navigateMenuOption = option => {
     toggleMenu();
     navigation.navigate(option);
   };
 
   return (
     <View style={styles.container}>
-      {menuVisible && (
-        <View style={styles.overlay} />
-      )}
+      {menuVisible && <View style={styles.overlay} />}
       <View style={styles.menuProfile}>
         <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
-          <Icon name={"menu"} size={40} color="#fff" />
+          <Icon name={'menu'} size={40} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
-          <Image source={profileImage ? {uri: BASE_URL + profileImage} : require('./../../assets/images/dummy-profile.png')} style={styles.profilePicture} />
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => navigation.navigate('Profile')}>
+          <Image
+            source={
+              profileImage
+                ? {uri: BASE_URL + profileImage}
+                : require('./../../assets/images/dummy-profile.png')
+            }
+            style={styles.profilePicture}
+          />
         </TouchableOpacity>
       </View>
-      <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnimation }] }]}>
+      <Animated.View
+        style={[styles.menu, {transform: [{translateX: slideAnimation}]}]}>
         <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
-          <Icon name={menuVisible ? "close" : "menu"} size={40} color="#fff" />
+          <Icon name={menuVisible ? 'close' : 'menu'} size={40} color="#fff" />
         </TouchableOpacity>
         <View style={styles.menuContainer}>
           <TouchableOpacity onPress={() => navigateMenuOption('Wallet')}>
             <Text style={styles.menuItem}>My Wallet</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigateMenuOption('PaymentHistory')}>
+          <TouchableOpacity
+            onPress={() => navigateMenuOption('PaymentHistory')}>
             <Text style={styles.menuItem}>Payment History</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigateMenuOption('MyCompetitions')}>
+          <TouchableOpacity
+            onPress={() => navigateMenuOption('MyCompetitions')}>
             <Text style={styles.menuItem}>My Contests</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigateMenuOption('MyVideos')}>
@@ -280,73 +352,135 @@ const Home = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </Animated.View>
-      <ScrollView scrollEnabled={menuVisible ? false : true} refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#B94EA0']} />
-      }>
-        {categories && categories.length > 0 && <View style={styles.filtersWrapper}>
-          <Text style={styles.dataHeading}>Filters</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroller}>
-            {categories.map((tag, index) => (
-              <TouchableOpacity onPress={() => filterApply(tag.id)} key={tag.id} style={[styles.filterTag, { backgroundColor: tag.isActive ? '#B94EA0' : 'white' }]}>
-                <Text style={[styles.filterTagText, { color: tag.isActive ? 'white' : '#B94EA0' }]}>{tag.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>}
-
-        {!loading && banners.length === 0 && activeCompetitions.length === 0 && upcomingCompetitions.length === 0 && tournaments.length === 0 &&
-          <View style={[styles.noData, { marginTop: categories.length === 0 && 400 }]}>
-            <Text style={styles.noDataText}>No data!</Text>
+      <ScrollView
+        scrollEnabled={menuVisible ? false : true}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#B94EA0']}
+          />
+        }>
+        {categories && categories.length > 0 && (
+          <View style={styles.filtersWrapper}>
+            <Text style={styles.dataHeading}>Filters</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.filterScroller}>
+              {categories.map((tag, index) => (
+                <TouchableOpacity
+                  onPress={() => filterApply(tag.id)}
+                  key={tag.id}
+                  style={[
+                    styles.filterTag,
+                    {backgroundColor: tag.isActive ? '#B94EA0' : 'white'},
+                  ]}>
+                  <Text
+                    style={[
+                      styles.filterTagText,
+                      {color: tag.isActive ? 'white' : '#B94EA0'},
+                    ]}>
+                    {tag.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
-        }
+        )}
+
+        {!loading &&
+          banners.length === 0 &&
+          activeCompetitions.length === 0 &&
+          upcomingCompetitions.length === 0 &&
+          tournaments.length === 0 && (
+            <View
+              style={[
+                styles.noData,
+                {marginTop: categories.length === 0 && 400},
+              ]}>
+              <Text style={styles.noDataText}>No data!</Text>
+            </View>
+          )}
 
         <View style={styles.crouselWrapper}>
           <Carousel
             layout="default"
             ref={carouselRef}
             data={banners}
-            renderItem={({ item, index }) => (
+            renderItem={({item, index}) => (
               <BannerItem item={item} play={index === activeSlide} />
             )}
             sliderWidth={sliderWidth}
             itemWidth={itemWidth}
             layoutCardOffset={18}
-            onSnapToItem={(index) => setActiveSlide(index)}
+            onSnapToItem={index => setActiveSlide(index)}
           />
         </View>
 
-        {activeCompetitions.length > 0 && <View style={styles.upcomingCompetitionsWrapper}>
-          <View style={styles.upcomingCompHead}>
-            <Text style={styles.dataHeading}>Ongoing Competitions</Text>
-            {activeCompetitions.length > 10 && <Text onPress={() => navigation.navigate('LiveComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
+        {activeCompetitions.length > 0 && (
+          <View style={styles.upcomingCompetitionsWrapper}>
+            <View style={styles.upcomingCompHead}>
+              <Text style={styles.dataHeading}>Ongoing Competitions</Text>
+              {activeCompetitions.length > 0 && (
+                <Text
+                  onPress={() => navigation.navigate('LiveComps')}
+                  style={styles.upcomingMoreCompetition}>
+                  See more...
+                </Text>
+              )}
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.upcomingCompetitionScroller}>
+              {activeCompetitions.slice(0, 10).map(renderCompetition)}
+            </ScrollView>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.upcomingCompetitionScroller}>
-            {activeCompetitions.slice(0, 10).map(renderCompetition)}
-          </ScrollView>
-        </View>}
+        )}
 
-        {upcomingCompetitions.length > 0 && <View style={[styles.upcomingCompetitionsWrapper, { marginTop: 10 }]}>
-          <View style={styles.upcomingCompHead}>
-            <Text style={styles.dataHeading}>Upcoming Competitions</Text>
-            {activeCompetitions.length > 10 && <Text onPress={() => navigation.navigate('UpcomingComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
+        {upcomingCompetitions.length > 0 && (
+          <View style={[styles.upcomingCompetitionsWrapper, {marginTop: 10}]}>
+            <View style={styles.upcomingCompHead}>
+              <Text style={styles.dataHeading}>Upcoming Competitions</Text>
+              {activeCompetitions.length > 10 && (
+                <Text
+                  onPress={() => navigation.navigate('UpcomingComps')}
+                  style={styles.upcomingMoreCompetition}>
+                  See more...
+                </Text>
+              )}
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.upcomingCompetitionScroller}>
+              {upcomingCompetitions.slice(0, 10).map(renderCompetition)}
+            </ScrollView>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.upcomingCompetitionScroller}>
-            {upcomingCompetitions.slice(0, 10).map(renderCompetition)}
-          </ScrollView>
-        </View>}
+        )}
 
-        {tournaments.length > 0 && <View style={styles.tournamentsWrapper}>
-          <Text style={styles.dataHeading}>Mega Contests</Text>
+        {tournaments.length > 0 && (
+          <View style={styles.tournamentsWrapper}>
+            <Text style={styles.dataHeading}>Mega Contests</Text>
 
-          {tournaments.slice(0, 10).map((comp, index) => (
-            <TouchableOpacity
-              onPress={() => viewCompetition(comp, comp.competition_type)}
-              key={index}
-              style={styles.tournaments}
-            >
-              {/* {comp.file_uri && ( */}
+            {tournaments.slice(0, 10).map((comp, index) => (
+              <TouchableOpacity
+                onPress={() => viewCompetition(comp, comp.competition_type)}
+                key={index}
+                style={styles.tournaments}>
+                {/* {comp.file_uri && ( */}
                 <View>
-                  <Image source={{ uri: comp?.banner_image && comp?.banner_image?.includes('media') ? BASE_URL + comp?.banner_image : comp?.file_uri }} style={styles.tournamentImage} />
+                  <Image
+                    source={{
+                      uri:
+                        comp?.banner_image &&
+                        comp?.banner_image?.includes('media')
+                          ? BASE_URL + comp?.banner_image
+                          : comp?.file_uri,
+                    }}
+                    style={styles.tournamentImage}
+                  />
                   <View style={styles.overlayDetails}>
                     <Text style={styles.tournamentNameText}>{comp.name}</Text>
                     <View style={styles.detailRow}>
@@ -367,18 +501,27 @@ const Home = ({ navigation }) => {
                     </View>
                   </View>
                 </View>
-              {/* )} */}
-            </TouchableOpacity>
-          ))}
+                {/* )} */}
+              </TouchableOpacity>
+            ))}
 
-          {tournaments.length > 10 && <TouchableOpacity onPress={() => { navigation.navigate('ActiveComps') }} style={styles.activeCompsSeeMoreButton}>
-            <Text style={styles.activeCompsSeeMoreButtonText}>See more...</Text>
-          </TouchableOpacity>}
-        </View>}
+            {tournaments.length > 10 && (
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('ActiveComps');
+                }}
+                style={styles.activeCompsSeeMoreButton}>
+                <Text style={styles.activeCompsSeeMoreButtonText}>
+                  See more...
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </ScrollView>
       <Modal transparent={true} animationType="fade" visible={loading}>
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color='#B94EA0' />
+          <ActivityIndicator size="large" color="#B94EA0" />
         </View>
       </Modal>
     </View>
@@ -413,7 +556,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
     width: '100%',
     height: 70,
-    position: 'absolute'
+    position: 'absolute',
   },
   menuButton: {
     position: 'absolute',
@@ -555,7 +698,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
