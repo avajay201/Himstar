@@ -55,7 +55,7 @@ export default NavBar = () => {
         >
             <Tab.Screen name="Home" component={Home} options={{ headerShown: false }} />
             <Tab.Screen name="Search" component={Search} options={{ headerShown: false }} />
-            <Tab.Screen name="Reels" component={Reels} options={{ headerShown: false }} />
+            <Tab.Screen name="Reels" component={Reels} options={{ headerShown: false }} initialParams={{value: 'ALL'}} />
             <Tab.Screen name="MyComps" component={MyCompetitions} options={{ headerShown: false }} />
         </Tab.Navigator>
     );

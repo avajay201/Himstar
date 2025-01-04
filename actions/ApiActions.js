@@ -262,18 +262,20 @@ export const postCreate = async (navigation, data) => {
     }
 };
 
-export const listParticipantsVideos = async (navigation) => {
+export const listParticipantsVideos = async (navigation, params = {}) => {
     try {
         const token = await getAuthToken();
+
         const response = await axios.get(ENDPOINTS.listParticipantsVideos, {
             headers: {
-              Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
             },
+            params: params,
         });
         return [response.status, response.data];
     } catch (error) {
-        if (error?.response?.status === 401){
-            await logoutUser(navigation)
+        if (error?.response?.status === 401) {
+            await logoutUser(navigation);
         }
         return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
     }

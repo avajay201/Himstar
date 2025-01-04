@@ -181,11 +181,11 @@ const Home = ({ navigation }) => {
                 ? BASE_URL + item?.banner_image
                 : item?.file_uri,
             }}
-            style={{ width: '100%', height: 170, borderRadius: 10 }}
+            style={{ width: '100%', height: 200, borderRadius: 10 }}
           />
         ) : (
           // Render the video for video media type
-          <View style={{ position: 'relative', width: '100%', height: 170, borderRadius: 10 }}>
+          <View style={{ position: 'relative', width: '100%', height: 200, borderRadius: 10 }}>
             <Video
               source={{
                 uri: item?.video_file && item?.video_file.includes('media')
@@ -253,6 +253,9 @@ const Home = ({ navigation }) => {
         <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
           <Icon name={"menu"} size={40} color="#fff" />
         </TouchableOpacity>
+        <View style={styles.IconButton}>
+          <Image source={require('./../../assets/images/new-logo.jpg')} style={styles.profilePicture} />
+        </View>
         <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
           <Image source={profileImage ? {uri: BASE_URL + profileImage} : require('./../../assets/images/dp.png')} style={styles.profilePicture} />
         </TouchableOpacity>
@@ -314,7 +317,7 @@ const Home = ({ navigation }) => {
         {activeCompetitions.length > 0 && <View style={styles.upcomingCompetitionsWrapper}>
           <View style={styles.upcomingCompHead}>
             <Text style={styles.dataHeading}>Ongoing Competitions</Text>
-            {activeCompetitions.length > 10 && <Text onPress={() => navigation.navigate('LiveComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
+            {activeCompetitions.length > 0 && <Text onPress={() => navigation.navigate('LiveComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.upcomingCompetitionScroller}>
             {activeCompetitions.slice(0, 10).map(renderCompetition)}
@@ -423,6 +426,12 @@ const styles = StyleSheet.create({
     right: 20,
     zIndex: 1,
   },
+  IconButton: {
+    position: 'absolute',
+    top: 20,
+    right: '45%',
+    zIndex: 1,
+  },
   profilePicture: {
     width: 40,
     height: 40,
@@ -484,7 +493,7 @@ const styles = StyleSheet.create({
   },
   banner: {
     borderRadius: 10,
-    height: 170,
+    height: 200,
     justifyContent: 'center',
     alignItems: 'center',
   },

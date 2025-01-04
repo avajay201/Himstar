@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ToastAndroid, ActivityIndicator, Modal } from "react-native";
 import WebView from "react-native-webview";
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -12,6 +12,7 @@ const ViewComp = ({ route, navigation }) => {
     const [competition, setCompetition] = useState(null);
     const [loading, setLoading] = useState(true);
     const [dynamicHeight, setDynamicHeight] = useState(500);
+    const [countdown, setCountdown] = useState(null);
     const [rules, setRules] = useState(`
         <html>
           <head>
@@ -71,6 +72,43 @@ const ViewComp = ({ route, navigation }) => {
         }, [])
     );
 
+    useEffect(() => {
+        if (competition?.reg_open && competition?.registration_close_date) {
+          const interval = setInterval(() => {
+            const now = new Date().getTime();
+            const closeDate = new Date(
+              competition.registration_close_date,
+            ).getTime();
+            const distance = closeDate - now;
+    
+            if (distance < 0) {
+              clearInterval(interval);
+              setCountdown(null);
+            } else {
+              const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+              const hours = Math.floor(
+                (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+              );
+              const minutes = Math.floor(
+                (distance % (1000 * 60 * 60)) / (1000 * 60),
+              );
+              const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+              setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+            }
+          }, 1000);
+          return () => clearInterval(interval);
+        }
+    }, [competition]);
+
+    const viewCompReels = () => {
+        if (competition.competition_type === 'tournament') {
+            navigation.navigate('Reels', { value: "TOUR-" + competition.id });
+        }
+        else{
+            navigation.navigate('Reels', { value: "COMP-" + competition.id });
+        }
+    };
+
     // useEffect(() => {
     //     if (!compId) {
     //         ToastAndroid.show('Unable to view this competition, please try after some time.', ToastAndroid.SHORT);
@@ -80,17 +118,26 @@ const ViewComp = ({ route, navigation }) => {
     //     fetchCompetition();
     // }, []);
 
-    const compRegister = async () => {
-        const email = await AsyncStorage.getItem('AuthEmail');
-        const name = await AsyncStorage.getItem('AuthName');
-        const phone = await AsyncStorage.getItem('AuthPhone');
-        const reg_id = await AsyncStorage.getItem('RegAuthId');
-        console.log(email, name, phone, reg_id);
-        if (!email || !name || !phone || !reg_id) {
-            ToastAndroid.show('Please update your profile before competetion register.', ToastAndroid.SHORT);
-            return;
-        }
-        navigation.navigate('Payment', { compId: competition?.id, compType: competition?.competition_type, amount: String(competition?.price), productInfo: competition?.name, firstName: name, email: email, phone: phone, reg_id: String(reg_id) });
+    // const compRegister = async () => {
+    //     const email = await AsyncStorage.getItem('AuthEmail');
+    //     const name = await AsyncStorage.getItem('AuthName');
+    //     const phone = await AsyncStorage.getItem('AuthPhone');
+    //     const reg_id = await AsyncStorage.getItem('RegAuthId');
+    //     console.log(email, name, phone, reg_id);
+    //     if (!email || !name || !phone || !reg_id) {
+    //         ToastAndroid.show('Please update your profile before competetion register.', ToastAndroid.SHORT);
+    //         return;
+    //     }
+    //     navigation.navigate('Payment', { compId: competition?.id, compType: competition?.competition_type, amount: String(competition?.price), productInfo: competition?.name, firstName: name, email: email, phone: phone, reg_id: String(reg_id) });
+    // };
+
+    const isVideoButtonDisabled = () => {
+        const currentDate = new Date();
+        const startDate = new Date(competition?.start_date);
+        const endDate = new Date(competition?.end_date);
+      
+        // Disable button if current date is before the start date or after the end date
+        return currentDate < startDate || currentDate > endDate;
     };
 
     const videoUpload = () => {
@@ -113,27 +160,50 @@ const ViewComp = ({ route, navigation }) => {
                 style={styles.bannerImage}
             />
 
-            {competition?.competition_type === 'competition' && <View style={styles.compTagsContainer}>
-                <TouchableOpacity style={[styles.tag, { backgroundColor: '#54C560' }]}>
-                    <Text style={styles.tagText}>{competition?.stage}</Text>
+            <View style={styles.videoButtonContainer}>
+                <TouchableOpacity
+                onPress={viewCompReels}
+                disabled={isVideoButtonDisabled()}
+                style={[
+                    styles.videoButton,
+                    {backgroundColor: isVideoButtonDisabled() ? '#C4C4C4' : '#B94EA0'},
+                ]}>
+                <Icon name="play" size={24} color="#fff" />
                 </TouchableOpacity>
+            </View>
+
+            
+            <View style={styles.compTagsContainer}>
+                {competition?.competition_type === 'competition' && 
+                    <TouchableOpacity style={[styles.tag, { backgroundColor: '#54C560' }]}>
+                        <Text style={styles.tagText}>{competition?.stage}</Text>
+                    </TouchableOpacity>
+                }
 
                 <TouchableOpacity style={[styles.tag, { backgroundColor: '#E2AA19' }]}>
-                    <Text style={styles.tagText}>₹{competition?.price}</Text>
+                    <Text style={styles.tagText}>Prize : ₹{competition?.winning_price}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={[styles.tag, { backgroundColor: '#874936' }]}>
                     <Text style={styles.tagText}>{competition?.remaining_slots}/{competition?.max_participants}</Text>
                 </TouchableOpacity>
-            </View>}
+            </View>
 
             <View style={styles.detailsContainer}>
                 <Text style={styles.competitionName}>{competition?.name}</Text>
 
+                {countdown && (
+                    <View style={styles.countdownContainer}>
+                        <Text style={styles.countdownText}>
+                        Registration closes in: {countdown}
+                        </Text>
+                    </View>
+                )}
+
                 <Text style={styles.description}>{competition?.description}</Text>
 
                 <View style={styles.textContainer}>
-                    <Text style={styles.textLabel}>Registration Price: </Text>
+                    <Text style={styles.textLabel}>Registration Fees: </Text>
                     <Text style={styles.textValue}>₹{competition?.price}</Text>
                 </View>
 
@@ -314,6 +384,37 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    },
+    countdownContainer: {
+        padding: 12,
+        backgroundColor: '#FAF3E0',
+        borderRadius: 6,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 12,
+        borderWidth: 1,
+        borderColor: '#E0C097',
+    },
+    countdownText: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#5C3D2E',
+        textAlign: 'center',
+    },
+    videoButtonContainer: {
+        position: 'absolute',
+        top: 20,
+        right: 10,
+        zIndex: 10,
+    },
+    videoButton: {
+        backgroundColor: '#B94EA0',
+        padding: 10,
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 50,
+        height: 50,
     },
 });
 

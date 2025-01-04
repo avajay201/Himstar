@@ -92,7 +92,7 @@ const Profile = ({ navigation }) => {
             </View>
 
             <Image
-                source={profileData.cover_image ? {uri: BASE_URL + profileData.cover_image} : require('./../../assets/images/logo-with-bg.png')}
+                source={profileData.cover_image ? {uri: BASE_URL + profileData.cover_image} : require('./../../assets/images/new-logo.jpg')}
                 style={styles.bannerImage}
             />
 
