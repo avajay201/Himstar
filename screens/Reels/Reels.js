@@ -7,6 +7,7 @@ import { listParticipantsVideos, postLikes, likePost, postComments, postComment 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { BASE_URL } from '../../actions/APIs';
+import LikeIcon from './../../assets/images/likes.svg';
 
 
 const { height } = Dimensions.get('window');
@@ -223,7 +224,7 @@ const Reels = ({ navigation }) => {
           />
           <Text style={styles.likeUserName}>{item.username}</Text>
         </View>
-        <Icon name="favorite" size={24} color="red" style={styles.likeIcon} />
+        <LikeIcon width={24} height={24} />
       </View>
     )
   });

@@ -9,6 +9,7 @@ import Login from './screens/Auth/Login';
 import Register from './screens/Auth/Register';
 import ChangePassword from './screens/Auth/ChangePassword';
 import EditProfile from './screens/Profile/EditProfile';
+import Profile from './screens/Profile/Profile';
 import OtpVerify from './screens/Auth/OtpVerify';
 import Leaderboard from './screens/LeaderBoard/Leaderboard';
 import SplashScreen from './screens/OtherScreens/SplashScreen';
@@ -27,6 +28,7 @@ import ViewComp from './screens/Competitions/ViewComp';
 import Payment from './screens/Payment/Payment';
 import { MainProvider } from './others/MyContext';
 import PaymentHistory from './screens/Payment/PaymentHistory';
+import Search from './screens/Search/Search';
 
 
 const Stack = createNativeStackNavigator();
@@ -161,8 +163,18 @@ function AppNavigator() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="PaymentHistory"
         component={PaymentHistory}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Search"
+        component={Search}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

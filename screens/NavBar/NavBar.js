@@ -4,7 +4,12 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Using Ionicons
 
 import Home from './../Home/Home';
 import Reels from './../Reels/Reels';
-import Profile from './../Profile/Profile';
+import MyCompetitions from '../MyCompetitions/MyCompetitions';
+import Search from '../Search/Search';
+import HomeIcon from './../../assets/images/home-icon.svg';
+import ReelsIcon from './../../assets/images/video.svg';
+import NyCompIcon from './../../assets/images/person.svg';
+import SearchIcon from './../../assets/images/search.svg';
 
 const Tab = createBottomTabNavigator();
 
@@ -13,6 +18,18 @@ export default NavBar = () => {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
+                    if (route.name === 'Home') {
+                        return <HomeIcon width={30} height={30} />;
+                    }
+                    else if (route.name === 'Search') {
+                        return <SearchIcon width={30} height={30} />;
+                    }
+                    else if (route.name === 'Reels') {
+                        return <ReelsIcon width={30} height={30} />;
+                    }
+                    else if (route.name === 'MyComps') {
+                        return <NyCompIcon width={40} height={40} />;
+                    }
                     let iconName;
 
                     if (route.name === 'Home') {
@@ -37,8 +54,9 @@ export default NavBar = () => {
             })}
         >
             <Tab.Screen name="Home" component={Home} options={{ headerShown: false }} />
+            <Tab.Screen name="Search" component={Search} options={{ headerShown: false }} />
             <Tab.Screen name="Reels" component={Reels} options={{ headerShown: false }} />
-            <Tab.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+            <Tab.Screen name="MyComps" component={MyCompetitions} options={{ headerShown: false }} />
         </Tab.Navigator>
     );
 };

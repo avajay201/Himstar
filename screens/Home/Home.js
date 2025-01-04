@@ -57,8 +57,7 @@ const Home = ({navigation}) => {
 
   const fetchProfileImage = async () => {
     const image = await AsyncStorage.getItem('AuthImage');
-    console.log('Profile Image:', image);
-    if (image) {
+    if (image){
       setProfileImage(image);
     }
   };
@@ -340,8 +339,7 @@ const Home = ({navigation}) => {
             onPress={() => navigateMenuOption('PaymentHistory')}>
             <Text style={styles.menuItem}>Payment History</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigateMenuOption('MyCompetitions')}>
+          <TouchableOpacity onPress={() => navigateMenuOption('MyCompetitions')}>
             <Text style={styles.menuItem}>My Contests</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigateMenuOption('MyVideos')}>

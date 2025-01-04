@@ -72,11 +72,6 @@ const MyCompetitions = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.backButtonContainer}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Icon name="arrow-back" size={24} color="white" />
-          </TouchableOpacity>
-      </View>
       <View style={styles.headingContainer}>
         <Text style={styles.headingText}>My Competitions</Text>
       </View>
@@ -122,15 +117,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
-  },
-  backButtonContainer: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    zIndex: 10,
-  },
-  backButton: {
-      padding: 10,
   },
   headingContainer: {
     padding: 15,
