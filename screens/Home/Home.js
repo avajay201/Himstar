@@ -215,7 +215,7 @@ const Home = ({navigation}) => {
             style={{
               position: 'relative',
               width: '100%',
-              height: 170,
+              height: 200,
               borderRadius: 10,
             }}>
             <Video
@@ -420,7 +420,7 @@ const Home = ({navigation}) => {
           <View style={styles.upcomingCompetitionsWrapper}>
             <View style={styles.upcomingCompHead}>
               <Text style={styles.dataHeading}>Ongoing Competitions</Text>
-              {activeCompetitions.length > 0 && (
+              {activeCompetitions.length > 5 && (
                 <Text
                   onPress={() => navigation.navigate('LiveComps')}
                   style={styles.upcomingMoreCompetition}>
@@ -441,7 +441,7 @@ const Home = ({navigation}) => {
           <View style={[styles.upcomingCompetitionsWrapper, {marginTop: 10}]}>
             <View style={styles.upcomingCompHead}>
               <Text style={styles.dataHeading}>Upcoming Competitions</Text>
-              {activeCompetitions.length > 10 && (
+              {activeCompetitions.length > 5 && (
                 <Text
                   onPress={() => navigation.navigate('UpcomingComps')}
                   style={styles.upcomingMoreCompetition}>
@@ -460,9 +460,18 @@ const Home = ({navigation}) => {
 
         {tournaments.length > 0 && (
           <View style={styles.tournamentsWrapper}>
-            <Text style={styles.dataHeading}>Mega Contests</Text>
+             <View style={styles.upcomingCompHead}>
+              <Text style={styles.dataHeading}>Mega Contest</Text>
+              {tournaments.length > 0 && (
+                <Text
+                  onPress={() => navigation.navigate('UpcomingComps')}
+                  style={styles.upcomingMoreCompetition}>
+                  See more...
+                </Text>
+              )}
+            </View>
 
-            {tournaments.slice(0, 10).map((comp, index) => (
+            {tournaments.slice(0, 5).map((comp, index) => (
               <TouchableOpacity
                 onPress={() => viewCompetition(comp, comp.competition_type)}
                 key={index}
@@ -629,7 +638,7 @@ const styles = StyleSheet.create({
   },
   banner: {
     borderRadius: 10,
-    height: 170,
+    height: 200,
     justifyContent: 'center',
     alignItems: 'center',
   },

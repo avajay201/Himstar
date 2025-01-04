@@ -12,7 +12,8 @@ import LikeIcon from './../../assets/images/likes.svg';
 
 const { height } = Dimensions.get('window');
 
-const Reels = ({ navigation }) => {
+const Reels = ({ navigation, route }) => {
+  const { value } = route.params;
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -41,9 +42,9 @@ const Reels = ({ navigation }) => {
 
   const getPostedVideos = async()=>{
     setReelsLoading(true);
-    const result = await listParticipantsVideos(navigation);
-    if (result[0] === 200){
-      setVideos(result[1]);
+    const result = await listParticipantsVideos(navigation, { value: value});
+    if (result[0] === 200) {
+        setVideos(result[1]);
     }
     if (userId){
       setReelsLoading(false);
@@ -234,6 +235,8 @@ const Reels = ({ navigation }) => {
     await getPostedVideos();
     setRefreshing(false);
   };
+
+  
 
   const renderVideo = useCallback(({ item, index }) => {
     return (

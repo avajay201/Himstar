@@ -10,7 +10,7 @@ import Register from './screens/Auth/Register';
 import ChangePassword from './screens/Auth/ChangePassword';
 import EditProfile from './screens/Profile/EditProfile';
 import Profile from './screens/Profile/Profile';
-import OtpVerify from './screens/Auth/OtpVerify';
+import OtpVerify from './screens/Auth/OTPVerify';
 import Leaderboard from './screens/LeaderBoard/Leaderboard';
 import SplashScreen from './screens/OtherScreens/SplashScreen';
 import WelcomeScreen from './screens/OtherScreens/WelcomeScreen';
