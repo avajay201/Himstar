@@ -254,7 +254,7 @@ const Home = ({ navigation }) => {
           <Icon name={"menu"} size={40} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
-          <Image source={profileImage ? {uri: BASE_URL + profileImage} : require('./../../assets/images/dummy-profile.png')} style={styles.profilePicture} />
+          <Image source={profileImage ? {uri: BASE_URL + profileImage} : require('./../../assets/images/dp.png')} style={styles.profilePicture} />
         </TouchableOpacity>
       </View>
       <Animated.View style={[styles.menu, { transform: [{ translateX: slideAnimation }] }]}>

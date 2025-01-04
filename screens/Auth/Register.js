@@ -166,14 +166,16 @@ const Register = ({ navigation }) => {
 
   const handleGoogleRegister = async () => {
     try {
+      setLoading(true);
       await GoogleSignin.signOut();
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       if (userInfo?.type === 'cancelled'){
+        setLoading(false);
         return;
       }
-      setLoading(true);
       const result = await userGoogleRegistration({ token: userInfo?.data?.idToken });
+      console.log('result>>>', result);
       let errorMsg;
       let successMsg = false;
       if (result[0] === 200 || result[0] === 201) {

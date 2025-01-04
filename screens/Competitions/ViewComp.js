@@ -109,11 +109,11 @@ const ViewComp = ({ route, navigation }) => {
                 </TouchableOpacity>
             </View>
             <Image
-                source={{ uri: competition?.competition_type === 'tournament' ? competition?.competitions?.banner_image && competition?.competitions?.banner_image?.includes('media') ? BASE_URL + competition?.competitions?.banner_image : competition?.competitions?.file_uri : competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }}
+                source={{ uri: competition?.competition_type === 'tournament' ? competition?.competition?.banner_image && competition?.competition?.banner_image?.includes('media') ? BASE_URL + competition?.competition?.banner_image : competition?.competition?.file_uri : competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }}
                 style={styles.bannerImage}
             />
 
-            <View style={styles.compTagsContainer}>
+            {competition?.competition_type === 'competition' && <View style={styles.compTagsContainer}>
                 <TouchableOpacity style={[styles.tag, { backgroundColor: '#54C560' }]}>
                     <Text style={styles.tagText}>{competition?.stage}</Text>
                 </TouchableOpacity>
@@ -125,7 +125,7 @@ const ViewComp = ({ route, navigation }) => {
                 <TouchableOpacity style={[styles.tag, { backgroundColor: '#874936' }]}>
                     <Text style={styles.tagText}>{competition?.remaining_slots}/{competition?.max_participants}</Text>
                 </TouchableOpacity>
-            </View>
+            </View>}
 
             <View style={styles.detailsContainer}>
                 <Text style={styles.competitionName}>{competition?.name}</Text>
@@ -133,7 +133,7 @@ const ViewComp = ({ route, navigation }) => {
                 <Text style={styles.description}>{competition?.description}</Text>
 
                 <View style={styles.textContainer}>
-                    <Text style={styles.textLabel}>Price: </Text>
+                    <Text style={styles.textLabel}>Registration Price: </Text>
                     <Text style={styles.textValue}>₹{competition?.price}</Text>
                 </View>
 
@@ -149,17 +149,17 @@ const ViewComp = ({ route, navigation }) => {
 
                 <View style={styles.textContainer}>
                     <Text style={styles.textLabel}>Registration Opens: </Text>
-                    <Text style={styles.textValue}>{competition?.registration_open_date}</Text>
+                    <Text style={styles.textValue}>{competition?.competition_type === 'competition' ? competition?.registration_open_date : competition?.competition?.registration_open_date}</Text>
                 </View>
 
                 <View style={styles.textContainer}>
                     <Text style={styles.textLabel}>Registration Closes: </Text>
-                    <Text style={styles.textValue}>{competition?.registration_close_date}</Text>
+                    <Text style={styles.textValue}>{competition?.competition_type === 'competition' ? competition?.registration_close_date : competition?.competition?.registration_close_date}</Text>
                 </View>
 
                 <View style={styles.textContainer}>
                     <Text style={styles.textLabel}>Location: </Text>
-                    <Text style={styles.textValue}>{competition?.location}</Text>
+                    <Text style={styles.textValue}>{competition?.competition_type === 'competition' ? competition?.location : competition?.competition?.location}</Text>
                 </View>
 
                 <View style={styles.textContainer}>
@@ -197,16 +197,10 @@ const ViewComp = ({ route, navigation }) => {
 
                 {
                     competition?.reg_open &&
-                    <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => competition?.is_done ? navigation.navigate('Leaderboard', { compId: competition?.id }) : (competition?.is_participated ? navigateVideoPreview() : videoUpload())}>
+                    <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => competition?.is_done ? navigation.navigate('Leaderboard', { compId: competition?.competition_type === 'competition' ? competition?.id : competition?.competition?.id }) : (competition?.is_participated ? navigateVideoPreview() : videoUpload())}>
                         <Text style={styles.registerButtonText}>{competition?.is_done ? 'Leaderboard' : (competition?.is_participated ? 'Complete' : 'Enroll Now')}</Text>
                     </TouchableOpacity>
                 }
-                {/* {
-                    competition?.reg_close && 
-                    <TouchableOpacity style={[styles.registerButton, { backgroundColor: '#B94EA0' }]} onPress={() => navigation.navigate('Leaderboard', { compId: competition?.id })}>
-                        <Text style={styles.registerButtonText}>Leaderboard</Text>
-                    </TouchableOpacity>
-                } */}
 
             </View>
             <Modal transparent={true} animationType="fade" visible={loading}>

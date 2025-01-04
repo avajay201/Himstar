@@ -96,10 +96,11 @@ const Payment = ({ route, navigation }) => {
     displayAlert = async (status, value, successResponse = null) => {
         if (status === 'Success') {
             if (competition.competition_type === 'competition') {
-                successResponse['competition'] = competition.id;
+                successResponse['competition'] = competition?.id;
             }
             else if (competition.competition_type === 'tournament') {
-                successResponse['tournament'] = competition.id;
+                successResponse['tournament'] = competition?.id;
+                successResponse['tci'] = competition?.competition?.id;
             }
             else {
                 ToastAndroid.show('You did a wrong payment, please contact to our supports team.', ToastAndroid.LONG);

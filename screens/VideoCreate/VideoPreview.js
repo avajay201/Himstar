@@ -39,7 +39,7 @@ const VideoPreview = ({ route, navigation }) => {
                 name: 'video.mp4',
             });
             formData.append('music', musicUri);
-            formData.append('competition_id', competition.id);
+            formData.append('competition_id', competition?.competition_type === 'competition' ? competition.id : competition?.competition?.id);
             const result = await mergeVideo(navigation, formData);
             console.log('Results: ', result);
             if (result[0] === 200){
@@ -95,49 +95,15 @@ const VideoPreview = ({ route, navigation }) => {
         }
     };
 
-    const uploadVideo = async () => {
-        setIsPlaying(false);
-
-        if (!musicUri){
-            setLoading(true);
-            const formData = new FormData();
-            formData.append('video', {
-                uri: videoUri,
-                type: 'video/mp4',
-                name: 'video.mp4',
-            });
-            formData.append('competition', competition.id);
-            const result = await saveTempParticipant(navigation, formData);
-            console.log('Results: ', result);
-            if (result[0] === 200){
-                await compRegister();
-            }
-            else{
-                ToastAndroid.show('Something went wrong!, please try again!', ToastAndroid.SHORT);
-                navigation.goBack();
-            }
-            setLoading(false);
-            return;
-        };
-
-        if (!competition.is_done){
-            await compRegister();
-            return;
-        };
-
+    const participantUpdate = async () => {
         setLoading(true)
         const formData = new FormData();
-        formData.append('competition', Number(compId));
-        formData.append('video', {
-            uri: videoUri,
-            type: 'video/mp4',
-            name: 'video.mp4',
-        });
+        formData.append('competition', competition?.competition_type === 'competition' ? competition.id : competition?.competition?.id);
         const result = await postCreate(navigation, formData);
         if (result[0] === 200){
             ToastAndroid.show('Competition registration completed successfully.', ToastAndroid.SHORT);
             setHomeReload(true);
-            navigation.navigate('HomeTabs');
+            navigation.navigate('ViewComp', { compId: competition.id, compType: competition?.competition?.competition_type });
         }
         else{
             let errorMsg;
@@ -151,13 +117,53 @@ const VideoPreview = ({ route, navigation }) => {
             ToastAndroid.show(errorMsg, ToastAndroid.SHORT);
         }
         setLoading(false);
+    }
+
+    const uploadVideo = async () => {
+        setIsPlaying(false);
+
+        if (!musicUri){
+            setLoading(true);
+            const formData = new FormData();
+            formData.append('video', {
+                uri: videoUri,
+                type: 'video/mp4',
+                name: 'video.mp4',
+            });
+            formData.append('competition', competition?.competition_type === 'competition' ? competition.id : competition?.competition?.id);
+            const result = await saveTempParticipant(navigation, formData);
+            console.log('Results: ', result);
+            if (result[0] === 200){
+                if (competition?.is_paid){
+                    await participantUpdate();
+                    return;
+                }
+                await compRegister();
+            }
+            else{
+                ToastAndroid.show('Something went wrong!, please try again!', ToastAndroid.SHORT);
+                navigation.goBack();
+            }
+            setLoading(false);
+            return;
+        };
+
+        if (competition?.competition_type === 'competition' && !competition.is_done){
+            await compRegister();
+            return;
+        };
+
+        if (competition?.competition?.competition_type === 'tournament' && !competition.is_paid){
+            await compRegister();
+            return;
+        };
     };
 
     const backToVideoEdit = async()=>{
         setIsPlaying(false);
         if (competition?.temp_video){
             setLoading(true);
-            const result = await removeTempVideo(navigation, {competition_id: competition.id});
+            const result = await removeTempVideo(navigation, {competition_id: competition?.competition_type === 'competition' ? competition.id : competition?.competition?.id});
             if (result[0] === 200){
                 navigation.navigate('ViewComp', {compId: competition.id});
             }

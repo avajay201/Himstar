@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, ActivityIndicator, Image } from "react-native";
 import { myCompetitions } from "../../actions/ApiActions";
-import Icon from 'react-native-vector-icons/Ionicons';
 import { BASE_URL } from "../../actions/APIs";
 
 

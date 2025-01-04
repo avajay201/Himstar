@@ -146,7 +146,7 @@ const EditProfile = ({ navigation, route }) => {
                             ? myProfile.cover_image.includes('file:///') 
                                 ? { uri: myProfile.cover_image } 
                                 : { uri: BASE_URL + myProfile.cover_image }
-                            : require('./../../assets/images/dummy-profile.png')
+                            : require('./../../assets/images/dp.png')
                     }
                     style={styles.coverImage}
                 />
@@ -165,7 +165,7 @@ const EditProfile = ({ navigation, route }) => {
                             ? myProfile.profile_image.includes('file:///') 
                                 ? { uri: myProfile.profile_image } 
                                 : { uri: BASE_URL + myProfile.profile_image }
-                            : require('./../../assets/images/dummy-profile.png')
+                            : require('./../../assets/images/dp.png')
                     }
                     style={styles.profileImage}
                 />

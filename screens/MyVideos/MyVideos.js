@@ -204,7 +204,7 @@ const MyVideo = ({ navigation }) => {
   const renderComments = useCallback(({ item, index }) => {
     return (
       <View style={styles.commentContainer}>
-        <Image source={item.profile_image ? {uri: BASE_URL + item.profile_image} : require('./../../assets/images/dummy-profile.png')} style={styles.commentProfilePic} />
+        <Image source={item.profile_image ? {uri: BASE_URL + item.profile_image} : require('./../../assets/images/dp.png')} style={styles.commentProfilePic} />
         <View style={styles.commentContent}>
           <Text style={styles.commentUsername}>{item.username}</Text>
           <Text style={styles.commentText}>{item.content}</Text>
@@ -218,7 +218,7 @@ const MyVideo = ({ navigation }) => {
       <View style={styles.likeItem}>
         <View style={styles.userLikeDetails}>
           <Image
-            source={item.profile_image ? {uri: BASE_URL + item.profile_image} : require('./../../assets/images/dummy-profile.png')}
+            source={item.profile_image ? {uri: BASE_URL + item.profile_image} : require('./../../assets/images/dp.png')}
             style={styles.likeProfilePic}
           />
           <Text style={styles.likeUserName}>{item.username}</Text>
@@ -258,7 +258,7 @@ const MyVideo = ({ navigation }) => {
           <View style={{ marginRight: 8 }}>
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'gray' }}>
               <Image
-                source={require('./../../assets/images/dummy-profile.png')}
+                source={require('./../../assets/images/dp.png')}
                 style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'gray' }}
               />
             </View>

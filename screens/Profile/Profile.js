@@ -97,7 +97,7 @@ const Profile = ({ navigation }) => {
             />
 
             <Image
-                source={profileData.profile_image ? {uri: BASE_URL + profileData.profile_image} : require('./../../assets/images/dummy-profile.png')}
+                source={profileData.profile_image ? {uri: BASE_URL + profileData.profile_image} : require('./../../assets/images/dp.png')}
                 style={styles.profileImage}
             />
 
