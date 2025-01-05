@@ -36,7 +36,7 @@ export default PaymentHistory = ({ navigation }) => {
     const renderPaymentItem = ({ item }) => (
         <View style={styles.card}>
             <ImageBackground 
-                source={{ uri: !item?.banner.includes('media') ? item.banner : BASE_URL + item.banner }} 
+                source={{ uri: !item?.banner?.includes('media') ? item.banner : BASE_URL + item.banner }} 
                 style={styles.cardHeader}
                 imageStyle={styles.cardHeaderImage}
             >

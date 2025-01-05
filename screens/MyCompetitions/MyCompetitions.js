@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, ActivityIndicator, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, RefreshControl, Modal, ActivityIndicator, Image } from "react-native";
 import { myCompetitions } from "../../actions/ApiActions";
 import { BASE_URL } from "../../actions/APIs";
 
@@ -7,14 +7,17 @@ import { BASE_URL } from "../../actions/APIs";
 const MyCompetitions = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [competitions, setCompetitions] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchCompetitions = async()=>{
     setLoading(true);
+    setRefreshing(true);
     const result = await myCompetitions();
     if (result[0] === 200){
       setCompetitions(result[1]);
     }
     setLoading(false);
+    setRefreshing(false);
   };
 
   useEffect(()=>{
@@ -79,6 +82,13 @@ const MyCompetitions = ({ navigation }) => {
         renderItem={renderCompetitions}
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.listContainer}
+        refreshControl={
+          <RefreshControl
+              refreshing={refreshing}
+              onRefresh={fetchCompetitions}
+              colors={['#9Bd35A', '#689F38']}
+          />
+        }
       />
       <Modal transparent={true} animationType="fade" visible={loading}>
         <View style={styles.loaderContainer}>

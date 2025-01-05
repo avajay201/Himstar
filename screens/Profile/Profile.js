@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, ToastAndroid, Modal, ActivityIndicator, TouchableOpacity, Animated, Easing } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, RefreshControl, ToastAndroid, Modal, ActivityIndicator, TouchableOpacity, Animated, Easing } from 'react-native';
 import { profile } from '../../actions/ApiActions';
 import { BASE_URL } from '../../actions/APIs';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -12,6 +12,7 @@ const Profile = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [settingsVisible, setSettingsVisible] = useState(false);
     const slideAnim = useRef(new Animated.Value(300)).current;
+    const [refreshing, setRefreshing] = useState(false);
     const { profileReload, setProfileReload } = useContext(MainContext);
 
     const openSettings = () => {
@@ -42,6 +43,7 @@ const Profile = ({ navigation }) => {
 
     const fetchprofile = async () => {
         setLoading(true);
+        setRefreshing(true);
         const result = await profile();
         if (result[0] === 200) {
             setProfileData(result[1]);
@@ -49,8 +51,8 @@ const Profile = ({ navigation }) => {
         else {
             ToastAndroid.show(result[1], ToastAndroid.SHORT);
         }
-        console.log('Loading stopped');
         setLoading(false);
+        setRefreshing(false);
     };
 
     const handleSettingsOption = (option) => {
@@ -84,7 +86,15 @@ const Profile = ({ navigation }) => {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={fetchprofile}
+                    colors={['#9Bd35A', '#689F38']}
+                />
+            }
+        >
             <View style={styles.header}>
                 <TouchableOpacity onPress={openSettings}>
                     <Icon name="settings" size={40} color="white" />

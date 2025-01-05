@@ -33,9 +33,7 @@ const Home = ({ navigation }) => {
 
   const fetchProfileImage = async()=>{
     const image = await AsyncStorage.getItem('AuthImage');
-    if (image){
-      setProfileImage(image);
-    }
+    setProfileImage(image);
   };
 
   useEffect(()=>{
@@ -253,9 +251,9 @@ const Home = ({ navigation }) => {
         <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
           <Icon name={"menu"} size={40} color="#fff" />
         </TouchableOpacity>
-        <View style={styles.IconButton}>
+        {/* <View style={styles.IconButton}>
           <Image source={require('./../../assets/images/new-logo.jpg')} style={styles.profilePicture} />
-        </View>
+        </View> */}
         <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
           <Image source={profileImage ? {uri: BASE_URL + profileImage} : require('./../../assets/images/dp.png')} style={styles.profilePicture} />
         </TouchableOpacity>
