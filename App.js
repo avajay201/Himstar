@@ -10,7 +10,7 @@ import Register from './screens/Auth/Register';
 import ChangePassword from './screens/Auth/ChangePassword';
 import EditProfile from './screens/Profile/EditProfile';
 import Profile from './screens/Profile/Profile';
-import OtpVerify from './screens/Auth/OtpVerify';
+import OtpVerify from './screens/Auth/OTPVerify';
 import Leaderboard from './screens/LeaderBoard/Leaderboard';
 import SplashScreen from './screens/OtherScreens/SplashScreen';
 import WelcomeScreen from './screens/OtherScreens/WelcomeScreen';
@@ -29,6 +29,7 @@ import Payment from './screens/Payment/Payment';
 import { MainProvider } from './others/MyContext';
 import PaymentHistory from './screens/Payment/PaymentHistory';
 import Search from './screens/Search/Search';
+import AllTournaments from './screens/Competitions/AllTournaments';
 
 
 const Stack = createNativeStackNavigator();
@@ -121,6 +122,7 @@ function AppNavigator() {
         name="MyVideos"
         component={MyVideos}
         options={{ headerShown: false }}
+        initialParams={{vId: null}}
       />
       <Stack.Screen
         name="Wallet"
@@ -166,6 +168,7 @@ function AppNavigator() {
         name="Profile"
         component={Profile}
         options={{ headerShown: false }}
+        initialParams={{username: null}}
       />
       <Stack.Screen
         name="PaymentHistory"
@@ -175,6 +178,11 @@ function AppNavigator() {
       <Stack.Screen
         name="Search"
         component={Search}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AllTournaments"
+        component={AllTournaments}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

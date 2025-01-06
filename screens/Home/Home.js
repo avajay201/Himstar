@@ -30,6 +30,7 @@ const Home = ({ navigation }) => {
   const { homeReload, setHomeReload } = useContext(MainContext);
   const [activeSlide, setActiveSlide] = useState(0);
   const [profileImage, setProfileImage] = useState(null);
+  const [currentCate, setCurrentCate] = useState(null);
 
   const fetchProfileImage = async()=>{
     const image = await AsyncStorage.getItem('AuthImage');
@@ -127,6 +128,8 @@ const Home = ({ navigation }) => {
         : { ...category, isActive: false }
     );
     setCategories(categoryUpdate);
+    const activeCategory = categoryUpdate.find((category) => category.isActive);
+    setCurrentCate(activeCategory ? activeCategory.id : null);
     setLoading(false);
   };
 
@@ -168,6 +171,7 @@ const Home = ({ navigation }) => {
   // );
   const BannerItem = ({ item, play }) => {
     const [isMuted, setIsMuted] = useState(true); // State to handle mute/unmute for videos
+    const [isPlaying, setIsPlaying] = useState(false);
 
     return (
       <View style={styles.banner}>
@@ -183,20 +187,48 @@ const Home = ({ navigation }) => {
           />
         ) : (
           // Render the video for video media type
-          <View style={{ position: 'relative', width: '100%', height: 200, borderRadius: 10 }}>
+          <View
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: 200,
+              borderRadius: 10,
+            }}>
             <Video
               source={{
-                uri: item?.video_file && item?.video_file.includes('media')
-                  ? BASE_URL + item?.video_file
-                  : item?.file_uri,
+                uri:
+                  item?.video_file && item?.video_file.includes('media')
+                    ? BASE_URL + item?.video_file
+                    : item?.file_uri,
               }}
-              style={{ width: '100%', height: '100%', borderRadius: 10 }}
+              style={{width: '100%', height: '100%', borderRadius: 10}}
               resizeMode="cover"
               muted={isMuted}
               repeat
-              paused={!play} // Play or pause the video based on the `play` prop
+              paused={!isPlaying}
+              bufferConfig={{
+                minBufferMs: 5000,
+                maxBufferMs: 60000,
+              }}
             />
             {/* Unmute button */}
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                bottom: 10,
+                right: 50,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                padding: 8,
+                borderRadius: 20,
+              }}
+              onPress={() => setIsMuted(!isMuted)}>
+              <Icon
+                name={isMuted ? 'volume-mute' : 'volume-high'}
+                size={20}
+                color="white"
+              />
+            </TouchableOpacity>
+            {/* Play/Pause button */}
             <TouchableOpacity
               style={{
                 position: 'absolute',
@@ -206,13 +238,9 @@ const Home = ({ navigation }) => {
                 padding: 8,
                 borderRadius: 20,
               }}
-              onPress={() => setIsMuted(!isMuted)}
-            >
-              {/* <Text style={{ color: 'white', fontSize: 12 }}>
-                {isMuted ? 'Unmute' : 'Mute'}
-              </Text> */}
+              onPress={() => setIsPlaying(!isPlaying)}>
               <Icon
-                name={isMuted ? 'volume-mute' : 'volume-high'} // Icons for mute and unmute
+                name={isPlaying ? 'pause' : 'play'} // Toggle play/pause icon
                 size={20}
                 color="white"
               />
@@ -223,12 +251,13 @@ const Home = ({ navigation }) => {
     );
   };
 
-  const viewCompetition = (comp, compType) => {
-    navigation.navigate('ViewComp', { compId: comp.id, compType: compType });
+  const viewCompetition = (comp) => {
+    console.log('>>>>>>>>>>>>>>', comp)
+    navigation.navigate('ViewComp', { compId: comp.id, compType: comp.competition_type });
   };
 
   const renderCompetition = (competition) => (
-    <TouchableOpacity onPress={() => viewCompetition(competition, competition.competition_type)} key={competition.id} style={styles.upcomingCompetitionItem}>
+    <TouchableOpacity onPress={() => viewCompetition(competition)} key={competition.id} style={styles.upcomingCompetitionItem}>
       <Image source={{ uri: competition?.banner_image && competition?.banner_image?.includes('media') ? BASE_URL + competition?.banner_image : competition?.file_uri }} style={styles.upcomingCompetitionImage} />
       <View style={styles.upcomingCompetitionDetails}>
         <Text style={styles.upcomingCompetitionSlots}>{competition.remaining_slots}/{competition.max_participants}</Text>
@@ -325,7 +354,7 @@ const Home = ({ navigation }) => {
         {upcomingCompetitions.length > 0 && <View style={[styles.upcomingCompetitionsWrapper, { marginTop: 10 }]}>
           <View style={styles.upcomingCompHead}>
             <Text style={styles.dataHeading}>Upcoming Competitions</Text>
-            {activeCompetitions.length > 10 && <Text onPress={() => navigation.navigate('UpcomingComps')} style={styles.upcomingMoreCompetition}>See more...</Text>}
+                
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.upcomingCompetitionScroller}>
             {upcomingCompetitions.slice(0, 10).map(renderCompetition)}
@@ -337,7 +366,7 @@ const Home = ({ navigation }) => {
 
           {tournaments.slice(0, 10).map((comp, index) => (
             <TouchableOpacity
-              onPress={() => viewCompetition(comp, comp.competition_type)}
+              onPress={() => viewCompetition(comp)}
               key={index}
               style={styles.tournaments}
             >
@@ -368,7 +397,7 @@ const Home = ({ navigation }) => {
             </TouchableOpacity>
           ))}
 
-          {tournaments.length > 10 && <TouchableOpacity onPress={() => { navigation.navigate('ActiveComps') }} style={styles.activeCompsSeeMoreButton}>
+          {tournaments.length > 0 && <TouchableOpacity onPress={() => navigation.navigate('AllTournaments', { categoryId: currentCate })} style={styles.activeCompsSeeMoreButton}>
             <Text style={styles.activeCompsSeeMoreButtonText}>See more...</Text>
           </TouchableOpacity>}
         </View>}

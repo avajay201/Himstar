@@ -2,25 +2,25 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, RefreshControl, Modal, ActivityIndicator, Image } from "react-native";
 import { myCompetitions } from "../../actions/ApiActions";
 import { BASE_URL } from "../../actions/APIs";
-
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const MyCompetitions = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [competitions, setCompetitions] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchCompetitions = async()=>{
+  const fetchCompetitions = async () => {
     setLoading(true);
     setRefreshing(true);
     const result = await myCompetitions();
-    if (result[0] === 200){
+    if (result[0] === 200) {
       setCompetitions(result[1]);
     }
     setLoading(false);
     setRefreshing(false);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchCompetitions();
   }, []);
 
@@ -30,45 +30,35 @@ const MyCompetitions = ({ navigation }) => {
 
   const renderCompetitions = ({ item: comp }) => (
     <TouchableOpacity
-      onPress={() => (!comp.is_close ? viewCompetition(comp) : null)} // Disable press for inactive competitions
-      style={[styles.competitions, !comp.is_active && styles.inactiveCompetition]} // Add inactive style
-      activeOpacity={comp.is_active ? 0.7 : 1} // Change opacity based on active status
+      onPress={() => (!comp.is_close ? viewCompetition(comp) : null)}
+      style={[styles.competitions, !comp.is_active && styles.inactiveCompetition]}
+      activeOpacity={comp.is_active ? 0.7 : 1}
     >
-      {/* {comp.file_uri && ( */}
-        <View>
-          <Image
-            source={{ uri: comp?.banner_image && comp?.banner_image?.includes('media') ? BASE_URL + comp?.banner_image : comp?.file_uri }}
-            style={[
-              styles.competitionImage,
-              !comp.is_active && styles.inactiveCompetitionImage, // Dimmed image for inactive
-            ]}
-          />
-          <View style={styles.overlayDetails}>
-            <Text style={styles.competitionsNameText}>{comp.name}</Text>
-            <View style={styles.detailRow}>
-              <Text style={styles.overlayDetailText}>
-                Registration Start: {comp.registration_start_date}
-              </Text>
-              <Text style={styles.overlayDetailText}>
-                Registration End: {comp.registration_close_date}
-              </Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.overlayDetailText}>
-                Total Slots: {comp.max_participants}
-              </Text>
-              <Text style={styles.overlayDetailText}>
-                Remaining Slots: {comp.remaining_slots}
-              </Text>
-            </View>
-            {comp.is_close && (
-              <View style={styles.inactiveOverlay}>
-                <Text style={styles.inactiveText}>Closed</Text>
-              </View>
-            )}
+      <View>
+        <Image
+          source={{ uri: comp?.banner_image && comp?.banner_image?.includes('media') ? BASE_URL + comp?.banner_image : comp?.file_uri }}
+          style={[
+            styles.competitionImage,
+            !comp.is_active && styles.inactiveCompetitionImage,
+          ]}
+        />
+        <View style={styles.overlayDetails}>
+          <Text style={styles.competitionsNameText}>{comp.name}</Text>
+          <View style={styles.detailRow}>
+            <Text style={styles.overlayDetailText}>Registration Start: {comp.registration_start_date}</Text>
+            <Text style={styles.overlayDetailText}>Registration End: {comp.registration_close_date}</Text>
           </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.overlayDetailText}>Total Slots: {comp.max_participants}</Text>
+            <Text style={styles.overlayDetailText}>Remaining Slots: {comp.remaining_slots}</Text>
+          </View>
+          {comp.is_close && (
+            <View style={styles.inactiveOverlay}>
+              <Text style={styles.inactiveText}>Closed</Text>
+            </View>
+          )}
         </View>
-      {/* )} */}
+      </View>
     </TouchableOpacity>
   );
 
@@ -81,12 +71,22 @@ const MyCompetitions = ({ navigation }) => {
         data={competitions}
         renderItem={renderCompetitions}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={competitions.length ? styles.listContainer : styles.emptyListContainer}
+        ListEmptyComponent={
+          <View style={styles.noCompetitionsContainer}>
+            <View style={styles.iconWrapper}>
+              <Icon name="trophy-outline" size={60} color="#bbb" />
+            </View>
+            <Text style={styles.noCompetitionsText}>
+              You haven't joined any contests yet. Start participating and showcase your skills!
+            </Text>
+          </View>
+        }
         refreshControl={
           <RefreshControl
-              refreshing={refreshing}
-              onRefresh={fetchCompetitions}
-              colors={['#9Bd35A', '#689F38']}
+            refreshing={refreshing}
+            onRefresh={fetchCompetitions}
+            colors={['#9Bd35A', '#689F38']}
           />
         }
       />
@@ -107,10 +107,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   inactiveCompetition: {
-    opacity: 0.5, // Dim the entire competition card
+    opacity: 0.5,
   },
   inactiveCompetitionImage: {
-    opacity: 0.5, // Dim the image specifically
+    opacity: 0.5,
   },
   inactiveOverlay: {
     position: 'absolute',
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Dark overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -141,6 +141,11 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 10,
+  },
+  emptyListContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   competitions: {
     marginBottom: 20,
@@ -189,5 +194,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+  iconWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noCompetitionsText: {
+    fontSize: 18,
+    padding: 10,
+    color: '#666',
+    marginTop: 15,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });

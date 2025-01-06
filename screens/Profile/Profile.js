@@ -1,19 +1,57 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, RefreshControl, ToastAndroid, Modal, ActivityIndicator, TouchableOpacity, Animated, Easing } from 'react-native';
-import { profile } from '../../actions/ApiActions';
+import { View, Text, Image, StyleSheet, ScrollView, RefreshControl, FlatList, ToastAndroid, Modal, ActivityIndicator, TouchableOpacity, Animated, Easing } from 'react-native';
+import { profile, myCompetitions, userVideos } from '../../actions/ApiActions';
 import { BASE_URL } from '../../actions/APIs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MainContext } from '../../others/MyContext';
+import Video from 'react-native-video';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 
-const Profile = ({ navigation }) => {
+const Profile = ({ route, navigation }) => {
+    const { username } = route.params;
     const [profileData, setProfileData] = useState({});
     const [loading, setLoading] = useState(true);
     const [settingsVisible, setSettingsVisible] = useState(false);
     const slideAnim = useRef(new Animated.Value(300)).current;
     const [refreshing, setRefreshing] = useState(false);
     const { profileReload, setProfileReload } = useContext(MainContext);
+    const [currentTab, setCurrentTab] = useState(0);
+    const [myContests, setMyContests] = useState([]);
+    const [myVideos, setMyVideos] = useState([]);
+    const [contestsLoading, setContestsLoading] = useState(false);
+    const [videosLoading, setVideosLoading] = useState(false);
+
+    const fetchMyContests = async()=>{
+        setContestsLoading(true);
+        let result;
+        if (username){
+            result = await myCompetitions(navigation, username);
+        }
+        else{
+            result = await myCompetitions(navigation);
+        }
+        if (result[0] === 200) {
+            setMyContests(result[1]);
+        };
+        setContestsLoading(false);
+    };
+
+    const fetchMyVideos = async()=>{
+        setVideosLoading(true);
+        let result;
+        if (username){
+            result = await userVideos(navigation, username);
+        }
+        else{
+            result = await userVideos(navigation);
+        }
+        if (result[0] === 200) {
+            setMyVideos(result[1]);
+        };
+        setVideosLoading(false);
+    };
 
     const openSettings = () => {
         setSettingsVisible(true);
@@ -44,7 +82,7 @@ const Profile = ({ navigation }) => {
     const fetchprofile = async () => {
         setLoading(true);
         setRefreshing(true);
-        const result = await profile();
+        const result = username ? await profile(navigation, username) : await profile(navigation);
         if (result[0] === 200) {
             setProfileData(result[1]);
         }
@@ -67,6 +105,7 @@ const Profile = ({ navigation }) => {
 
     useEffect(() => {
         fetchprofile();
+        fetchMyContests();
     }, []);
 
     const logout = async()=>{
@@ -85,6 +124,63 @@ const Profile = ({ navigation }) => {
         navigation.navigate('Login');
     };
 
+    const tabSwitch = ()=>{
+        if (currentTab === 0){
+            setCurrentTab(1);
+            fetchMyVideos();
+        }
+        else{
+            setCurrentTab(0);
+            fetchMyContests();
+        }
+    }
+
+    const renderCompetitions = ({ item: comp }) => (
+        <TouchableOpacity
+          onPress={() => (!comp.is_close ? viewCompetition(comp) : null)}
+          style={[styles.competitions, !comp.is_active && styles.inactiveCompetition]}
+          activeOpacity={comp.is_active ? 0.7 : 1}
+        >
+          <View>
+            <Image
+              source={{ uri: comp?.banner_image && comp?.banner_image?.includes('media') ? BASE_URL + comp?.banner_image : comp?.file_uri }}
+              style={[
+                styles.competitionImage,
+                !comp.is_active && styles.inactiveCompetitionImage,
+              ]}
+            />
+            <View style={styles.overlayDetails}>
+              <Text style={styles.competitionsNameText}>{comp.name}</Text>
+              <View style={styles.detailRow}>
+                <Text style={styles.overlayDetailText}>Registration Start: {comp.registration_start_date}</Text>
+                <Text style={styles.overlayDetailText}>Registration End: {comp.registration_close_date}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.overlayDetailText}>Total Slots: {comp.max_participants}</Text>
+                <Text style={styles.overlayDetailText}>Remaining Slots: {comp.remaining_slots}</Text>
+              </View>
+              {comp.is_close && (
+                <View style={styles.inactiveOverlay}>
+                  <Text style={styles.inactiveText}>Closed</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </TouchableOpacity>
+    );
+
+    const renderVideos = ({ item }) => (
+        <TouchableOpacity style={styles.videoItem} onPress={() => navigation.navigate('MyVideos', {vID: item.id})}>
+            <Video muted={true} source={{ uri: BASE_URL + item.video }} style={styles.videoThumbnail} />
+        </TouchableOpacity>
+    );
+
+    const copyUsername = (id)=>{
+        Clipboard.setString(id);
+        ToastAndroid.show('Copied!', ToastAndroid.SHORT);
+    };
+    
+
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}
             refreshControl={
@@ -95,11 +191,11 @@ const Profile = ({ navigation }) => {
                 />
             }
         >
-            <View style={styles.header}>
+            {!username && <View style={styles.header}>
                 <TouchableOpacity onPress={openSettings}>
                     <Icon name="settings" size={40} color="white" />
                 </TouchableOpacity>
-            </View>
+            </View>}
 
             <Image
                 source={profileData.cover_image ? {uri: BASE_URL + profileData.cover_image} : require('./../../assets/images/new-logo.jpg')}
@@ -112,7 +208,10 @@ const Profile = ({ navigation }) => {
             />
 
             <Text style={styles.name}>{profileData.first_name} {profileData.last_name}</Text>
-            <Text style={styles.name1}>{profileData.username}</Text>
+            <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5}} >
+                <Text style={styles.name1}>{profileData.username}</Text>
+                <TouchableOpacity onPress={()=>copyUsername(profileData.username)}><Icon name='copy' size={20} color='black' /></TouchableOpacity>
+            </View>
             <View style={styles.cardsContainer}>
                 <View style={styles.card}>
                     <Image
@@ -157,35 +256,88 @@ const Profile = ({ navigation }) => {
                     <Text style={styles.cardSubtitle}>Votes Cast</Text>
                 </View>
             </View>
-            <Text style={styles.subHeading}>Awards</Text>
+            {profileData.eligible_awards && profileData.eligible_awards.length > 0 && <>
+                <Text style={styles.subHeading}>Awards</Text>
 
-            <View style={styles.imageRow}>
-                {profileData.eligible_awards && profileData.eligible_awards.map((award, index)=>(
-                    <Image
-                        key={index}
-                        source={{uri: BASE_URL + award.image}}
-                        style={styles.image}
-                    />
-                ))}
+                <View style={styles.imageRow}>
+                    {profileData.eligible_awards.map((award, index)=>(
+                        <Image
+                            key={index}
+                            source={{uri: BASE_URL + award.image}}
+                            style={styles.image}
+                        />
+                    ))}
+                </View>
+            </>
+            }
+
+            <View style={styles.myAwards}>
+                <TouchableOpacity onPress={()=> currentTab === 0 ? null : tabSwitch()} style={styles.myAwardsTab}>
+                <Icon name="trophy-outline" size={30} color={currentTab === 0 ? '#B94EA0' : '#000'} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=> currentTab === 1 ? null : tabSwitch()} style={styles.myVideosTab}>
+                    <Icon name={'film'} size={30} color={currentTab === 1 ? '#B94EA0' : '#000'} />
+                </TouchableOpacity>
             </View>
 
-            <View style={styles.sliderContainer}>
-                <Text style={styles.subHeading}>Wining Contests</Text>
-                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={styles.imageSlider}>
-                    <Image
-                        source={require('../../assets/images/Rectangle86.png')}
-                        style={styles.sliderImage}
-                    />
-                    <Image
-                        source={require('../../assets/images/Rectangle87.png')}
-                        style={styles.sliderImage}
-                    />
-                    <Image
-                        source={require('../../assets/images/Rectangle86.png')}
-                        style={styles.sliderImage}
-                    />
-                </ScrollView>
-            </View>
+            {
+                currentTab === 0 &&
+                <>
+                    <View style={styles.myContestsContainer}>
+                        {!contestsLoading ? <FlatList
+                            data={myContests}
+                            renderItem={renderCompetitions}
+                            keyExtractor={(item, index) => index.toString()}
+                            contentContainerStyle={myContests.length ? styles.listContainer : styles.emptyListContainer}
+                            ListEmptyComponent={
+                                <View style={styles.noCompetitionsContainer}>
+                                    <View style={styles.iconWrapper}>
+                                        <Icon name="trophy-outline" size={60} color="#bbb" />
+                                    </View>
+                                    <Text style={styles.noCompetitionsText}>
+                                        You haven't joined any contests yet. Start participating and showcase your skills!
+                                    </Text>
+                                </View>
+                            }
+                        /> :
+                        <View style={styles.loaderContainer}>
+                            <ActivityIndicator size="large" color="#B94EA0" />
+                        </View>
+                        }
+                    </View>
+                </>
+            }
+
+            {currentTab === 1 && (
+                <>
+                    <View style={styles.myVideosContainer}>
+                        {!videosLoading ? (
+                            <FlatList
+                                data={myVideos}
+                                renderItem={renderVideos}
+                                keyExtractor={(item, index) => index.toString()}
+                                numColumns={3}
+                                contentContainerStyle={myVideos.length ? styles.gridContainer : styles.emptyListContainer}
+                                ListEmptyComponent={
+                                    <View style={styles.noCompetitionsContainer}>
+                                        <View style={styles.iconWrapper}>
+                                            <Icon name="videocam-outline" size={60} color="#bbb" />
+                                        </View>
+                                        <Text style={styles.noCompetitionsText}>
+                                            No videos uploaded yet. Share your experiences by uploading videos!
+                                        </Text>
+                                    </View>
+                                }
+                            />
+                        ) : (
+                            <View style={styles.loaderContainer}>
+                                <ActivityIndicator size="large" color="#B94EA0" />
+                            </View>
+                        )}
+                    </View>
+                </>
+            )}
+
 
             <Modal transparent={true} animationType="fade" visible={loading}>
                 <View style={styles.loaderContainer}>
@@ -252,7 +404,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#333',
         textAlign: 'center',
-        marginTop: 50, // Adds space after the profile image
+        marginTop: 60, // Adds space after the profile image
     },
     name1: {
         fontSize: 14,
@@ -409,6 +561,119 @@ const styles = StyleSheet.create({
         color: 'red',
         fontSize: 16,
         textAlign: 'center',
+    },
+    myAwards: {
+        width: '100%',
+        flexDirection: 'row',
+        height: 50,
+        marginTop: 30,
+    },
+    myAwardsTab: {
+        width: '50%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    myVideosTab: {
+        width: '50%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    myContestsContainer: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    myVideosContainer: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    competitions: {
+        marginBottom: 20,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    competitionImage: {
+        width: '100%',
+        height: 200,
+        resizeMode: 'cover',
+    },
+    overlayDetails: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        padding: 10,
+    },
+    competitionsNameText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginBottom: 5,
+        textAlign: 'center',
+},
+    detailRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 5,
+    },
+    overlayDetailText: {
+        fontSize: 13,
+        color: '#fff',
+        flex: 1,
+        textAlign: 'center',
+        marginHorizontal: 5,
+    },
+    listContainer: {
+        padding: 10,
+    },
+    emptyListContainer: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    iconWrapper: {
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+    noCompetitionsText: {
+        fontSize: 18,
+        padding: 10,
+        color: '#666',
+        marginTop: 15,
+        textAlign: 'center',
+        fontWeight: '500',
+    },
+    gridContainer: {
+        flexGrow: 1,
+    },
+    videoItem: {
+        flex: 1,
+        aspectRatio: 1,  // Ensures square shape for grid items
+        borderWidth: 2,
+        borderColor: '#fff',  // White border between videos
+    },
+    videoThumbnail: {
+        width: '100%',
+        height: '100%',
+    },
+    noVideosContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+        marginTop: 50,
+    },
+    noVideosText: {
+        marginTop: 20,
+        textAlign: 'center',
+        color: '#666',
+        fontSize: 16,
     },
 });
 

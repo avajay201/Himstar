@@ -11,7 +11,8 @@ import { BASE_URL } from '../../actions/APIs';
 
 const { height } = Dimensions.get('window');
 
-const MyVideo = ({ navigation }) => {
+const MyVideo = ({ route, navigation }) => {
+  const { vId } = route.params;
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,15 @@ const MyVideo = ({ navigation }) => {
     setReelsLoading(true);
     const result = await userVideos(navigation);
     if (result[0] === 200){
-      setVideos(result[1]);
+      if (vId){
+        const specificVideo = result[1].find(video => video.id === vId);
+        const otherVideos = result[1].filter(video => video.id !== vId);
+        const reorderedVideos = specificVideo ? [specificVideo, ...otherVideos] : result[1];
+        setVideos(reorderedVideos);
+      }
+      else{
+        setVideos(result[1]);
+      }
     }
     if (userId){
       setReelsLoading(false);
@@ -82,6 +91,7 @@ const MyVideo = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
+      console.log('***********vId**********', vId);
       if (userId){
         getPostedVideos();
       }

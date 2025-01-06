@@ -31,7 +31,7 @@ const VideoPreview = ({ route, navigation }) => {
 
     const mergeProcess = async()=>{
         try{
-            console.log('**********Merging Video**********', videoUri, '|||', musicUri, '|||', competition.id);
+            console.log(videoDimensions, '**********Merging Video**********', videoUri, '|||', musicUri, '|||', competition.id);
             const formData = new FormData();
             formData.append('video', {
                 uri: videoUri,
@@ -54,6 +54,9 @@ const VideoPreview = ({ route, navigation }) => {
         catch(error){
             ToastAndroid.show('Video processing failed, please try again!', ToastAndroid.SHORT);
             navigation.goBack();
+        }
+        finally{
+            setLoading(false);
         }
     };
 

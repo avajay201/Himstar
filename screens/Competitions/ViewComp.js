@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BASE_URL } from "../../actions/APIs";
 import { fetchSpecificCompetition } from "../../actions/ApiActions";
 import { useFocusEffect } from '@react-navigation/native';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const ViewComp = ({ route, navigation }) => {
     const { compId, compType } = route.params;
@@ -148,6 +149,11 @@ const ViewComp = ({ route, navigation }) => {
         navigation.navigate('VideoPreview', { uri: BASE_URL + competition?.temp_video, videoDimensions: null, musicUri: null, competition: competition });
     };
 
+    const copyID = (id)=>{
+        Clipboard.setString(id);
+        ToastAndroid.show('Copied!', ToastAndroid.SHORT);
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.backButtonContainer}>
@@ -191,6 +197,10 @@ const ViewComp = ({ route, navigation }) => {
 
             <View style={styles.detailsContainer}>
                 <Text style={styles.competitionName}>{competition?.name}</Text>
+                <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5}} >
+                    <Text style={{textAlign: 'center', fontSize: 12, fontWeight: 'bold'}}>{competition?.unique_id}</Text>
+                    <TouchableOpacity onPress={()=>copyID(competition?.unique_id)}><Icon name='copy' size={20} color='black' /></TouchableOpacity>
+                </View>
 
                 {countdown && (
                     <View style={styles.countdownContainer}>

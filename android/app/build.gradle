@@ -85,7 +85,7 @@ android {
     signingConfigs {
         debug {
             // storeFile file('debug.keystore')
-            storeFile file('C:\\Projects\\Himstar\\android\\my-release-key.keystore')
+            storeFile file('D:\\Himstar_Frontend\\Himstar\\android\\my-release-key.keystore')
             // storePassword 'android'
             storePassword 'abc123ABC!@#'
             // keyAlias 'androiddebugkey'

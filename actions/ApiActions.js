@@ -227,10 +227,11 @@ export const getPaymentHistory = async (navigation) => {
     }
 };
 
-export const myCompetitions = async (navigation) => {
+export const myCompetitions = async (navigation, username=null) => {
     try {
         const token = await getAuthToken();
-        const response = await axios.get(ENDPOINTS.myCompetitions, {
+        console.log('++++++++++++++', ENDPOINTS.myCompetitions + username ? `?username=${username}` : '')
+        const response = await axios.get(ENDPOINTS.myCompetitions + (username ? `?username=${username}` : ''), {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -281,10 +282,10 @@ export const listParticipantsVideos = async (navigation, params = {}) => {
     }
 };
 
-export const userVideos = async (navigation) => {
+export const userVideos = async (navigation, username=null) => {
     try {
         const token = await getAuthToken();
-        const response = await axios.get(ENDPOINTS.userVideos, {
+        const response = await axios.get(ENDPOINTS.userVideos + (username ? `?username=${username}` : ''), {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -384,10 +385,10 @@ export const makePayment = async (navigation, data) => {
     }
 };
 
-export const profile = async (navigation) => {
+export const profile = async (navigation, username=null) => {
     try {
         const token = await getAuthToken();
-        const response = await axios.get(ENDPOINTS.profile, {
+        const response = await axios.get(ENDPOINTS.profile + (username ? `?username=${username}` : ''), {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -440,9 +441,10 @@ export const getLeaderBoard = async (navigation, id) => {
     }
 };
 
-export const fetchSpecificCompetition = async (navigation, id, compType) => {
+export const fetchSpecificCompetition = async (navigation, id, compType='null') => {
     try {
         const token = await getAuthToken();
+        console.log('$$$$$$$$$$$$$$$$$', ENDPOINTS.specificCompetition + id + '/' + compType + '/');
         const response = await axios.get(ENDPOINTS.specificCompetition + id + '/' + compType + '/', {
             headers: {
               Authorization: `Bearer ${token}`,
