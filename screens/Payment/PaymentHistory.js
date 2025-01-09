@@ -43,30 +43,26 @@ export default PaymentHistory = ({ navigation }) => {
                 <Text style={styles.cardTitle}>{item.productinfo}</Text>
             </ImageBackground>
             <View style={styles.cardBody}>
-                <Text style={styles.detailText}>
-                    <Text style={styles.label}>Name:</Text> {item.firstname}
-                </Text>
-                <Text style={styles.detailText}>
-                    <Text style={styles.label}>Email:</Text> {item.email}
-                </Text>
-                <Text style={styles.detailText}>
-                    <Text style={styles.label}>Phone:</Text> {item.phone}
-                </Text>
-                <Text style={styles.detailText}>
-                    <Text style={styles.label}>Amount:</Text> ₹{item.amount}
-                </Text>
-                <Text style={styles.detailText}>
-                    <Text style={styles.label}>Status:</Text> 
-                    <Text style={item.status === "success" ? styles.success : styles.failure}>
+                <View style={styles.detailText}>
+                    <Text style={styles.label}>Name: {item.firstname}</Text>
+                    <Text style={styles.label2}>Email:{item.email}</Text> 
+                </View>
+                <View style={styles.detailText}>
+                <Text style={styles.label}>Phone: {item.phone}</Text>
+                <Text style={styles.label2}>Amount: ₹{item.amount}</Text>
+                </View>
+                <View style={styles.detailText}>
+                <Text style={styles.label}>Status:<Text style={item.status === "success" ? styles.success : styles.failure}>
                         {item.status}
                     </Text>
-                </Text>
-                <Text style={styles.detailText}>
-                    <Text style={styles.label}>Mode:</Text> {item.mode}
-                </Text>
-                <Text style={styles.detailText}>
-                    <Text style={styles.label}>Date:</Text> {new Date(item.created_at).toLocaleDateString()}
-                </Text>
+                    </Text> 
+                    
+                    <Text style={styles.label2}>Mode: {item.mode}</Text> 
+                </View>
+                <View style={styles.detailText}>
+                    <Text style={styles.label}>Date: {new Date(item.created_at).toLocaleDateString()}</Text> 
+                    <Text style={styles.label2}>Trensction  Id: {item.txnid}</Text>
+                </View>
             </View>
         </View>
     );
@@ -169,13 +165,22 @@ const styles = StyleSheet.create({
         padding: 15,
     },
     detailText: {
+        display:"flex",
+        justifyContent:'space-between',
         fontSize: 14,
         color: "#6B6B6B",
+        flexDirection:'row',
         marginBottom: 8,
+        gap:20,
     },
     label: {
         fontWeight: "bold",
         color: "#333",
+    },
+    label2: {
+        fontWeight: "bold",
+        color: "#333",
+        textAlign:'right',
     },
     success: {
         color: "#4CAF50",

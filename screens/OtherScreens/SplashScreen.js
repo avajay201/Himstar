@@ -13,7 +13,7 @@ const SplashScreen = () => {
   return (
     <View style={styles.container}>
       <Image
-        source={require('./../../assets/images/new-logo.jpg')}
+        source={require('./../../assets/images/logo-without-shadow.png')}
         style={styles.logo}
       />
       {isLoading && (
@@ -28,15 +28,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#fff',
   },
   logo: {
     width: 200,
     height: 200,
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: '#121A26',
-    borderRadius: 25
+    // borderColor: '#121A26',
+    // borderRadius: 25
   },
   loader: {
     marginTop: 150,

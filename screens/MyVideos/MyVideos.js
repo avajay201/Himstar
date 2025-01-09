@@ -7,6 +7,8 @@ import { userVideos, postLikes, likePost, postComments, postComment } from '../.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { BASE_URL } from '../../actions/APIs';
+import VoteIcon from './../../assets/images/vote.svg';
+import VotedIcon from './../../assets/images/voted.svg';
 
 
 const { height } = Dimensions.get('window');
@@ -42,6 +44,7 @@ const MyVideo = ({ route, navigation }) => {
     setReelsLoading(true);
     const result = await userVideos(navigation);
     if (result[0] === 200){
+      console.log('vId>>>>', result[1]);
       if (vId){
         const specificVideo = result[1].find(video => video.id === vId);
         const otherVideos = result[1].filter(video => video.id !== vId);
@@ -268,19 +271,20 @@ const MyVideo = ({ route, navigation }) => {
           <View style={{ marginRight: 8 }}>
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'gray' }}>
               <Image
-                source={require('./../../assets/images/dp.png')}
+                source={item.profile_image ? {uri: BASE_URL + item.profile_image} : require('./../../assets/images/dp.png')}
                 style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'gray' }}
               />
             </View>
           </View>
           <View>
             <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>{item.username}</Text>
+            <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>#{item.comp_id}</Text>
           </View>
         </View>
 
         <View style={{ position: 'absolute', bottom: 85, right: 10, alignItems: 'center', zIndex: 3 }}>
           <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onLongPress={()=>showLikes(item.id)} onPress={() => postToggleLike(item.id)}>
-            <Icon name={item.is_like ? "favorite" : "favorite-border"} size={30} color={item.is_like ? "red" : "white"} />
+            {item.is_like ? <VotedIcon width={40} height={40} /> : <VoteIcon width={40} height={40} />}
             <Text style={{ color: 'white', fontSize: 12 }}>{item.likes}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ marginBottom: 20, alignItems: 'center' }} onPress={() => showComments(item.id)}>

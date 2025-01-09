@@ -478,3 +478,112 @@ export const saveTempParticipant = async (navigation, data) => {
         return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
     }
 };
+
+export const prizeBreakdown = async (navigation, data) => {
+    console.log(data, '------------------')
+    try {
+        const token = await getAuthToken();
+        const response = await axios.get(`${ENDPOINTS.prizeBreakdown}?id=${data.id}&type=${data.type}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const deleteUserBank = async (navigation, id) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.delete(ENDPOINTS.bankDetails, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const fetchUserBank = async (navigation) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.get(ENDPOINTS.bankDetails, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const saveUserBank = async (navigation, data) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.post(ENDPOINTS.bankDetails, data, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const withdrawReqCreate = async (navigation, amount) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.post(ENDPOINTS.withdrawalRequest, {amount: amount}, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+export const withdrawReqFetch = async (navigation) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.get(ENDPOINTS.withdrawalRequest, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        console.log('error?.response?.data>>>', error?.response?.data);
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};

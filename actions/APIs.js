@@ -29,4 +29,7 @@ export const ENDPOINTS = {
     leaderBoard: API_BASE_URL + '/leaderboard/',
     specificCompetition: API_BASE_URL + '/competition/',
     saveTempParticipant: API_BASE_URL + '/save-temp-participant/',
+    prizeBreakdown: API_BASE_URL + '/prize-breakdown/',
+    bankDetails: API_BASE_URL + '/bankdetails/',
+    withdrawalRequest: API_BASE_URL + '/withdrawal/',
 };

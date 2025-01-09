@@ -96,7 +96,7 @@ function AppNavigator() {
       <Stack.Screen
         name="Leaderboard"
         component={Leaderboard}
-        options={{ headerShown: false }}
+        options={{ headerShown: true }}
       />
       <Stack.Screen
         name="ContactUs"
@@ -127,7 +127,7 @@ function AppNavigator() {
       <Stack.Screen
         name="Wallet"
         component={Wallet}
-        options={{ headerShown: false }}
+        options={{ headerShown: true }}
       />
       <Stack.Screen
         name="VideoCreate"
@@ -147,7 +147,7 @@ function AppNavigator() {
       <Stack.Screen
         name="ViewComp"
         component={ViewComp}
-        options={{ headerShown: false }}
+        options={{ headerShown: true }}
       />
       <Stack.Screen
         name="Payment"
