@@ -512,11 +512,11 @@ const ViewComp = ({route, navigation}) => {
             </View>
           )}
 
-        <TouchableOpacity
+        {competition.max_participants == competition.remaining_slots && <TouchableOpacity
           style={[styles.registerButton]}
           onPress={toLeaderBoard}>
           <Text style={styles.registerButtonText}>Leaderboard</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>}
 
         {competition?.reg_open && (
           <TouchableOpacity
