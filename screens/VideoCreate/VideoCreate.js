@@ -181,7 +181,7 @@ const VideoCreate = ({ route, navigation }) => {
                                 />
                                 <Text style={styles.buttonText}>Upload</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 style={[styles.button, styles.recordButton]}
                                 onPress={recordVideo}
                             >
@@ -190,7 +190,7 @@ const VideoCreate = ({ route, navigation }) => {
                                     style={styles.buttonImage}
                                 />
                                 <Text style={styles.buttonText}>Record</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
                     </>
                 )}

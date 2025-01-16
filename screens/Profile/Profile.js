@@ -150,7 +150,6 @@ const Profile = ({route, navigation}) => {
   };
 
   const viewCompetition = comp => {
-    console.log('>>>>>>>>>>>>>>', comp);
     navigation.navigate('ViewComp', {
       compId: comp.id,
       compType: comp.competition_type,
@@ -390,7 +389,7 @@ const Profile = ({route, navigation}) => {
                       : styles.emptyListContainer
                   }
                   ListEmptyComponent={
-                    <View style={styles.noCompetitionsContainer}>
+                    <View style={styles.noVideosContainer}>
                       <View style={styles.iconWrapper}>
                         <Icon name="trophy-outline" size={60} color="#bbb" />
                       </View>
@@ -426,7 +425,7 @@ const Profile = ({route, navigation}) => {
                     : styles.emptyListContainer
                 }
                 ListEmptyComponent={
-                  <View style={styles.noCompetitionsContainer}>
+                  <View style={styles.noVideosContainer}>
                     <View style={styles.iconWrapper}>
                       <Icon name="videocam-outline" size={60} color="#bbb" />
                     </View>

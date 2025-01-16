@@ -193,10 +193,45 @@ export const getCompetitions = async (navigation, category_id) => {
     }
 };
 
+export const getStartedCompetitions = async (navigation, category_id) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.get(`${ENDPOINTS.startedcompetitions}?category_id=${category_id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
 export const getTournaments = async (navigation, category_id) => {
     try {
         const token = await getAuthToken();
         const response = await axios.get(`${ENDPOINTS.tournaments}?category_id=${category_id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+        });
+        return [response.status, response.data];
+    } catch (error) {
+        if (error?.response?.status === 401){
+            await logoutUser(navigation)
+        }
+        return [error?.response?.status || 500, error?.response?.data || 'An error occurred'];
+    }
+};
+
+
+export const getStartedTournaments = async (navigation, category_id) => {
+    try {
+        const token = await getAuthToken();
+        const response = await axios.get(`${ENDPOINTS.startedtournaments}?category_id=${category_id}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -230,7 +265,6 @@ export const getPaymentHistory = async (navigation) => {
 export const myCompetitions = async (navigation, username=null) => {
     try {
         const token = await getAuthToken();
-        console.log('++++++++++++++', ENDPOINTS.myCompetitions + username ? `?username=${username}` : '')
         const response = await axios.get(ENDPOINTS.myCompetitions + (username ? `?username=${username}` : ''), {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -444,7 +478,6 @@ export const getLeaderBoard = async (navigation, id) => {
 export const fetchSpecificCompetition = async (navigation, id, compType='null') => {
     try {
         const token = await getAuthToken();
-        console.log('$$$$$$$$$$$$$$$$$', ENDPOINTS.specificCompetition + id + '/' + compType + '/');
         const response = await axios.get(ENDPOINTS.specificCompetition + id + '/' + compType + '/', {
             headers: {
               Authorization: `Bearer ${token}`,

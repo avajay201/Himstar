@@ -30,6 +30,7 @@ import { MainProvider } from './others/MyContext';
 import PaymentHistory from './screens/Payment/PaymentHistory';
 import Search from './screens/Search/Search';
 import AllTournaments from './screens/Competitions/AllTournaments';
+import StartedContests from './screens/Home/StartedContests';
 
 
 const Stack = createNativeStackNavigator();
@@ -94,6 +95,14 @@ function AppNavigator() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="StartedContests"
+        component={StartedContests}
+        options={{
+          headerShown: true,
+          title: 'Started Competitions', // This will set the header title
+        }}
+      />
+      <Stack.Screen
         name="Leaderboard"
         component={Leaderboard}
         options={{ headerShown: true }}
@@ -147,7 +156,7 @@ function AppNavigator() {
       <Stack.Screen
         name="ViewComp"
         component={ViewComp}
-        options={{ headerShown: true }}
+        options={{ headerShown: true ,title: 'Contest Details',}}
       />
       <Stack.Screen
         name="Payment"

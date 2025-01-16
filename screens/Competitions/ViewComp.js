@@ -24,7 +24,6 @@ import {useFocusEffect} from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import RNFS from 'react-native-fs';
 
-
 const ViewComp = ({route, navigation}) => {
   const {compId, compType} = route.params;
   const [competition, setCompetition] = useState(null);
@@ -36,7 +35,7 @@ const ViewComp = ({route, navigation}) => {
 
   const fetchCompetition = async () => {
     const result = await fetchSpecificCompetition(navigation, compId, compType);
-    console.log('+++++++++++++++', result[1])
+    console.log('+++++++++++++++', result[1]);
     if (result[0] === 200) {
       setCompetition(result[1]);
     } else {
@@ -178,7 +177,7 @@ const ViewComp = ({route, navigation}) => {
     ToastAndroid.show('Copied!', ToastAndroid.SHORT);
   };
 
-  const enrollComp = ()=>{
+  const enrollComp = () => {
     competition?.is_done
       ? navigation.navigate('Leaderboard', {
           compId:
@@ -188,7 +187,8 @@ const ViewComp = ({route, navigation}) => {
         })
       : competition?.is_participated
       ? navigateVideoPreview()
-      : videoUpload()
+      : videoUpload();
+
     // console.log('competition?.can_participate>>>', competition?.can_participate)
     // if (competition?.can_participate == true){
     //   competition?.is_done
@@ -217,7 +217,22 @@ const ViewComp = ({route, navigation}) => {
     //   ? navigateVideoPreview()
     //   : videoUpload()
     // }
-  }
+  };
+
+  const toLeaderBoard = () => {
+    const compId = competition?.competition_type === 'competition'
+      ? competition?.id
+      : competition?.competition?.id;
+  
+    if (compId) {
+      navigation.navigate('Leaderboard', { compId });
+    } else {
+      console.error('compId is undefined. Ensure competition data is correct.');
+      // Optionally, show an alert to the user
+      Alert.alert('Error', 'Unable to navigate to the leaderboard. Please try again.');
+    }
+  };
+  
 
   const handleMediaDownload = async (url, fileName) => {
     try {
@@ -234,7 +249,10 @@ const ViewComp = ({route, navigation}) => {
       const result = await ret.promise;
 
       if (result.statusCode === 200) {
-        ToastAndroid.show('Download Successful, ' + `File saved to: ${downloadDest}`, ToastAndroid.SHORT);
+        ToastAndroid.show(
+          'Download Successful, ' + `File saved to: ${downloadDest}`,
+          ToastAndroid.SHORT,
+        );
       } else {
         ToastAndroid.show('Download Failed!', ToastAndroid.SHORT);
       }
@@ -275,45 +293,43 @@ const ViewComp = ({route, navigation}) => {
       </View>
 
       <Modal
-  animationType="slide"
-  transparent={true}
-  visible={modalVisible}
-  onRequestClose={closeModal}>
-  <View style={styles.modalBackground}>
-    <View style={styles.modalContainer}>
-      <View style={styles.closeButtoncontainer}>
-        <TouchableOpacity
-          style={styles.closeButton}
-          onPress={() => closeModal()}>
-          <Icon name="close" style={styles.closeButtonText} size={60} />
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.modalTitle}>Prize Breakdown</Text>
-      <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Position</Text>
-          <Text style={styles.headerText2}>Prize</Text>
-        </View>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false} // Hides the scrollbar
-      >
-        
-       
-        {/* List of Prizes */}
-        <FlatList
-          data={prize_b}
-          keyExtractor={item => item.id.toString()}
-          renderItem={({item}) => (
-            <View style={styles.prizeItem}>
-              <Text style={styles.position}>{item.position}</Text>
-              <Text style={styles.amount}>₹{item.prize}</Text>
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <View style={styles.closeButtoncontainer}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => closeModal()}>
+                <Icon name="close" style={styles.closeButtonText} size={60} />
+              </TouchableOpacity>
             </View>
-          )}
-        />
-      </ScrollView>
-    </View>
-  </View>
-</Modal>
+            <Text style={styles.modalTitle}>Prize Breakdown</Text>
+            <View style={styles.headerContainer}>
+              <Text style={styles.headerText}>Position</Text>
+              <Text style={styles.headerText2}>Prize</Text>
+            </View>
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false} // Hides the scrollbar
+            >
+              {/* List of Prizes */}
+              <FlatList
+                data={prize_b}
+                keyExtractor={item => item.id.toString()}
+                renderItem={({item}) => (
+                  <View style={styles.prizeItem}>
+                    <Text style={styles.position}>{item.position}</Text>
+                    <Text style={styles.amount}>₹{item.prize}</Text>
+                  </View>
+                )}
+              />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       <View style={styles.compTagsContainer}>
         {competition?.competition_type === 'competition' && (
@@ -357,12 +373,15 @@ const ViewComp = ({route, navigation}) => {
         </View>
 
         <Text style={styles.description}>{competition?.description}</Text>
-        <View style={styles.registration1}>
-          <Text style={styles.registration1text}>Registration close in</Text>
-          <View style={styles.boxcontainer}>
-            <Text style={styles.box}>{countdown}</Text>
+
+        {countdown && (
+          <View style={styles.registration1}>
+            <Text style={styles.registration1text}>Registration closes in</Text>
+            <View style={styles.boxcontainer}>
+              <Text style={styles.box}>{countdown}</Text>
+            </View>
           </View>
-        </View>
+        )}
 
         <View style={styles.bordercircle}>
           <View style={styles.circle}>
@@ -441,38 +460,70 @@ const ViewComp = ({route, navigation}) => {
         <View style={styles.rulesContainer}>
           <Text style={styles.rulesHeading}>Rules:</Text>
           <View>
-              {
-                  competition?.rules && competition?.rules.map((rule, index)=>(
-                      <Text style={styles.rulesText} key={index}><Text style={{fontWeight: 'bold', fontSize: 18, color: '#B94EA0'}}>• </Text> {rule}</Text>
-                  ))
-              }
+            {Array.isArray(competition?.rules) &&
+            competition.rules.length > 0 ? (
+              competition.rules.map((rule, index) => (
+                <Text style={styles.rulesText} key={index}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 18,
+                      color: '#B94EA0',
+                    }}>
+                    •{' '}
+                  </Text>
+                  {rule}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.rulesText}>No rules available</Text>
+            )}
           </View>
-      </View>
+        </View>
 
-      {competition?.media_files.length > 0 && 
-      <View>
-        <Text style={styles.rulesHeading}>Media Files:</Text>
-        {competition.media_files.map((file, index)=>(
-          <View style={{marginVertical: 5}}>
-            <Text style={{fontWeight: 'bold', fontSize: 15, color: '#000'}}>{index + 1}. {file.title}</Text>
-            <TouchableOpacity onPress={() => handleMediaDownload(BASE_URL + file.url, file.title)} style={{backgroundColor: '#B94EA0', width: 60, borderRadius: 5, padding: 3, marginHorizontal: 10, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-              <Text style={{color: 'white'}}>Download</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </View>
-      }
+        {Array.isArray(competition?.media_files) &&
+          competition.media_files.length > 0 && (
+            <View>
+              <Text style={styles.rulesHeading}>Media Files:</Text>
+              {competition.media_files.map((file, index) => (
+                <View style={{marginVertical: 5}} key={index}>
+                  <Text
+                    style={{fontWeight: 'bold', fontSize: 15, color: '#000'}}>
+                    {index + 1}. {file.title}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleMediaDownload(BASE_URL + file.url, file.title)
+                    }
+                    style={{
+                      backgroundColor: '#B94EA0',
+                      width: 60,
+                      borderRadius: 5,
+                      padding: 3,
+                      marginHorizontal: 10,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text style={{color: 'white'}}>Download</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
 
-        {competition?.reg_open &&  (
+        <TouchableOpacity
+          style={[styles.registerButton]}
+          onPress={toLeaderBoard}>
+          <Text style={styles.registerButtonText}>Leaderboard</Text>
+        </TouchableOpacity>
+
+        {competition?.reg_open && (
           <TouchableOpacity
             style={[styles.registerButton]}
             onPress={enrollComp}>
             <Text style={styles.registerButtonText}>
-              {competition?.is_done
-                ? 'Leaderboard'
-                : competition?.is_participated
-                ? 'Complete'
-                : 'Enroll Now'}
+              {competition?.is_participated ? 'Complete' : 'Enroll Now'}
             </Text>
           </TouchableOpacity>
         )}
@@ -716,8 +767,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     fontFamily: 'DMSans_400Regular',
-    color:'#B94EA0',
-    marginTop:15,
+    color: '#B94EA0',
+    marginTop: 15,
   },
   prizeItem: {
     flexDirection: 'row',
@@ -731,14 +782,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'DMSans_700Regular',
     fontWeight: 'bold',
-    color:'#000',
-
-
+    color: '#000',
   },
   amount: {
     fontSize: 16,
     fontWeight: 'bold',
-    color:'#B94EA0'
+    color: '#B94EA0',
   },
   closeButtoncontainer: {
     position: 'absolute', // Ensure the container is positioned within the modal
@@ -767,20 +816,20 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     paddingHorizontal: 0,
   },
-  
+
   headerText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000', // Adjust color as needed
     flex: 1,
-    textAlign:'left' // Ensures the text takes up available space
+    textAlign: 'left', // Ensures the text takes up available space
     // textAlign: 'center', // Centers the heading text
   },
   headerText2: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000',
-    textAlign:'right', // Adjust color as needed
+    textAlign: 'right', // Adjust color as needed
     flex: 1, // Ensures the text takes up available space
     // textAlign: 'center', // Centers the heading text
   },
